@@ -1,0 +1,25 @@
+/* Resetare și Fonturi Globale */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f9;
+    color: #2d3436;
+    line-height: 1.5;
+    /* Spațiu pentru navbar-ul fix (5.5rem) */
+    padding-top: 5.5rem; 
+}
+
+.container {
+    padding: 2.5rem 6%;
+}
+
+.card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

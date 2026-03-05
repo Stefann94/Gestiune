@@ -1,0 +1,51 @@
+.hero {
+    background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), 
+                url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1200') center/cover;
+    color: #ffffff;
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 10%;
+    text-align: center;
+}
+
+.hero h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02rem;
+    margin: 0 0 1rem 0;
+    background: linear-gradient(to right, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    max-width: 38rem;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+.btn-main {
+    background-color: #38bdf8;
+    color: #0f172a; /* Contrast mai bun: text închis pe buton deschis */
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-main:hover {
+    background-color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}

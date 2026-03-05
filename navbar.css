@@ -1,0 +1,103 @@
+/* Stiluri specifice pentru Navbar */
+.navbar {
+    background-color: #0f172a;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6%;
+    height: 5.5rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
+
+.logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.05rem;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    white-space: nowrap;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.nav-links li {
+    height: 100%;
+}
+
+.nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 100%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-links a:hover {
+    color: #38bdf8;
+    background-color: rgba(56, 189, 248, 0.05);
+    border-bottom: 3px solid #38bdf8;
+}
+
+/* Zona Utilizator & Logout */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-role {
+    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    color: white;
+    padding: 0.35rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.logout-btn {
+    color: #f87171;
+    font-size: 1.6rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.6rem;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background-color: rgba(248, 113, 113, 0.1);
+    color: #ef4444;
+    transform: translateY(-2px);
+}
+
+/* Responsivitate Navbar */
+@media (max-width: 64rem) {
+    .nav-links a span, .logo span {
+        display: none;
+    }
+}
