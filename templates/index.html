@@ -29,21 +29,21 @@
             <section class="quick-actions">
                 <h2 class="section-title">Acțiuni Rapide</h2>
                 <div class="actions-grid">
-                    <a href="/produse/nou" class="action-card neon-border">
-                        <i class="fas fa-plus-box"></i>
+                    <a href="/produse" class="action-card neon-border">
+                        <i class="fas fa-square-plus"></i>
                         <div>
                             <h3>Adaugă Produs</h3>
                             <p>Introdu un articol nou în stoc</p>
                         </div>
                     </a>
-                    <a href="/stoc/scaneaza" class="action-card">
-                        <i class="fas fa-barcode-read"></i>
+                    <a href="#" class="action-card">
+                        <i class="fas fa-barcode"></i>
                         <div>
                             <h3>Scanare QR</h3>
                             <p>Actualizează stocul instant</p>
                         </div>
                     </a>
-                    <a href="/rapoarte" class="action-card">
+                    <a href="#" class="action-card">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <div>
                             <h3>Rapoarte</h3>
@@ -55,42 +55,42 @@
 
             <div class="dashboard-main-grid">
                 
-<div class="card analytics-card">
-    <div class="card-header">
-        <h3>Flux Stoc (7 zile)</h3>
-        <i class="fas fa-chart-line"></i>
-    </div>
-    <div class="chart-wrapper">
-        <canvas id="stockChart"></canvas>
-    </div>
-</div>
+                <div class="card analytics-card">
+                    <div class="card-header">
+                        <h3>Flux Stoc (7 zile)</h3>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
 
                 <div class="card alerts-card">
                     <div class="card-header">
                         <h3>Stoc Critic</h3>
-                        <span class="badge badge-danger">{{ stats.alerts | default(0) }} Urgențe</span>
+                        <span class="badge badge-danger">{{ stats.alerts if stats else 0 }} Urgențe</span>
                     </div>
                     <div class="critical-list">
+                        {% for item in critical_products %}
                         <div class="critical-item">
                             <div class="item-info">
-                                <strong>Laptop Dell XPS</strong>
-                                <span>Rămas: 2 buc.</span>
+                                <strong>{{ item.name }}</strong>
+                                <span>Rămas: {{ item.stock }} buc.</span>
                             </div>
                             <div class="progress-bar-mini">
-                                <div class="progress-fill red" style="width: 15%;"></div>
+                                <div class="progress-fill red" style="width: 20%;"></div>
                             </div>
                         </div>
+                        {% else %}
                         <div class="critical-item">
                             <div class="item-info">
-                                <strong>Mouse Logitech MX</strong>
-                                <span>Rămas: 5 buc.</span>
-                            </div>
-                            <div class="progress-bar-mini">
-                                <div class="progress-fill orange" style="width: 30%;"></div>
+                                <strong>Momentan nu sunt alerte</strong>
+                                <span>Toate produsele sunt în stoc.</span>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
-                    <a href="/stoc-critic" class="view-all">Vezi tot inventarul scăzut <i class="fas fa-arrow-right"></i></a>
+                    <a href="/produse" class="view-all">Vezi tot inventarul <i class="fas fa-arrow-right"></i></a>
                 </div>
 
             </div>
@@ -99,27 +99,23 @@
 
     <div id="footer-placeholder"></div>
 
-<script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='hero.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
-    
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 
     <script>
         window.addEventListener('load', () => {
-            // 1. Navbar
             if (typeof initNavbar === "function") initNavbar();
             
-            // 2. Hero Stats
             if (typeof initHero === "function") {
                 initHero(
-                    "{{ stats.total | default(0) }}", 
-                    "{{ stats.alerts | default(0) }}", 
-                    "{{ stats.moves | default(0) }}"
+                    "{{ stats.total if stats else 0 }}", 
+                    "{{ stats.alerts if stats else 0 }}", 
+                    "{{ stats.moves if stats else 0 }}"
                 );
             }
 
-            // 3. Grafic (Apelăm funcția din dashboard.js)
             if (typeof initDashboardCharts === "function") {
                 initDashboardCharts();
             }

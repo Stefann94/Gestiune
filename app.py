@@ -25,33 +25,37 @@ def index():
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # Statistici pentru Dashboard (Hero)
+    # 1. TOTAL PRODUSE (Din tabelul products)
     cur.execute("SELECT COUNT(*) as total FROM products;")
     total = cur.fetchone()['total'] or 0
     
-    # Lista produse pentru tabel si calcul stoc
-    cur.execute("""
+    # 2. PRODUSE PENTRU TABEL ȘI CALCUL ALERTE
+    # Calculăm stocul real: Intrări - Ieșiri
+    query_products = """
         SELECT p.id, p.name, p.sku, p.stock_min,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
          COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
         FROM products p;
-    """)
+    """
+    cur.execute(query_products)
     products = cur.fetchall()
     
-    # Număr alerte (stoc sub minim)
-    alerts = sum(1 for p in products if p['stock'] <= p['stock_min'])
+    # 3. DATE PENTRU CARDUL "STOC CRITIC" (Doar cele sub limită)
+    critical_products = [p for p in products if p['stock'] <= p['stock_min']]
+    alerts_count = len(critical_products)
     
-    # Număr mișcări totale (intrări + ieșiri)
+    # 4. MIȘCĂRI TOTALE (Toate înregistrările de flow)
     cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
     moves = cur.fetchone()['moves'] or 0
     
-    stats = {'total': total, 'alerts': alerts, 'moves': moves}
+    stats = {'total': total, 'alerts': alerts_count, 'moves': moves}
     
     cur.close()
     conn.close()
-    return render_template('index.html', products=products, stats=stats)
+    
+    # Trimitem produsele critice separat pentru a le afișa în lista din dreapta
+    return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5])
 
-# --- RUTA PENTRU PAGINA DE PRODUSE ---
 @app.route('/produse')
 def produse():
     conn = get_db_connection()
@@ -71,7 +75,6 @@ def produse():
     conn.close()
     return render_template('produse.html', products=all_products)
 
-# --- RUTA ADAUGARE PRODUS ---
 @app.route('/add_product', methods=['POST'])
 def add_product():
     name = request.form['name']
@@ -87,7 +90,6 @@ def add_product():
         conn.close()
     return redirect(url_for('index'))
 
-# --- RUTA API PENTRU GRAFIC ---
 @app.route('/api/stats/stock-flow')
 def stock_flow():
     conn = get_db_connection()
@@ -96,32 +98,38 @@ def stock_flow():
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # Luăm ultimele 7 zile de ieșiri
+    # Query inteligent: generează ultimele 7 zile și face JOIN cu ieșirile reale.
+    # Asta asigură că dacă într-o zi nu ai vânzări, apare "0" în loc să lipsească ziua.
     query = """
-        SELECT TO_CHAR(exit_date, 'Dy') as zi, SUM(quantity) as total
-        FROM stock_exits
-        WHERE exit_date >= CURRENT_DATE - INTERVAL '6 days'
-        GROUP BY zi, exit_date
-        ORDER BY exit_date ASC;
+        SELECT 
+            TO_CHAR(d.day, 'Dy') as zi, 
+            COALESCE(SUM(se.quantity), 0) as total
+        FROM 
+            generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day') d(day)
+        LEFT JOIN 
+            stock_exits se ON se.exit_date::date = d.day::date
+        GROUP BY 
+            d.day
+        ORDER BY 
+            d.day ASC;
     """
     
     try:
         cur.execute(query)
         results = cur.fetchall()
         
-        labels = [row['zi'] for row in results]
-        values = [float(row['total']) for row in results]
+        # Mapare pentru a traduce zilele în Română
+        zile_ro = {'Mon': 'Lun', 'Tue': 'Mar', 'Wed': 'Mie', 'Thu': 'Joi', 'Fri': 'Vin', 'Sat': 'Sâm', 'Sun': 'Dum'}
         
-        # Dacă baza e goală, trimitem date de siguranță (mock)
-        if not labels:
-            labels = ["Fără date"]
-            values = [0]
+        labels = [zile_ro.get(row['zi'], row['zi']) for row in results]
+        values = [float(row['total']) for row in results]
             
         return jsonify({
             "labels": labels,
             "values": values
         })
     except Exception as e:
+        print(f"Eroare API: {e}")
         return jsonify({"error": str(e)}), 500
     finally:
         cur.close()
