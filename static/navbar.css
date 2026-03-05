@@ -1,6 +1,6 @@
-/* Stiluri specifice pentru Navbar */
+/* Stiluri specifice pentru Navbar - FINAL REFINED VERSION */
 .navbar {
-    background-color: #0f172a;
+    background-color: #064e3b;
     color: #ffffff;
     display: flex;
     justify-content: space-between;
@@ -9,27 +9,26 @@
     height: 5.5rem;
     box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     z-index: 9999;
 }
 
 .logo {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 800;
-    letter-spacing: -0.05rem;
-    color: #38bdf8;
+    color: #10b981;
     display: flex;
     align-items: center;
     gap: 0.8rem;
     white-space: nowrap;
 }
 
+/* Aliniere centrală pentru link-uri */
 .nav-links {
     list-style: none;
     display: flex;
+    align-items: center; /* ALINIAZĂ BUTOANELE PE VERTICALĂ */
     margin: 0;
     padding: 0;
     height: 100%;
@@ -37,67 +36,81 @@
 
 .nav-links li {
     height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .nav-links a {
-    color: #94a3b8;
+    color: #a7f3d0;
     text-decoration: none;
-    padding: 0 1.5rem;
+    padding: 0 1.2rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    height: 100%;
-    font-size: 0.9rem;
+    justify-content: center;
+    gap: 0.6rem;
+    height: 100%; /* Ocupă toată înălțimea pentru hover */
+    font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.2s ease-in-out;
-    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    border-bottom: 4px solid transparent;
 }
 
 .nav-links a:hover {
-    color: #38bdf8;
-    background-color: rgba(56, 189, 248, 0.05);
-    border-bottom: 3px solid #38bdf8;
+    color: #ffffff;
+    background-color: rgba(16, 185, 129, 0.08);
+    border-bottom: 4px solid #10b981;
 }
 
 /* Zona Utilizator & Logout */
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
 }
 
 .user-role {
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-    color: white;
-    padding: 0.35rem 0.8rem;
-    border-radius: 0.5rem;
-    font-size: 0.75rem;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid #10b981;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+/* Buton Logout - Versiune stilizată */
 .logout-btn {
-    color: #f87171;
-    font-size: 1.6rem;
-    text-decoration: none;
+    background-color: #ef4444; /* Roșu discret */
+    color: white !important;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.6rem;
-    transition: all 0.2s ease;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
 }
 
 .logout-btn:hover {
-    background-color: rgba(248, 113, 113, 0.1);
-    color: #ef4444;
+    background-color: #dc2626;
     transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
 }
 
-/* Responsivitate Navbar */
-@media (max-width: 64rem) {
-    .nav-links a span, .logo span {
-        display: none;
+.logout-btn i {
+    font-size: 1.1rem;
+}
+
+/* Responsivitate */
+@media (max-width: 75rem) {
+    .nav-links a span {
+        display: none; /* Rămân doar iconițele pe ecrane mici */
+    }
+    .nav-links a {
+        padding: 0 1rem;
     }
 }

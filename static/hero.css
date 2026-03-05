@@ -1,8 +1,8 @@
 .hero {
-    background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), 
-                url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1200') center/cover;
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(15, 23, 42, 0.9)), 
+                url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200') center/cover;
     color: #ffffff;
-    min-height: 40vh;
+    min-height: 45vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -12,40 +12,26 @@
 }
 
 .hero h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: clamp(1.8rem, 5vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.02rem;
-    margin: 0 0 1rem 0;
-    background: linear-gradient(to right, #ffffff, #94a3b8);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    background: linear-gradient(to right, #ffffff, #10b981);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.hero p {
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(1rem, 2vw, 1.15rem);
-    max-width: 38rem;
-    color: #94a3b8;
-    margin-bottom: 2rem;
-}
-
 .btn-main {
-    background-color: #38bdf8;
-    color: #0f172a; /* Contrast mai bun: text închis pe buton deschis */
+    background-color: #10b981;
+    color: #ffffff;
     border: none;
-    padding: 1rem 2rem;
-    border-radius: 0.6rem;
+    padding: 1rem 2.5rem;
+    border-radius: 50px; /* Buton tip pastilă */
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.3);
-    transition: all 0.2s ease;
+    box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s ease;
 }
 
 .btn-main:hover {
     background-color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    color: #064e3b;
+    transform: translateY(-3px) scale(1.05);
 }
