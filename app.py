@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -29,7 +29,7 @@ def index():
     cur.execute("SELECT COUNT(*) as total FROM products;")
     total = cur.fetchone()['total'] or 0
     
-    # Lista produse pentru tabel
+    # Lista produse pentru tabel si calcul stoc
     cur.execute("""
         SELECT p.id, p.name, p.sku, p.stock_min,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
@@ -41,7 +41,11 @@ def index():
     # Număr alerte (stoc sub minim)
     alerts = sum(1 for p in products if p['stock'] <= p['stock_min'])
     
-    stats = {'total': total, 'alerts': alerts, 'moves': 0}
+    # Număr mișcări totale (intrări + ieșiri)
+    cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
+    moves = cur.fetchone()['moves'] or 0
+    
+    stats = {'total': total, 'alerts': alerts, 'moves': moves}
     
     cur.close()
     conn.close()
@@ -51,9 +55,9 @@ def index():
 @app.route('/produse')
 def produse():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    if not conn: return "Eroare la baza de date!"
     
-    # Calculăm stocul pentru fiecare produs ca să-l afișăm în tabel
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     query = """
         SELECT p.id, p.name, p.sku, p.price, p.stock_min,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
@@ -75,12 +79,53 @@ def add_product():
     stock_min = request.form['stock_min']
     
     conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO products (name, sku, stock_min) VALUES (%s, %s, %s)", (name, sku, stock_min))
-    conn.commit()
-    cur.close()
-    conn.close()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO products (name, sku, stock_min) VALUES (%s, %s, %s)", (name, sku, stock_min))
+        conn.commit()
+        cur.close()
+        conn.close()
     return redirect(url_for('index'))
 
+# --- RUTA API PENTRU GRAFIC ---
+@app.route('/api/stats/stock-flow')
+def stock_flow():
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "DB connection failed"}), 500
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Luăm ultimele 7 zile de ieșiri
+    query = """
+        SELECT TO_CHAR(exit_date, 'Dy') as zi, SUM(quantity) as total
+        FROM stock_exits
+        WHERE exit_date >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY zi, exit_date
+        ORDER BY exit_date ASC;
+    """
+    
+    try:
+        cur.execute(query)
+        results = cur.fetchall()
+        
+        labels = [row['zi'] for row in results]
+        values = [float(row['total']) for row in results]
+        
+        # Dacă baza e goală, trimitem date de siguranță (mock)
+        if not labels:
+            labels = ["Fără date"]
+            values = [0]
+            
+        return jsonify({
+            "labels": labels,
+            "values": values
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 if __name__ == "__main__":
-     app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5000)

@@ -4,42 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestiune Stocuri | Dashboard</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='hero.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
     <div id="navbar-placeholder"></div>
 
-<main id="app">
-    <div id="hero-placeholder"></div>
-    
+    <main id="app">
+        <div id="hero-placeholder"></div>
 
-</main>
+        <div class="container-dashboard">
+            
+            <section class="quick-actions">
+                <h2 class="section-title">Acțiuni Rapide</h2>
+                <div class="actions-grid">
+                    <a href="/produse/nou" class="action-card neon-border">
+                        <i class="fas fa-plus-box"></i>
+                        <div>
+                            <h3>Adaugă Produs</h3>
+                            <p>Introdu un articol nou în stoc</p>
+                        </div>
+                    </a>
+                    <a href="/stoc/scaneaza" class="action-card">
+                        <i class="fas fa-barcode-read"></i>
+                        <div>
+                            <h3>Scanare QR</h3>
+                            <p>Actualizează stocul instant</p>
+                        </div>
+                    </a>
+                    <a href="/rapoarte" class="action-card">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <div>
+                            <h3>Rapoarte</h3>
+                            <p>Generează statistici PDF/Excel</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <div class="dashboard-main-grid">
+                
+<div class="card analytics-card">
+    <div class="card-header">
+        <h3>Flux Stoc (7 zile)</h3>
+        <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="chart-wrapper">
+        <canvas id="stockChart"></canvas>
+    </div>
+</div>
+
+                <div class="card alerts-card">
+                    <div class="card-header">
+                        <h3>Stoc Critic</h3>
+                        <span class="badge badge-danger">{{ stats.alerts | default(0) }} Urgențe</span>
+                    </div>
+                    <div class="critical-list">
+                        <div class="critical-item">
+                            <div class="item-info">
+                                <strong>Laptop Dell XPS</strong>
+                                <span>Rămas: 2 buc.</span>
+                            </div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill red" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                        <div class="critical-item">
+                            <div class="item-info">
+                                <strong>Mouse Logitech MX</strong>
+                                <span>Rămas: 5 buc.</span>
+                            </div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill orange" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/stoc-critic" class="view-all">Vezi tot inventarul scăzut <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+            </div>
+        </div>
+    </main>
 
     <div id="footer-placeholder"></div>
 
 <script src="{{ url_for('static', filename='componente.js') }}"></script>
-<script src="{{ url_for('static', filename='hero.js') }}"></script>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
-<script>
-    window.onload = () => {
-        // Verificăm dacă funcțiile există înainte de apel
-        if (typeof initNavbar === "function") initNavbar();
-        
-        if (typeof initHero === "function") {
-            initHero(
-                "{{ stats.total | default(0) }}", 
-                "{{ stats.alerts | default(0) }}", 
-                "{{ stats.moves | default(0) }}"
-            );
-        }
-    };
-</script>
+    <script src="{{ url_for('static', filename='hero.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 
+    <script>
+        window.addEventListener('load', () => {
+            // 1. Navbar
+            if (typeof initNavbar === "function") initNavbar();
+            
+            // 2. Hero Stats
+            if (typeof initHero === "function") {
+                initHero(
+                    "{{ stats.total | default(0) }}", 
+                    "{{ stats.alerts | default(0) }}", 
+                    "{{ stats.moves | default(0) }}"
+                );
+            }
+
+            // 3. Grafic (Apelăm funcția din dashboard.js)
+            if (typeof initDashboardCharts === "function") {
+                initDashboardCharts();
+            }
+        });
+    </script>
 </body>
 </html>

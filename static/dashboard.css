@@ -1,0 +1,152 @@
+/* Container Principal */
+.container-dashboard {
+    padding: 2rem 6%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    color: #064e3b;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+/* 1. Quick Actions */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.action-card {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.action-card i {
+    font-size: 2rem;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.action-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #111827;
+}
+
+.action-card p {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    border-color: #10b981;
+}
+
+/* 2. Main Grid Layout */
+.dashboard-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #374151;
+}
+
+/* 3. Stoc Critic Items */
+.critical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.critical-item {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.item-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.progress-bar-mini {
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill { height: 100%; border-radius: 10px; }
+.progress-fill.red { background: #ef4444; }
+.progress-fill.orange { background: #f59e0b; }
+
+.view-all {
+    display: block;
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+/* Responsivitate */
+@media (max-width: 1024px) {
+    .dashboard-main-grid { grid-template-columns: 1fr; }
+}
+
+/* Adaugă asta la finalul fișierului dashboard.css */
+
+.analytics-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px; /* Aceasta este înălțimea fixă care salvează RAM-ul */
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Opțional: Asigură-te că canvas-ul nu depășește wrapper-ul */
+#stockChart {
+    max-height: 100% !important;
+}
