@@ -1,16 +1,22 @@
-/* Stiluri specifice pentru Navbar - FINAL REFINED VERSION */
+/* Stiluri specifice pentru Navbar - FINAL REFINED & CLEAN VERSION */
 .navbar {
     background-color: #064e3b;
-    color: #ffffff;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 6%;
     height: 5.5rem;
-    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
     position: fixed;
-    top: 0; left: 0; right: 0;
+    top: 0; 
+    left: 0; 
+    right: 0;
     z-index: 9999;
+    
+    /* Eliminăm doar bordura de jos a navbarului */
+    border: none !important;
+    border-bottom: 0px solid transparent !important;
+    outline: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .logo {
@@ -28,10 +34,11 @@
 .nav-links {
     list-style: none;
     display: flex;
-    align-items: center; /* ALINIAZĂ BUTOANELE PE VERTICALĂ */
+    align-items: center;
     margin: 0;
     padding: 0;
     height: 100%;
+    border: none !important;
 }
 
 .nav-links li {
@@ -48,41 +55,59 @@
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
-    height: 100%; /* Ocupă toată înălțimea pentru hover */
+    height: 100%;
     font-size: 0.85rem;
     font-weight: 600;
     transition: all 0.2s ease;
-    border-bottom: 4px solid transparent;
+    position: relative;
+    border: none !important;
 }
 
 .nav-links a:hover {
     color: #ffffff;
     background-color: rgba(16, 185, 129, 0.08);
-    border-bottom: 4px solid #10b981;
+    /* Inset shadow în loc de border pentru a preveni liniile de randare */
+    box-shadow: inset 0 -4px 0 #10b981; 
 }
 
 /* Zona Utilizator & Logout */
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 1.2rem;
+    gap: 1.5rem; /* Am mărit spațiul între elemente */
 }
 
 .user-role {
-    background: rgba(16, 185, 129, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px; 
+    padding: 0 15px;
+    background: rgba(16, 185, 129, 0.1);
     color: #10b981;
-    border: 1px solid #10b981;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-weight: 700;
+    font: 700 0.75rem 'Montserrat', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    
+    /* Folosim shadow în loc de border pentru a evita randarea defectuoasă */
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4); 
+    
+    /* Forțăm resetarea oricărei moșteniri care ar putea tăia bordura */
+    margin-bottom: 2px; 
+    border: none !important;
+    transition: 0.2s;
 }
 
-/* Buton Logout - Versiune stilizată */
+.user-role:hover {
+    background: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 0 1px #10b981, 0 0 10px rgba(16, 185, 129, 0.2);
+    color: #fff;
+}
+
+
 .logout-btn {
-    background-color: #ef4444; /* Roșu discret */
+    background-color: #ef4444;
     color: white !important;
     width: 2.8rem;
     height: 2.8rem;
@@ -108,9 +133,26 @@
 /* Responsivitate */
 @media (max-width: 75rem) {
     .nav-links a span {
-        display: none; /* Rămân doar iconițele pe ecrane mici */
+        display: none;
     }
     .nav-links a {
         padding: 0 1rem;
     }
+}
+
+/* --- FIX FINAL LINIE (Bloc de siguranță combinat) --- */
+.navbar, 
+.navbar *, 
+#navbar-placeholder, 
+#navbar-placeholder * {
+    border-bottom: none !important;
+    text-decoration: none !important;
+}
+
+.navbar::after, 
+.navbar::before,
+.nav-links::after,
+.nav-links a::after {
+    display: none !important;
+    content: none !important;
 }

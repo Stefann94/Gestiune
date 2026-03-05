@@ -1,37 +1,209 @@
-.hero {
-    background: linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(15, 23, 42, 0.9)), 
-                url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200') center/cover;
+/* --- HERO SECTION RESPONSIVE --- */
+.hero-advanced {
+    background-color: #064e3b; /* Folosește exact aceeași culoare ca navbarul pentru continuitate */
+    background-image: radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, rgba(15, 23, 42, 0.25) 0%, transparent 50%);
+    padding: calc(5.5rem + 5vh) 6vw 5vh 6vw;
     color: #ffffff;
-    min-height: 45vh;
+    min-height: 40vh;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 3rem 10%;
-    text-align: center;
+    border: none !important;
+    margin-top: -1px; /* TRAGE HERO-UL 1 PIXEL MAI SUS SĂ SE SUPRAPUNĂ PESTE NAVBAR */
 }
 
-.hero h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    background: linear-gradient(to right, #ffffff, #10b981);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.hero-wrapper {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
 }
 
-.btn-main {
-    background-color: #10b981;
+/* --- HEADER (User Info) --- */
+.hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 3vh;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.user-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.user-text h1 {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+}
+
+.user-text p {
+    margin: 0.2rem 0 0;
+    color: #a7f3d0;
+    font-size: 0.9rem;
+}
+
+/* --- SEARCH BAR (Fără Glow) --- */
+.hero-tools {
+    background: transparent; 
+    padding: 0; 
+    margin-bottom: 5vh;
+    max-width: 50rem; 
+}
+
+.search-main {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.search-main:focus-within {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #34d399;
+    /* Glow eliminat */
+}
+
+.search-main i {
+    padding-left: 1.2rem;
+    color: #a7f3d0;
+}
+
+.search-main input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.9rem 0.5rem;
+    outline: none;
+    font-size: 1rem;
+    color: #ffffff; 
+    width: 100%;
+}
+
+.search-main input::placeholder {
+    color: rgba(167, 243, 208, 0.6);
+}
+
+.btn-search-go {
+    background: #10b981;
     color: #ffffff;
     border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 50px; /* Buton tip pastilă */
-    cursor: pointer;
+    padding: 0.8rem 2rem;
+    border-radius: 0.75rem;
     font-weight: 700;
-    box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
-    transition: all 0.3s ease;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
 }
 
-.btn-main:hover {
-    background-color: #ffffff;
-    color: #064e3b;
-    transform: translateY(-3px) scale(1.05);
+.btn-search-go:hover {
+    background: #059669; /* Schimbare simplă de culoare */
+    /* Glow/Transform eliminat */
+}
+
+/* --- STATS GRID & PRODUCT HOVER --- */
+.hero-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.07);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease, background 0.2s ease;
+    cursor: pointer;
+}
+
+/* Efect hover simplu (ridicare și fundal) */
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ALERTA CORAL (Fără animație de pulsare/glow) */
+.pulse-alert {
+    border: 2px solid #fb7185 !important;
+    background: rgba(251, 113, 133, 0.1) !important;
+}
+
+.pulse-alert:hover {
+    background: rgba(251, 113, 133, 0.2) !important;
+    border-color: #f43f5e !important;
+}
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.stat-icon.purple { background: #8b5cf6; }
+.stat-icon.orange { background: #fb7185; color: #ffffff; } 
+.stat-icon.emerald { background: #10b981; }
+
+.stat-data .value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-data .label {
+    font-size: 0.8rem;
+    color: #a7f3d0;
+    margin-top: 0.2rem;
+}
+
+.action-add {
+    cursor: pointer;
+    background: #10b981;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+.action-add:hover {
+    background: #059669;
+}
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 600px) {
+    .hero-advanced { padding: 3rem 1.5rem; }
+    .search-main { flex-wrap: wrap; }
+    .btn-search-go { width: 100%; margin-top: 0.5rem; }
+    .hero-stats-grid { grid-template-columns: 1fr; }
 }

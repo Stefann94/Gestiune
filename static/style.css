@@ -1,11 +1,15 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: #f0fdf4; /* Fundal foarte ușor verzui */
+    background-color: #064e3b; /* SCHIMBĂ DIN #f0fdf4 ÎN VERDE ÎNCHIS */
     color: #064e3b;
-    padding-top: 5.5rem; 
+    padding-top: 0; /* ELIMINĂ PADDING-UL DE PE BODY */
 }
-
+#app {
+    background-color: #f0fdf4;
+    min-height: 100vh;
+    position: relative;
+}
 .card {
     background: #ffffff;
     border-left: 5px solid #10b981; /* Accent pe lateral */

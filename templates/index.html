@@ -15,30 +15,31 @@
 <body>
     <div id="navbar-placeholder"></div>
 
-    <main id="app">
-        <div id="hero-placeholder"></div>
-        
-<section class="container">
-    <div class="card">
-        <h2>Bun venit în sistemul de gestiune</h2>
-        <p>Produse disponibile în baza de date:</p>
-        
-        <ul>
-        {% for product in products %}
-            <li><strong>{{ product.name }}</strong> - Stoc: {{ product.stock }}</li>
-        {% else %}
-            <li>Momentan nu există produse în baza de date.</li>
-        {% endfor %}
-        </ul>
-    </div>
-</section>
-    </main>
+<main id="app">
+    <div id="hero-placeholder"></div>
+    
+
+</main>
 
     <div id="footer-placeholder"></div>
 
 <script src="{{ url_for('static', filename='componente.js') }}"></script>
 <script src="{{ url_for('static', filename='hero.js') }}"></script>
 <script src="{{ url_for('static', filename='main.js') }}"></script>
+<script>
+    window.onload = () => {
+        // Verificăm dacă funcțiile există înainte de apel
+        if (typeof initNavbar === "function") initNavbar();
+        
+        if (typeof initHero === "function") {
+            initHero(
+                "{{ stats.total | default(0) }}", 
+                "{{ stats.alerts | default(0) }}", 
+                "{{ stats.moves | default(0) }}"
+            );
+        }
+    };
+</script>
 
 </body>
 </html>

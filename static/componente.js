@@ -18,10 +18,13 @@ window.initCommonComponents = function() {
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-    </nav>`;
+    </nav>`.trim(); // .trim() elimină spațiile de la începutul și sfârșitul stringului
 
-    const target = document.getElementById('navbar-placeholder');
-    if (target) {
-        target.innerHTML = navbarHTML;
-    }
+// În componente.js, la finalul funcției:
+const target = document.getElementById('navbar-placeholder');
+if (target) {
+    target.innerHTML = navbarHTML;
+    target.style.lineHeight = "0"; // Elimină orice spațiu creat de text/font
+    target.style.fontSize = "0";   // Elimină spațiile albe dintre tag-uri
+}
 };
