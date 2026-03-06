@@ -248,30 +248,42 @@ def audit_save():
     try:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # 1. Calculăm stocul curent din sistem (Intrări - Ieșiri)
+        # 1. Calculăm stocul curent din sistem pentru a determina diferența
         cur.execute("""
             SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
         """, (p_id, p_id))
         system_stock = cur.fetchone()['system_stock']
 
-        # 2. Actualizăm Numele și SKU-ul în tabelul products
+        # 2. Actualizăm Numele și SKU-ul (Indiferent dacă s-au schimbat sau nu)
         cur.execute("UPDATE products SET name = %s, sku = %s WHERE id = %s", (new_name, new_sku, p_id))
 
-        # 3. Calculăm diferența pentru Audit
+        # 3. Sincronizăm stocul prin ajustări (Entries/Exits)
         diff = faptic_quantity - system_stock
-
         if diff > 0:
-            # Surplus -> Adăugăm o intrare de ajustare
             cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
         elif diff < 0:
-            # Lipsă -> Adăugăm o ieșire de ajustare (folosim valoarea absolută)
             cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
 
         conn.commit()
         return jsonify({"status": "success", "new_system_stock": faptic_quantity})
     except Exception as e:
         conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/product-delete/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        # Datorită ON DELETE CASCADE definit în tabel, se vor șterge și intrările/ieșirile
+        cur.execute("DELETE FROM products WHERE id = %s", (id,))
+        conn.commit()
+        return jsonify({"status": "success"})
+    except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         cur.close()

@@ -193,3 +193,55 @@ function closeModal() {
     document.getElementById('productModal').style.display = 'none';
     document.body.style.overflow = 'auto';
 }
+
+
+async function saveAuditRow(button) {
+    const row = button.closest('tr');
+    const productId = row.dataset.id;
+    
+    // Colectăm TOATE datele din rând
+    const data = {
+        id: productId,
+        name: row.querySelector('.editable-name').innerText.trim(),
+        sku: row.querySelector('.editable-sku').innerText.trim(),
+        stock: parseInt(row.querySelector('.faptic-input').value)
+    };
+
+    try {
+        const response = await fetch('/api/audit-save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            // Actualizăm UI-ul: stocul de sistem devine egal cu cel faptic
+            row.dataset.system_stock = data.stock;
+            row.querySelector('.system-stock-badge').innerText = data.stock;
+            alert("Produs actualizat cu succes!");
+            updateRowStatus(row.querySelector('.faptic-input')); // Resetăm indicatorul OK
+        } else {
+            alert("Eroare: " + result.message);
+        }
+    } catch (error) {
+        console.error("Save error:", error);
+    }
+}
+
+async function deleteProductRow(button, id) {
+    if (!confirm("Ești sigur că vrei să ștergi definitiv acest produs și tot istoricul său?")) return;
+
+    try {
+        const response = await fetch(`/api/product-delete/${id}`, { method: 'DELETE' });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            button.closest('tr').remove(); // Ștergem rândul din tabel
+        } else {
+            alert("Eroare la ștergere: " + result.message);
+        }
+    } catch (error) {
+        console.error("Delete error:", error);
+    }
+}
