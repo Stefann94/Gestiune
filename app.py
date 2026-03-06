@@ -34,7 +34,7 @@ def index():
     query_products = """
         SELECT p.id, p.name, p.sku, p.stock_min,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+        COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
         FROM products p;
     """
     cur.execute(query_products)
@@ -185,6 +185,97 @@ def produs_nou():
         print(f"Eroare la inserare: {e}")
         # Dacă SKU-ul există deja sau e altă eroare, trimitem mesajul înapoi
         return jsonify({"status": "error", "message": "SKU-ul trebuie să fie unic sau datele sunt invalide"}), 400
+
+
+
+@app.route('/api/update-product-full', methods=['POST'])
+def update_product_full():
+    data = request.json
+    p_id = data.get('id')
+    new_name = data.get('name')
+    new_sku = data.get('sku')
+    faptic_quantity = int(data.get('quantity'))
+
+    conn = get_db_connection()
+    if not conn: return jsonify({"status": "error", "message": "DB Connection Error"}), 500
+    
+    try:
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # 1. Obținem stocul actual din sistem înainte de update
+        query_stock = """
+            SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
+                    COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
+        """
+        cur.execute(query_stock, (p_id, p_id))
+        system_stock = cur.fetchone()['system_stock']
+
+        # 2. Actualizăm datele de bază (Nume, SKU)
+        cur.execute("UPDATE products SET name = %s, sku = %s WHERE id = %s", (new_name, new_sku, p_id))
+
+        # 3. Calculăm diferența pentru Audit
+        diff = faptic_quantity - system_stock
+
+        if diff > 0:
+            # Surplus -> Inserăm o intrare de ajustare
+            cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
+        elif diff < 0:
+            # Lipsă -> Inserăm o ieșire de ajustare (diff e negativ, deci folosim valoarea absolută)
+            cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
+
+        conn.commit()
+        return jsonify({"status": "success", "new_stock": faptic_quantity})
+    except Exception as e:
+        conn.rollback()
+        print(f"Audit Error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route('/api/audit-save', methods=['POST'])
+def audit_save():
+    data = request.json
+    p_id = data.get('id')
+    new_name = data.get('name')
+    new_sku = data.get('sku')
+    faptic_quantity = int(data.get('stock'))
+
+    conn = get_db_connection()
+    if not conn: return jsonify({"status": "error", "message": "DB Error"}), 500
+    
+    try:
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # 1. Calculăm stocul curent din sistem (Intrări - Ieșiri)
+        cur.execute("""
+            SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
+                    COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
+        """, (p_id, p_id))
+        system_stock = cur.fetchone()['system_stock']
+
+        # 2. Actualizăm Numele și SKU-ul în tabelul products
+        cur.execute("UPDATE products SET name = %s, sku = %s WHERE id = %s", (new_name, new_sku, p_id))
+
+        # 3. Calculăm diferența pentru Audit
+        diff = faptic_quantity - system_stock
+
+        if diff > 0:
+            # Surplus -> Adăugăm o intrare de ajustare
+            cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
+        elif diff < 0:
+            # Lipsă -> Adăugăm o ieșire de ajustare (folosim valoarea absolută)
+            cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
+
+        conn.commit()
+        return jsonify({"status": "success", "new_system_stock": faptic_quantity})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/rapoarte/export/<format>')
 def export_rapoarte(format):

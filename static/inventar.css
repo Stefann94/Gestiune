@@ -1,0 +1,219 @@
+/* --- 0. OVERLAY (FUNDALUL) - CENTRARE ABSOLUTĂ --- */
+.modal-overlay {
+    display: none; /* MODIFICARE: Forțăm starea închisă la refresh */
+    position: fixed;
+    top: 70px; 
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 70px); 
+    background: rgba(6, 78, 59, 0.45);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
+    
+    /* MODIFICARE: Nu mai punem display: flex aici direct */
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; 
+}
+
+
+/* --- 1. CONTAINER MODAL (DESIGN PREMIUM) --- */
+.inventory-modal-wide {
+    width: 95vw;
+    max-width: 1200px;
+    /* Micșorăm puțin height-ul pentru a respira mai bine în spațiul dintre navbar și subsol */
+    height: 80vh; 
+    background: #ffffff;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.35);
+    position: relative;
+    
+    /* Păstrăm efectul tău original intact */
+    animation: modalAppear 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* --- 2. ANTETUL MODALULUI (VERDE BRAND) --- */
+.inventory-header-brand {
+    background: #064e3b; /* Verde închis */
+    padding: 1.5rem 2.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-header-brand h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.inventory-header-brand p {
+    margin: 0.2rem 0 0 2.3rem;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.close-audit-btn {
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.close-audit-btn:hover {
+    transform: scale(1.1);
+    color: #ef4444;
+}
+
+/* --- 3. NAVBAR INTERN FILTRE (CORECȚIE DESIGN) --- */
+.inventory-filters-nav {
+    background: #065f46; /* Verde puțin mai deschis pentru contrast */
+    padding: 1rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    border-bottom: 4px solid #10b981; /* Accent verde smarald */
+}
+
+.search-container-audit {
+    position: relative;
+    flex: 0 1 350px; /* Limitează lățimea search-ului */
+}
+
+.search-container-audit i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #10b981;
+}
+
+.search-container-audit input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.8rem;
+    border: none;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.search-container-audit input::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+.search-container-audit input:focus {
+    outline: none;
+    background: white;
+    color: #064e3b;
+}
+
+.filter-pills-audit {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.pill-audit {
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pill-audit:hover { background: rgba(255, 255, 255, 0.15); }
+
+.pill-audit.active {
+    background: #10b981;
+    border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* --- 4. TABELUL ȘI SCROLL --- */
+.modal-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 2.5rem 2rem 2.5rem;
+}
+
+#inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#inventoryTable th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding: 1.2rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #6b7280;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.product-row td {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.2s;
+}
+
+.product-row:hover { background: #f0fdf4; }
+
+/* --- 5. ELEMENTE INTERN (INPUTS, BADGES) --- */
+.faptic-input {
+    width: 70px;
+    padding: 0.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-weight: 800;
+    color: #064e3b;
+}
+
+.faptic-input:focus { border-color: #10b981; outline: none; }
+
+.status-indicator {
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.status-indicator.synced { background: #dcfce7; color: #059669; }
+.status-indicator.shortage { background: #fee2e2; color: #dc2626; }
+.status-indicator.surplus { background: #fef9c3; color: #ca8a04; }
+
+.btn-sync {
+    background: #10b981;
+    color: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sync:hover { background: #059669; transform: scale(1.1); }
+
+/* --- 6. UTILS --- */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.product-row.modified { background: #fffbeb; }
+
+@keyframes modalAppear {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
