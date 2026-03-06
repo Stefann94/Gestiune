@@ -1,4 +1,4 @@
-window.initCommonComponents = function() {
+window.initCommonComponents = function () {
     const navbarHTML = `
     <nav class="navbar">
         <div class="logo">
@@ -20,11 +20,11 @@ window.initCommonComponents = function() {
         </div>
     </nav>`.trim(); // .trim() elimină spațiile de la începutul și sfârșitul stringului
 
-// În componente.js, la finalul funcției:
-const target = document.getElementById('navbar-placeholder');
-if (target) {
-    target.innerHTML = navbarHTML;
-    target.style.lineHeight = "0"; // Elimină orice spațiu creat de text/font
-    target.style.fontSize = "0";   // Elimină spațiile albe dintre tag-uri
-}
+    // În componente.js, la finalul funcției:
+    const target = document.getElementById('navbar-placeholder');
+    if (target) {
+        target.innerHTML = navbarHTML;
+        target.style.lineHeight = "0"; // Elimină orice spațiu creat de text/font
+        target.style.fontSize = "0";   // Elimină spațiile albe dintre tag-uri
+    }
 };

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initCommonComponents === "function") {
         initCommonComponents();
     }
-    
+
     // 2. Nu apelăm initHero aici cu date statice, 
     // deoarece index.html îl apelează deja cu datele reale din Python!
 });
@@ -21,7 +21,7 @@ function closeModal() {
 }
 
 // Închide dacă se apasă în afara ferestrei albe
-window.onclick = function(event) {
+window.onclick = function (event) {
     const modal = document.getElementById('productModal');
     if (event.target == modal) {
         closeModal();

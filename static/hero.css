@@ -1,15 +1,17 @@
 /* --- HERO SECTION RESPONSIVE --- */
 .hero-advanced {
-    background-color: #064e3b; /* Folosește exact aceeași culoare ca navbarul pentru continuitate */
+    background-color: #064e3b;
+    /* Folosește exact aceeași culoare ca navbarul pentru continuitate */
     background-image: radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 70%, rgba(15, 23, 42, 0.25) 0%, transparent 50%);
+        radial-gradient(circle at 80% 70%, rgba(15, 23, 42, 0.25) 0%, transparent 50%);
     padding: calc(5.5rem + 5vh) 6vw 5vh 6vw;
     color: #ffffff;
     min-height: 40vh;
     display: flex;
     align-items: center;
     border: none !important;
-    margin-top: -1px; /* TRAGE HERO-UL 1 PIXEL MAI SUS SĂ SE SUPRAPUNĂ PESTE NAVBAR */
+    margin-top: -1px;
+    /* TRAGE HERO-UL 1 PIXEL MAI SUS SĂ SE SUPRAPUNĂ PESTE NAVBAR */
 }
 
 .hero-wrapper {
@@ -63,16 +65,16 @@
 
 /* --- SEARCH BAR (Fără Glow) --- */
 .hero-tools {
-    background: transparent; 
-    padding: 0; 
+    background: transparent;
+    padding: 0;
     margin-bottom: 5vh;
-    max-width: 50rem; 
+    max-width: 50rem;
 }
 
 .search-main {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1); 
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1rem;
@@ -99,7 +101,7 @@
     padding: 0.9rem 0.5rem;
     outline: none;
     font-size: 1rem;
-    color: #ffffff; 
+    color: #ffffff;
     width: 100%;
 }
 
@@ -120,7 +122,8 @@
 }
 
 .btn-search-go:hover {
-    background: #059669; /* Schimbare simplă de culoare */
+    background: #059669;
+    /* Schimbare simplă de culoare */
     /* Glow/Transform eliminat */
 }
 
@@ -172,9 +175,18 @@
     flex-shrink: 0;
 }
 
-.stat-icon.purple { background: #8b5cf6; }
-.stat-icon.orange { background: #fb7185; color: #ffffff; } 
-.stat-icon.emerald { background: #10b981; }
+.stat-icon.purple {
+    background: #8b5cf6;
+}
+
+.stat-icon.orange {
+    background: #fb7185;
+    color: #ffffff;
+}
+
+.stat-icon.emerald {
+    background: #10b981;
+}
 
 .stat-data .value {
     font-size: 1.5rem;
@@ -202,8 +214,20 @@
 
 /* --- MOBILE OPTIMIZATION --- */
 @media (max-width: 600px) {
-    .hero-advanced { padding: 3rem 1.5rem; }
-    .search-main { flex-wrap: wrap; }
-    .btn-search-go { width: 100%; margin-top: 0.5rem; }
-    .hero-stats-grid { grid-template-columns: 1fr; }
+    .hero-advanced {
+        padding: 3rem 1.5rem;
+    }
+
+    .search-main {
+        flex-wrap: wrap;
+    }
+
+    .btn-search-go {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .hero-stats-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -135,6 +135,24 @@ def stock_flow():
         cur.close()
         conn.close()
 
+@app.route('/inventar')
+def inventar():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Luăm toate produsele și stocul lor calculat
+    query = """
+        SELECT p.id, p.name, p.sku,
+        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_stock
+        FROM products p
+        ORDER BY p.name ASC;
+    """
+    cur.execute(query)
+    products = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('inventar.html', products=products)
 
 @app.route('/produse/nou', methods=['POST'])
 def produs_nou():

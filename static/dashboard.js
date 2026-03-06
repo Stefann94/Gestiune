@@ -8,7 +8,7 @@ async function initDashboardCharts() {
         // Luăm datele reale de la ruta Flask creată mai sus
         const response = await fetch('/api/stats/stock-flow');
         if (!response.ok) throw new Error('Network response was not ok');
-        
+
         const realData = await response.json();
 
         // Evităm memory leak-ul (cel cu dinții de fierăstrău)

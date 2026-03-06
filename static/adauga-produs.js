@@ -11,7 +11,7 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    
+
     toast.innerHTML = `
         <i class="fas ${icon}"></i>
         <span>${message}</span>
@@ -26,7 +26,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-document.getElementById('addProductForm').addEventListener('submit', function(e) {
+document.getElementById('addProductForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const btn = this.querySelector('.btn-save');
@@ -39,25 +39,25 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            showToast("Produsul a fost adăugat cu succes!");
-            
-            // Așteptăm puțin să vadă omul confirmarea, apoi închidem și dăm refresh
-            setTimeout(() => {
-                closeModal();
-                location.reload();
-            }, 1500);
-        } else {
-            showToast(data.message, "error");
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                showToast("Produsul a fost adăugat cu succes!");
+
+                // Așteptăm puțin să vadă omul confirmarea, apoi închidem și dăm refresh
+                setTimeout(() => {
+                    closeModal();
+                    location.reload();
+                }, 1500);
+            } else {
+                showToast(data.message, "error");
+                btn.classList.remove('loading');
+                btn.innerHTML = 'Confirmă Adăugarea';
+            }
+        })
+        .catch(error => {
+            showToast("Eroare de conexiune la server", "error");
             btn.classList.remove('loading');
             btn.innerHTML = 'Confirmă Adăugarea';
-        }
-    })
-    .catch(error => {
-        showToast("Eroare de conexiune la server", "error");
-        btn.classList.remove('loading');
-        btn.innerHTML = 'Confirmă Adăugarea';
-    });
+        });
 });

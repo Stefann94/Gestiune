@@ -1,18 +1,23 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: #064e3b; /* SCHIMBĂ DIN #f0fdf4 ÎN VERDE ÎNCHIS */
+    background-color: #064e3b;
+    /* SCHIMBĂ DIN #f0fdf4 ÎN VERDE ÎNCHIS */
     color: #064e3b;
-    padding-top: 0; /* ELIMINĂ PADDING-UL DE PE BODY */
+    padding-top: 0;
+    /* ELIMINĂ PADDING-UL DE PE BODY */
 }
+
 #app {
     background-color: #f0fdf4;
     min-height: 100vh;
     position: relative;
 }
+
 .card {
     background: #ffffff;
-    border-left: 5px solid #10b981; /* Accent pe lateral */
+    border-left: 5px solid #10b981;
+    /* Accent pe lateral */
     padding: 2rem;
     border-radius: 0.8rem;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);

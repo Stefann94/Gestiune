@@ -1,4 +1,4 @@
-window.initHero = function(total, alerts, moves) {
+window.initHero = function (total, alerts, moves) {
     const heroHTML = `
     <section class="hero-advanced">
         <div class="hero-wrapper">
@@ -49,6 +49,6 @@ window.initHero = function(total, alerts, moves) {
             </div>
         </div>
     </section>`;
-    
+
     document.getElementById('hero-placeholder').innerHTML = heroHTML;
 };

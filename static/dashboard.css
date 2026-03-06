@@ -55,7 +55,7 @@
 
 .action-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     border-color: #10b981;
 }
 
@@ -113,9 +113,18 @@
     overflow: hidden;
 }
 
-.progress-fill { height: 100%; border-radius: 10px; }
-.progress-fill.red { background: #ef4444; }
-.progress-fill.orange { background: #f59e0b; }
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.progress-fill.red {
+    background: #ef4444;
+}
+
+.progress-fill.orange {
+    background: #f59e0b;
+}
 
 .view-all {
     display: block;
@@ -129,7 +138,9 @@
 
 /* Responsivitate */
 @media (max-width: 1024px) {
-    .dashboard-main-grid { grid-template-columns: 1fr; }
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Adaugă asta la finalul fișierului dashboard.css */
@@ -141,7 +152,8 @@
 
 .chart-wrapper {
     position: relative;
-    height: 300px; /* Aceasta este înălțimea fixă care salvează RAM-ul */
+    height: 300px;
+    /* Aceasta este înălțimea fixă care salvează RAM-ul */
     width: 100%;
     margin-top: 1rem;
 }

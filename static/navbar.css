@@ -7,11 +7,11 @@
     padding: 0 6%;
     height: 5.5rem;
     position: fixed;
-    top: 0; 
-    left: 0; 
+    top: 0;
+    left: 0;
     right: 0;
     z-index: 9999;
-    
+
     /* Eliminăm doar bordura de jos a navbarului */
     border: none !important;
     border-bottom: 0px solid transparent !important;
@@ -67,21 +67,22 @@
     color: #ffffff;
     background-color: rgba(16, 185, 129, 0.08);
     /* Inset shadow în loc de border pentru a preveni liniile de randare */
-    box-shadow: inset 0 -4px 0 #10b981; 
+    box-shadow: inset 0 -4px 0 #10b981;
 }
 
 /* Zona Utilizator & Logout */
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 1.5rem; /* Am mărit spațiul între elemente */
+    gap: 1.5rem;
+    /* Am mărit spațiul între elemente */
 }
 
 .user-role {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 32px; 
+    height: 32px;
     padding: 0 15px;
     background: rgba(16, 185, 129, 0.1);
     color: #10b981;
@@ -89,12 +90,12 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     border-radius: 4px;
-    
+
     /* Folosim shadow în loc de border pentru a evita randarea defectuoasă */
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4); 
-    
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4);
+
     /* Forțăm resetarea oricărei moșteniri care ar putea tăia bordura */
-    margin-bottom: 2px; 
+    margin-bottom: 2px;
     border: none !important;
     transition: 0.2s;
 }
@@ -135,21 +136,22 @@
     .nav-links a span {
         display: none;
     }
+
     .nav-links a {
         padding: 0 1rem;
     }
 }
 
 /* --- FIX FINAL LINIE (Bloc de siguranță combinat) --- */
-.navbar, 
-.navbar *, 
-#navbar-placeholder, 
+.navbar,
+.navbar *,
+#navbar-placeholder,
 #navbar-placeholder * {
     border-bottom: none !important;
     text-decoration: none !important;
 }
 
-.navbar::after, 
+.navbar::after,
 .navbar::before,
 .nav-links::after,
 .nav-links a::after {

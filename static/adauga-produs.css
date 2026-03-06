@@ -1,13 +1,16 @@
 /* --- FUNDALUL MODALULUI (OVERLAY) --- */
 .modal-overlay {
-    display: none; /* Ascuns implicit din JS */
+    display: none;
+    /* Ascuns implicit din JS */
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(6, 78, 59, 0.4); /* Verde închis transparent */
-    backdrop-filter: blur(0.5rem); /* Efect de sticlă mată */
+    background: rgba(6, 78, 59, 0.4);
+    /* Verde închis transparent */
+    backdrop-filter: blur(0.5rem);
+    /* Efect de sticlă mată */
     z-index: 1000;
     justify-content: center;
     align-items: center;
@@ -18,12 +21,13 @@
 .product-card-form {
     background: #ffffff;
     width: 100%;
-    max-width: 40rem; /* Aproximativ 640px */
+    max-width: 40rem;
+    /* Aproximativ 640px */
     border-radius: 1.2rem;
     padding: 2.5rem;
     box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2);
     position: relative;
-    
+
     animation: modalAppear 0.3s ease-out;
 }
 
@@ -40,7 +44,8 @@
 }
 
 .close-btn:hover {
-    color: #ef4444; /* Roșu la hover */
+    color: #ef4444;
+    /* Roșu la hover */
 }
 
 /* --- ANTET FORMULAR --- */
@@ -88,7 +93,7 @@
     letter-spacing: 0.05rem;
 }
 
-.form-group input, 
+.form-group input,
 .form-group select {
     font-size: 1rem;
     padding: 0.9rem;
@@ -153,29 +158,46 @@
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    border-left: 0.4rem solid #10b981; /* Verde pentru succes */
+    border-left: 0.4rem solid #10b981;
+    /* Verde pentru succes */
     animation: toastIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
     min-width: 18rem;
 }
 
 .toast.error {
-    border-left-color: #ef4444; /* Roșu pentru eroare */
+    border-left-color: #ef4444;
+    /* Roșu pentru eroare */
 }
 
 .toast i {
     font-size: 1.2rem;
 }
 
-.toast.success i { color: #10b981; }
-.toast.error i { color: #ef4444; }
+.toast.success i {
+    color: #10b981;
+}
+
+.toast.error i {
+    color: #ef4444;
+}
 
 @keyframes toastIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 @keyframes toastOut {
-    to { transform: translateX(120%); opacity: 0; }
+    to {
+        transform: translateX(120%);
+        opacity: 0;
+    }
 }
 
 /* Stare de încărcare pe buton */
@@ -191,6 +213,7 @@
         opacity: 0;
         transform: scale(0.9) translateY(2rem);
     }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -202,9 +225,12 @@
     .grid-form {
         grid-template-columns: 1fr;
     }
-    .full-width, .btn-save {
+
+    .full-width,
+    .btn-save {
         grid-column: span 1;
     }
+
     .product-card-form {
         padding: 1.5rem;
         border-radius: 1rem;
