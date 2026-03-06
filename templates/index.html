@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='hero.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='adauga-produs.css') }}">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -29,18 +30,17 @@
             <section class="quick-actions">
                 <h2 class="section-title">Acțiuni Rapide</h2>
                 <div class="actions-grid">
-                    <a href="/produse" class="action-card neon-border">
+                    <a href="javascript:void(0)" onclick="openModal()" class="action-card neon-border">
                         <i class="fas fa-square-plus"></i>
                         <div>
                             <h3>Adaugă Produs</h3>
                             <p>Introdu un articol nou în stoc</p>
                         </div>
                     </a>
-                    <a href="#" class="action-card">
-                        <i class="fas fa-barcode"></i>
-                        <div>
-                            <h3>Scanare QR</h3>
-                            <p>Actualizează stocul instant</p>
+                    <a href="/inventar" class="action-card">
+                        <i class="fas fa-clipboard-check" style="color: #6366f1;"></i> <div>
+                            <h3>Audit Inventar</h3>
+                            <p>Verifică stocul și corecteză neregulile</p>
                         </div>
                     </a>
                     <a href="#" class="action-card">
@@ -96,13 +96,46 @@
             </div>
         </div>
     </main>
+<div id="productModal" class="modal-overlay">
+    <div class="product-card-form modal-content">
+        <div class="form-header">
+            <h2><i class="fas fa-plus-circle"></i> Produs Nou</h2>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
 
+<form id="addProductForm">
+    <div class="grid-form">
+        <div class="form-group full-width">
+            <label>Nume Produs</label>
+            <input type="text" name="name" placeholder="ex: Monitor LED 27 inch" required>
+        </div>
+
+        <div class="form-group">
+            <label>Cod SKU (Unic)</label>
+            <input type="text" name="sku" placeholder="ex: MON-LG-24-BK" required>
+        </div>
+
+        <div class="form-group">
+            <label>Preț Unitar (RON)</label>
+            <input type="number" step="0.01" name="price" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group full-width">
+            <label>Alertă Stoc Minim</label>
+            <input type="number" name="stock_min" value="5">
+        </div>
+    </div>
+    <button type="submit" class="btn-save">Confirmă Adăugarea</button>
+</form>
+    </div>
+</div>
     <div id="footer-placeholder"></div>
 
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='hero.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='adauga-produs.js') }}"></script>
 
     <script>
         window.addEventListener('load', () => {
@@ -121,5 +154,7 @@
             }
         });
     </script>
+
+
 </body>
 </html>

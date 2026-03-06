@@ -135,5 +135,44 @@ def stock_flow():
         cur.close()
         conn.close()
 
+
+@app.route('/produse/nou', methods=['POST'])
+def produs_nou():
+    # Colectăm datele trimise din Modal
+    name = request.form.get('name')
+    sku = request.form.get('sku')
+    price = request.form.get('price')
+    stock_min = request.form.get('stock_min')
+
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"status": "error", "message": "Conexiune DB eșuată"}), 500
+
+    try:
+        cur = conn.cursor()
+        # Inserăm datele. Folosim float() și int() pentru siguranță.
+        cur.execute("""
+            INSERT INTO products (name, sku, price, stock_min) 
+            VALUES (%s, %s, %s, %s)
+        """, (name, sku, float(price) if price else 0, int(stock_min) if stock_min else 0))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        # Trimitem succes către JavaScript (care va închide modalul)
+        return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        print(f"Eroare la inserare: {e}")
+        # Dacă SKU-ul există deja sau e altă eroare, trimitem mesajul înapoi
+        return jsonify({"status": "error", "message": "SKU-ul trebuie să fie unic sau datele sunt invalide"}), 400
+
+@app.route('/rapoarte/export/<format>')
+def export_rapoarte(format):
+    # Aici vei genera PDF sau Excel (pentru licență e bine să menționezi biblioteci ca ReportLab sau Pandas)
+    return jsonify({"status": "success", "message": f"Raport {format} generat cu succes!"})
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
