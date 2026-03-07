@@ -147,18 +147,22 @@
             </div>
 
             <div class="inventory-filters-nav">
-                <div class="search-container-audit">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..."
-                        onkeyup="filterInventory()">
+                <div style="display: flex; gap: 1rem; flex: 0 1 auto; align-items: center;">
+                    <div class="search-container-audit">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..."
+                            onkeyup="filterInventory()">
+                    </div>
+                    
+                    <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()" title="Resetează toate modificările nesalvate">
+                        <i class="fas fa-undo"></i> Fix Stoc
+                    </button>
                 </div>
 
                 <div class="filter-pills-audit">
                     <button class="pill-audit active" data-filter="all" onclick="filterByStatus('all')">Toate</button>
-                    <button class="pill-audit" data-filter="shortage"
-                        onclick="filterByStatus('shortage')">Lipsă</button>
-                    <button class="pill-audit" data-filter="surplus"
-                        onclick="filterByStatus('surplus')">Surplus</button>
+                    <button class="pill-audit" data-filter="shortage" onclick="filterByStatus('shortage')">Lipsă</button>
+                    <button class="pill-audit" data-filter="surplus" onclick="filterByStatus('surplus')">Surplus</button>
                     <button class="pill-audit" data-filter="synced" onclick="filterByStatus('synced')">OK</button>
                 </div>
             </div>
@@ -188,11 +192,13 @@
                                     oninput="updateRowStatus(this)">
                             </td>
                             <td class="text-center">
-                                <span
-                                    class="status-indicator {{ p.last_audit_status if p.last_audit_status else 'synced' }}">
-                                    {% if p.last_audit_status == 'shortage' %} Lipsă
-                                    {% elif p.last_audit_status == 'surplus' %} Surplus
-                                    {% else %} OK
+                                <span class="status-indicator {{ p.last_audit_status }}">
+                                    {% if p.last_audit_status == 'shortage' %}
+                                        Lipsă ({{ p.last_audit_diff | abs }})
+                                    {% elif p.last_audit_status == 'surplus' %}
+                                        Surplus ({{ p.last_audit_diff }})
+                                    {% else %}
+                                        OK
                                     {% endif %}
                                 </span>
                             </td>

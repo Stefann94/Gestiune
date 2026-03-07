@@ -1,19 +1,20 @@
 /* --- 0. OVERLAY (FUNDALUL) - CENTRARE ABSOLUTĂ --- */
 .modal-overlay {
-    display: none; /* MODIFICARE: Forțăm starea închisă la refresh */
+    display: none;
+    /* MODIFICARE: Forțăm starea închisă la refresh */
     position: fixed;
-    top: 70px; 
+    top: 70px;
     left: 0;
     width: 100vw;
-    height: calc(100vh - 70px); 
+    height: calc(100vh - 70px);
     background: rgba(6, 78, 59, 0.45);
     backdrop-filter: blur(8px);
     z-index: 3000;
-    
+
     /* MODIFICARE: Nu mai punem display: flex aici direct */
     justify-content: center;
     align-items: center;
-    padding: 1rem; 
+    padding: 1rem;
 }
 
 
@@ -22,7 +23,7 @@
     width: 95vw;
     max-width: 1200px;
     /* Micșorăm puțin height-ul pentru a respira mai bine în spațiul dintre navbar și subsol */
-    height: 80vh; 
+    height: 80vh;
     background: #ffffff;
     border-radius: 1.5rem;
     display: flex;
@@ -30,14 +31,15 @@
     overflow: hidden;
     box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.35);
     position: relative;
-    
+
     /* Păstrăm efectul tău original intact */
     animation: modalAppear 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 /* --- 2. ANTETUL MODALULUI (VERDE BRAND) --- */
 .inventory-header-brand {
-    background: #064e3b; /* Verde închis */
+    background: #064e3b;
+    /* Verde închis */
     padding: 1.5rem 2.5rem;
     color: white;
     display: flex;
@@ -73,18 +75,21 @@
 
 /* --- 3. NAVBAR INTERN FILTRE (CORECȚIE DESIGN) --- */
 .inventory-filters-nav {
-    background: #065f46; /* Verde puțin mai deschis pentru contrast */
+    background: #065f46;
+    /* Verde puțin mai deschis pentru contrast */
     padding: 1rem 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
-    border-bottom: 4px solid #10b981; /* Accent verde smarald */
+    border-bottom: 4px solid #10b981;
+    /* Accent verde smarald */
 }
 
 .search-container-audit {
     position: relative;
-    flex: 0 1 350px; /* Limitează lățimea search-ului */
+    flex: 0 1 350px;
+    /* Limitează lățimea search-ului */
 }
 
 .search-container-audit i {
@@ -106,7 +111,9 @@
     transition: all 0.2s;
 }
 
-.search-container-audit input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.search-container-audit input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
 
 .search-container-audit input:focus {
     outline: none;
@@ -131,7 +138,9 @@
     transition: all 0.2s;
 }
 
-.pill-audit:hover { background: rgba(255, 255, 255, 0.15); }
+.pill-audit:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
 
 .pill-audit.active {
     background: #10b981;
@@ -169,7 +178,9 @@
     transition: background 0.2s;
 }
 
-.product-row:hover { background: #f0fdf4; }
+.product-row:hover {
+    background: #f0fdf4;
+}
 
 /* --- 5. ELEMENTE INTERN (INPUTS, BADGES) --- */
 .faptic-input {
@@ -182,7 +193,10 @@
     color: #064e3b;
 }
 
-.faptic-input:focus { border-color: #10b981; outline: none; }
+.faptic-input:focus {
+    border-color: #10b981;
+    outline: none;
+}
 
 .status-indicator {
     padding: 0.4rem 0.8rem;
@@ -191,9 +205,20 @@
     font-weight: 800;
 }
 
-.status-indicator.synced { background: #dcfce7; color: #059669; }
-.status-indicator.shortage { background: #fee2e2; color: #dc2626; }
-.status-indicator.surplus { background: #fef9c3; color: #ca8a04; }
+.status-indicator.synced {
+    background: #dcfce7;
+    color: #059669;
+}
+
+.status-indicator.shortage {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-indicator.surplus {
+    background: #fef9c3;
+    color: #ca8a04;
+}
 
 .btn-sync {
     background: #10b981;
@@ -206,22 +231,42 @@
     transition: all 0.2s;
 }
 
-.btn-sync:hover { background: #059669; transform: scale(1.1); }
+.btn-sync:hover {
+    background: #059669;
+    transform: scale(1.1);
+}
 
 /* --- 6. UTILS --- */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.product-row.modified { background: #fffbeb; }
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.product-row.modified {
+    background: #fffbeb;
+}
 
 @keyframes modalAppear {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* --- BUTON ȘTERGERE (ROȘU BRAND) --- */
 .btn-delete {
-    background: #fee2e2; /* Fundal roșu foarte deschis */
-    color: #dc2626;      /* Text roșu intens */
+    background: #fee2e2;
+    /* Fundal roșu foarte deschis */
+    color: #dc2626;
+    /* Text roșu intens */
     border: 1px solid #fecaca;
     width: 2.5rem;
     height: 2.5rem;
@@ -234,7 +279,8 @@
 }
 
 .btn-delete:hover {
-    background: #dc2626; /* Se transformă în roșu plin */
+    background: #dc2626;
+    /* Se transformă în roșu plin */
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
@@ -256,4 +302,43 @@
     opacity: 0.6;
     pointer-events: none;
     transition: all 0.5s;
+}
+
+
+/* --- ADAUGĂ ACEST COD ÎN INVENTAR.CSS --- */
+
+.btn-fix-stock {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.7rem 1.2rem;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap; /* Previne ruperea textului pe două rânduri */
+}
+
+.btn-fix-stock:hover {
+    background: #f59e0b; /* Culoare de avertizare/resetare (chihlimbar) */
+    border-color: #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-fix-stock:active {
+    transform: translateY(0);
+}
+
+.btn-fix-stock i {
+    font-size: 1rem;
+    transition: transform 0.3s;
+}
+
+.btn-fix-stock:hover i {
+    transform: rotate(-180deg); /* Efect de resetare vizuală */
 }

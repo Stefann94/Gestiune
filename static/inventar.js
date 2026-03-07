@@ -1,107 +1,108 @@
 /**
  * INVENTAR.JS - Logica Completă pentru Audit și Gestiune
+ * Status: Sincronizare Live + Sistem de UNDO (Fix Stoc) perfect funcțional
  */
 
-// 1. ACTUALIZARE STATUS ÎN TIMP REAL (OK, Lipsă, Surplus)
-function updateRowStatus(input) {
-    const row = input.closest('tr');
-    if (!row) return;
-
-    // Preluăm valorile (System Stock este stocat în data-attribute la randare)
-    const systemStock = parseInt(row.getAttribute('data-system-stock')) || 0;
-    const fapticStock = parseInt(input.value);
-
-    // Identificăm elementele de UI din rând
-    const statusSpan = row.querySelector('.status-indicator');
-
-    // Dacă inputul e gol sau nu e număr
-    if (isNaN(fapticStock)) {
-        statusSpan.textContent = "Introdu cant.";
-        statusSpan.className = "status-indicator";
-        return;
-    }
-
-    // Adăugăm clasa 'modified' pentru feedback vizual
-    row.classList.add('modified');
-
-    // Logica de comparare și atribuire status
-    if (fapticStock === systemStock) {
-        statusSpan.textContent = 'OK';
-        statusSpan.className = 'status-indicator synced';
-        row.setAttribute('data-status', 'synced');
-    } 
-    else if (fapticStock < systemStock) {
-        const diff = systemStock - fapticStock;
-        statusSpan.textContent = `Lipsă (-${diff})`;
-        statusSpan.className = 'status-indicator shortage';
-        row.setAttribute('data-status', 'shortage');
-    } 
-    else {
-        const diff = fapticStock - systemStock;
-        statusSpan.textContent = `Surplus (+${diff})`;
-        statusSpan.className = 'status-indicator surplus';
-        row.setAttribute('data-status', 'surplus');
-    }
+// --- 0. MEMORARE STARE INIȚIALĂ (PENTRU UNDO) ---
+function initSafeStates() {
+    document.querySelectorAll('.product-row').forEach(row => {
+        const input = row.querySelector('.faptic-input');
+        const indicator = row.querySelector('.status-indicator');
+        if (input && indicator && !row.hasAttribute('data-safe-val')) {
+            row.setAttribute('data-safe-val', input.value);
+            row.setAttribute('data-safe-html', indicator.innerHTML);
+            row.setAttribute('data-safe-class', indicator.className);
+        }
+    });
 }
+// Rulăm la încărcarea paginii
+document.addEventListener('DOMContentLoaded', initSafeStates);
 
-// 2. FILTRARE DUPĂ TEXT (Nume Produs sau SKU)
-function filterInventory() {
-    const query = document.getElementById('inventorySearch').value.toLowerCase().trim();
+
+// --- 1. FILTRARE COMBINATĂ (TEXT + STATUS) ---
+function applyCombinedFilters() {
+    const searchQuery = document.getElementById('inventorySearch').value.toLowerCase().trim();
+    const activePill = document.querySelector('.pill-audit.active');
+    const activeStatus = activePill ? activePill.getAttribute('data-filter') : 'all';
     const rows = document.querySelectorAll('.product-row');
 
     rows.forEach(row => {
         const name = row.querySelector('.editable-name').textContent.toLowerCase();
         const sku = row.querySelector('.editable-sku').textContent.toLowerCase();
-
-        if (name.includes(query) || sku.includes(query)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+        
+        const rowStatus = row.getAttribute('data-status') || 'synced';
+        const isEditing = row.classList.contains('is-editing');
+        const matchesText = name.includes(searchQuery) || sku.includes(searchQuery);
+        let matchesStatus = (activeStatus === 'all' || rowStatus === activeStatus);
+        
+        if (isEditing) {
+            matchesStatus = true; 
         }
+
+        row.style.display = (matchesText && matchesStatus) ? '' : 'none';
     });
 }
 
-// 3. FILTRARE DUPĂ STATUS (Pills: Toate, Lipsă, Surplus, OK)
+function filterInventory() { 
+    applyCombinedFilters(); 
+}
+
 function filterByStatus(status) {
-    // Update vizual butoane active
     document.querySelectorAll('.pill-audit').forEach(p => p.classList.remove('active'));
     const activeBtn = document.querySelector(`[data-filter="${status}"]`);
     if (activeBtn) activeBtn.classList.add('active');
-
-    const rows = document.querySelectorAll('.product-row');
-
-    rows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status');
-        if (status === 'all' || rowStatus === status) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
+    applyCombinedFilters();
 }
 
-// 4. SALVARE RÂND (Trimitere către Flask)
-async function saveAuditRow(btn) {
-    // Evităm dubla trimitere dacă butonul e deja dezactivat
-    if (btn.disabled) return;
 
-    const row = btn.closest('tr');
-    const id = row.getAttribute('data-id');
-    const fapticInput = row.querySelector('.faptic-input');
-    const fapticValue = fapticInput.value;
-    const name = row.querySelector('.editable-name').textContent.trim();
-    const sku = row.querySelector('.editable-sku').textContent.trim();
+// --- 2. ACTUALIZARE STATUS VIZUAL (LIVE ÎN TIMPUL SCRIERII) ---
+function updateRowStatus(input) {
+    const row = input.closest('tr');
+    if (!row) return;
 
-    // Validare
-    if (fapticValue === "" || isNaN(parseInt(fapticValue))) {
-        alert("Te rugăm să introduci o cantitate validă.");
+    // Asigurăm-ne că starea de bază e memorată înainte să edităm
+    initSafeStates();
+
+    const systemStock = parseInt(row.getAttribute('data-system-stock')) || 0;
+    const fapticStock = parseInt(input.value);
+    const statusSpan = row.querySelector('.status-indicator');
+    const saveBtn = row.querySelector('.save-audit-btn');
+
+    if(saveBtn) saveBtn.disabled = false;
+
+    if (isNaN(fapticStock)) {
+        statusSpan.textContent = "Introdu cant.";
+        statusSpan.className = "status-indicator";
+        if(saveBtn) saveBtn.disabled = true;
         return;
     }
 
-    const fapticQty = parseInt(fapticValue);
-    const originalContent = btn.innerHTML;
+    row.classList.add('is-editing', 'modified');
 
-    // UI Feedback: Start Loading
+    if (fapticStock === systemStock) {
+        statusSpan.textContent = 'OK';
+        statusSpan.className = 'status-indicator synced';
+    } else if (fapticStock < systemStock) {
+        const diff = systemStock - fapticStock;
+        statusSpan.textContent = `Lipsă (${diff})`;
+        statusSpan.className = 'status-indicator shortage';
+    } else {
+        const diff = fapticStock - systemStock;
+        statusSpan.textContent = `Surplus (${diff})`;
+        statusSpan.className = 'status-indicator surplus';
+    }
+}
+
+
+// --- 3. SALVARE (SINCRONIZARE CU SERVER) ---
+async function saveAuditRow(btn) {
+    const row = btn.closest('tr');
+    const productId = row.getAttribute('data-id');
+    const fapticInput = row.querySelector('.faptic-input');
+    const fapticValue = parseInt(fapticInput.value);
+
+    // Feedback vizual (Loading)
+    const originalContent = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     btn.disabled = true;
 
@@ -110,138 +111,130 @@ async function saveAuditRow(btn) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id: id,
-                stock: fapticQty,
-                name: name,
-                sku: sku
+                id: productId,
+                stock: fapticValue,
+                name: row.querySelector('.editable-name').textContent.trim(),
+                sku: row.querySelector('.editable-sku').textContent.trim()
             })
         });
 
         const data = await response.json();
 
         if (data.status === 'success') {
-            // 1. Sincronizăm valorile în Modal
-            row.setAttribute('data-system-stock', fapticQty);
-            const badgeSistem = row.querySelector('.system-stock-badge');
-            if (badgeSistem) badgeSistem.textContent = fapticQty;
-            row.classList.remove('modified');
+            // ACTUALIZĂM "ADEVĂRUL" DIN HTML cu ce ne-a confirmat baza de date
+            row.setAttribute('data-system-stock', fapticValue);
+            row.setAttribute('data-status', data.new_status);
+            
+            // Actualizăm badge-ul de sistem
+            const badge = row.querySelector('.system-stock-badge');
+            if (badge) badge.textContent = fapticValue;
 
-            // 2. Sincronizăm Tabelul din Dashboard (din spatele modalului)
-            // Folosim selector flexibil pentru a găsi rândul în tabelul principal
-            const dashboardRowStock = document.querySelector(`.container-dashboard tr[data-id="${id}"] .stock-cell, .dashboard-table tr[data-id="${id}"] .stock-cell`);
-            if (dashboardRowStock) {
-                dashboardRowStock.textContent = fapticQty;
-            }
+            // Curățăm starea de editare
+            row.classList.remove('is-editing', 'modified');
 
-            // 3. Resetăm statusul la "OK" (verde)
-            updateRowStatus(fapticInput);
-
-            // 4. UI Feedback: Succes
+            // Feedback succes
             btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.style.backgroundColor = "#059669"; 
-
             setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-save"></i>';
+                btn.innerHTML = originalContent;
                 btn.disabled = false;
-                btn.style.backgroundColor = ""; 
-            }, 2000);
-
-            if (typeof showToast === "function") {
-                showToast(`Audit finalizat: ${name}`);
-            }
-        } else {
-            throw new Error(data.message || "Eroare la server");
+                applyCombinedFilters();
+            }, 1000);
         }
-    } catch (error) {
-        console.error("Audit Error:", error);
-        alert("Eroare la salvare: " + error.message);
-        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        btn.style.backgroundColor = "#dc2626";
+    } catch (e) {
+        alert("Eroare server!");
+        btn.innerHTML = originalContent;
         btn.disabled = false;
     }
 }
 
-// MODAL CONTROL OPTIMIZAT
-function openInventoryModal() {
-    const modal = document.getElementById('inventoryModal');   
-    if (modal) {
-        modal.style.display = 'flex';
-        // Blocăm scroll-ul pe body
-        document.body.style.overflow = 'hidden'; 
-    }
-}
-
-function closeInventoryModal() {
-    const modal = document.getElementById('inventoryModal');
-    if (modal) {
-        modal.style.display = 'none';
-        // Reactivăm scroll-ul pe body
-        document.body.style.overflow = 'auto'; 
-        
-        document.getElementById('inventorySearch').value = '';
-        filterInventory();
-    }
-}
-
-// Repetă logica și pentru modalul de adăugare produs (în adauga-produs.js sau unde îl ai)
-function openModal() {
-    document.getElementById('productModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-
-async function saveAuditRow(button) {
-    const row = button.closest('tr');
-    const productId = row.dataset.id;
+// --- LOGICA DE FILTRARE (RĂMÂNE NESCHIMBATĂ) ---
+function applyCombinedFilters() {
+    const searchQuery = document.getElementById('inventorySearch').value.toLowerCase().trim();
+    const activePill = document.querySelector('.pill-audit.active');
+    const activeStatus = activePill ? activePill.getAttribute('data-filter') : 'all';
     
-    // Colectăm TOATE datele din rând
-    const data = {
-        id: productId,
-        name: row.querySelector('.editable-name').innerText.trim(),
-        sku: row.querySelector('.editable-sku').innerText.trim(),
-        stock: parseInt(row.querySelector('.faptic-input').value)
-    };
+    document.querySelectorAll('.product-row').forEach(row => {
+        const name = row.querySelector('.editable-name').textContent.toLowerCase();
+        const sku = row.querySelector('.editable-sku').textContent.toLowerCase();
+        const rowStatus = row.getAttribute('data-status') || 'synced';
+        const isEditing = row.classList.contains('is-editing');
 
-    try {
-        const response = await fetch('/api/audit-save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+        const matchesText = name.includes(searchQuery) || sku.includes(searchQuery);
+        let matchesStatus = (activeStatus === 'all' || rowStatus === activeStatus);
+        
+        // Dacă edităm rândul, nu îl ascundem chiar dacă filtrul s-ar schimba
+        if (isEditing) matchesStatus = true;
 
-        const result = await response.json();
-        if (result.status === 'success') {
-            // Actualizăm UI-ul: stocul de sistem devine egal cu cel faptic
-            row.dataset.system_stock = data.stock;
-            row.querySelector('.system-stock-badge').innerText = data.stock;
-            alert("Produs actualizat cu succes!");
-            updateRowStatus(row.querySelector('.faptic-input')); // Resetăm indicatorul OK
-        } else {
-            alert("Eroare: " + result.message);
-        }
-    } catch (error) {
-        console.error("Save error:", error);
-    }
+        row.style.display = (matchesText && matchesStatus) ? '' : 'none';
+    });
 }
 
-async function deleteProductRow(button, id) {
-    if (!confirm("Ești sigur că vrei să ștergi definitiv acest produs și tot istoricul său?")) return;
+function filterByStatus(status) {
+    document.querySelectorAll('.pill-audit').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[data-filter="${status}"]`).classList.add('active');
+    applyCombinedFilters();
+}
 
+
+// --- 4. ȘTERGERE PRODUS ---
+async function deleteProductRow(button, id) {
+    if (!confirm("Ești sigur că vrei să ștergi definitiv acest produs?")) return;
     try {
         const response = await fetch(`/api/product-delete/${id}`, { method: 'DELETE' });
         const result = await response.json();
-        
         if (result.status === 'success') {
-            button.closest('tr').remove(); // Ștergem rândul din tabel
-        } else {
-            alert("Eroare la ștergere: " + result.message);
+            button.closest('tr').remove();
         }
     } catch (error) {
-        console.error("Delete error:", error);
+        alert("Eroare la ștergere.");
     }
+}
+
+
+// --- 5. MODALE ---
+function openInventoryModal() {
+    document.getElementById('inventoryModal').style.display = 'flex';
+    initSafeStates(); // Ne asigurăm că stările sunt citite corect la deschidere
+}
+function closeInventoryModal() {
+    document.getElementById('inventoryModal').style.display = 'none';
+    applyCombinedFilters();
+}
+
+
+// --- 6. RESETARE MODIFICĂRI NESALVATE (FIX STOC) ---
+function resetAllUnsavedChanges() {
+    // Luăm doar rândurile care sunt modificate activ (nesalvate încă)
+    const editedRows = document.querySelectorAll('.product-row.is-editing, .product-row.modified');
+    
+    if (editedRows.length === 0) {
+        const btn = document.querySelector('.btn-fix-stock');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Nimic de anulat';
+        setTimeout(() => btn.innerHTML = originalText, 1500);
+        return;
+    }
+
+    editedRows.forEach(row => {
+        const input = row.querySelector('.faptic-input');
+        const indicator = row.querySelector('.status-indicator');
+        const saveBtn = row.querySelector('.save-audit-btn');
+
+        // Restaurăm la valorile sigure memorate în atributele data-safe
+        if (input && row.hasAttribute('data-safe-val')) {
+            input.value = row.getAttribute('data-safe-val');
+        }
+        
+        if (indicator && row.hasAttribute('data-safe-html')) {
+            indicator.innerHTML = row.getAttribute('data-safe-html');
+            indicator.className = row.getAttribute('data-safe-class');
+        }
+
+        // Eliminăm starea de editare
+        row.classList.remove('is-editing', 'modified');
+        if (saveBtn) saveBtn.disabled = false;
+    });
+
+    // Reaplicăm filtrele vizuale
+    applyCombinedFilters();
 }

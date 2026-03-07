@@ -31,7 +31,7 @@ def index():
     
     # 2. PRODUSE (Am corectat numele variabilei aici: query -> query_products)
     query_products = """
-        SELECT p.id, p.name, p.sku, p.price, p.stock_min, p.last_audit_status,
+        SELECT p.id, p.name, p.sku, p.price, p.stock_min, p.last_audit_status, p.last_audit_diff,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
          COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
         FROM products p;
@@ -141,7 +141,7 @@ def inventar():
     
     # Luăm toate produsele și stocul lor calculat
     query = """
-        SELECT p.id, p.name, p.sku, p.last_audit_status,
+        SELECT p.id, p.name, p.sku, p.last_audit_status, p.last_audit_diff,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
         FROM products p;
@@ -246,40 +246,37 @@ def audit_save():
     try:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # 1. Obținem stocul curent și stocul minim
-        cur.execute("SELECT stock_min FROM products WHERE id = %s", (p_id,))
-        product_info = cur.fetchone()
-        
+        # 1. Obținem stocul curent din sistem
         cur.execute("""
             SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
         """, (p_id, p_id))
         system_stock = cur.fetchone()['system_stock']
 
-        # 2. Determinăm noul status pentru baza de date
-        # Comparăm ce am numărat la raft (faptic) cu ce zice sistemul
+        # 2. Calculăm diferența
+        diff = faptic_quantity - system_stock # Pozitiv = Surplus, Negativ = Lipsă
+        
         new_status = 'synced'
-        if faptic_quantity < system_stock:
+        if diff < 0:
             new_status = 'shortage'
-        elif faptic_quantity > system_stock:
+        elif diff > 0:
             new_status = 'surplus'
 
-        # 3. Actualizăm Numele, SKU-ul ȘI STATUSUL
+        # 3. Salvăm statusul ȘI diferența numerică în products
         cur.execute("""
             UPDATE products 
-            SET name = %s, sku = %s, last_audit_status = %s 
+            SET name = %s, sku = %s, last_audit_status = %s, last_audit_diff = %s 
             WHERE id = %s
-        """, (new_name, new_sku, new_status, p_id))
+        """, (new_name, new_sku, new_status, diff, p_id))
 
-        # 4. Sincronizăm stocul prin ajustări (intrări/ieșiri)
-        diff = faptic_quantity - system_stock
+        # 4. Ajustăm stocul real (intrări/ieșiri)
         if diff > 0:
             cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
         elif diff < 0:
             cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
 
         conn.commit()
-        return jsonify({"status": "success", "new_status": new_status})
+        return jsonify({"status": "success", "new_status": new_status, "new_diff": diff})
     except Exception as e:
         conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400

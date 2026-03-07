@@ -24,7 +24,7 @@ function closeModal() {
 window.onclick = function (event) {
     const prodModal = document.getElementById('productModal');
     const invModal = document.getElementById('inventoryModal');
-    
+
     if (event.target == prodModal) closeModal();
     if (event.target == invModal) closeInventoryModal();
 }
@@ -57,7 +57,7 @@ function filterInventory() {
 }
 
 // Închidere modal la click în exterior
-window.onclick = function(event) {
+window.onclick = function (event) {
     const invModal = document.getElementById('inventoryModal');
     const prodModal = document.getElementById('productModal');
     if (event.target == invModal) closeInventoryModal();
