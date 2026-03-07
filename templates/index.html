@@ -178,7 +178,8 @@
                     <tbody id="inventoryTableBody">
                         {% for p in products %}
                         <tr class="product-row" data-id="{{ p.id }}" data-system-stock="{{ p.stock }}"
-                            data-status="synced">
+                            data-status="{{ p.last_audit_status if p.last_audit_status else 'synced' }}">
+
                             <td contenteditable="true" class="editable-name">{{ p.name }}</td>
                             <td contenteditable="true" class="editable-sku"><code>{{ p.sku }}</code></td>
                             <td class="text-center"><span class="system-stock-badge">{{ p.stock }}</span></td>
@@ -186,20 +187,27 @@
                                 <input type="number" class="faptic-input" value="{{ p.stock }}"
                                     oninput="updateRowStatus(this)">
                             </td>
-                            <td class="text-center"><span class="status-indicator synced">OK</span></td>
-                                <td class="text-right">
-                                    <div style="display: flex; gap: 5px; justify-content: flex-end;">
-                                        <button class="btn-sync" onclick="saveAuditRow(this)" title="Salvează modificările">
-                                            <i class="fas fa-save"></i>
-                                        </button>
-                                        
-                                        <button class="btn-delete" 
-                                                onclick="deleteProductRow(this, '{{ p.id }}')" 
-                                                title="Șterge produsul">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                            <td class="text-center">
+                                <span
+                                    class="status-indicator {{ p.last_audit_status if p.last_audit_status else 'synced' }}">
+                                    {% if p.last_audit_status == 'shortage' %} Lipsă
+                                    {% elif p.last_audit_status == 'surplus' %} Surplus
+                                    {% else %} OK
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                    <button class="btn-sync" onclick="saveAuditRow(this)" title="Salvează modificările">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+
+                                    <button class="btn-delete" onclick="deleteProductRow(this, '{{ p.id }}')"
+                                        title="Șterge produsul">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

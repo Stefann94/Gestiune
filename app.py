@@ -25,26 +25,26 @@ def index():
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # 1. TOTAL PRODUSE (Din tabelul products)
+    # 1. TOTAL PRODUSE
     cur.execute("SELECT COUNT(*) as total FROM products;")
     total = cur.fetchone()['total'] or 0
     
-    # 2. PRODUSE PENTRU TABEL ȘI CALCUL ALERTE
-    # Calculăm stocul real: Intrări - Ieșiri
+    # 2. PRODUSE (Am corectat numele variabilei aici: query -> query_products)
     query_products = """
-        SELECT p.id, p.name, p.sku, p.stock_min,
+        SELECT p.id, p.name, p.sku, p.price, p.stock_min, p.last_audit_status,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-        COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
         FROM products p;
     """
-    cur.execute(query_products)
+    cur.execute(query_products) # <--- Aici era eroarea (variabila nu se potrivea)
     products = cur.fetchall()
     
-    # 3. DATE PENTRU CARDUL "STOC CRITIC" (Doar cele sub limită)
-    critical_products = [p for p in products if p['stock'] <= p['stock_min']]
+    # 3. DATE PENTRU CARDUL "STOC CRITIC"
+    # Folosim p['stock_min'] care acum e selectat în query-ul de mai sus
+    critical_products = [p for p in products if p['stock'] <= (p['stock_min'] or 0)]
     alerts_count = len(critical_products)
     
-    # 4. MIȘCĂRI TOTALE (Toate înregistrările de flow)
+    # 4. MIȘCĂRI TOTALE
     cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
     moves = cur.fetchone()['moves'] or 0
     
@@ -53,7 +53,6 @@ def index():
     cur.close()
     conn.close()
     
-    # Trimitem produsele critice separat pentru a le afișa în lista din dreapta
     return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5])
 
 @app.route('/produse')
@@ -142,11 +141,10 @@ def inventar():
     
     # Luăm toate produsele și stocul lor calculat
     query = """
-        SELECT p.id, p.name, p.sku,
+        SELECT p.id, p.name, p.sku, p.last_audit_status,
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_stock
-        FROM products p
-        ORDER BY p.name ASC;
+        COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+        FROM products p;
     """
     cur.execute(query)
     products = cur.fetchall()
@@ -248,17 +246,32 @@ def audit_save():
     try:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # 1. Calculăm stocul curent din sistem pentru a determina diferența
+        # 1. Obținem stocul curent și stocul minim
+        cur.execute("SELECT stock_min FROM products WHERE id = %s", (p_id,))
+        product_info = cur.fetchone()
+        
         cur.execute("""
             SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
         """, (p_id, p_id))
         system_stock = cur.fetchone()['system_stock']
 
-        # 2. Actualizăm Numele și SKU-ul (Indiferent dacă s-au schimbat sau nu)
-        cur.execute("UPDATE products SET name = %s, sku = %s WHERE id = %s", (new_name, new_sku, p_id))
+        # 2. Determinăm noul status pentru baza de date
+        # Comparăm ce am numărat la raft (faptic) cu ce zice sistemul
+        new_status = 'synced'
+        if faptic_quantity < system_stock:
+            new_status = 'shortage'
+        elif faptic_quantity > system_stock:
+            new_status = 'surplus'
 
-        # 3. Sincronizăm stocul prin ajustări (Entries/Exits)
+        # 3. Actualizăm Numele, SKU-ul ȘI STATUSUL
+        cur.execute("""
+            UPDATE products 
+            SET name = %s, sku = %s, last_audit_status = %s 
+            WHERE id = %s
+        """, (new_name, new_sku, new_status, p_id))
+
+        # 4. Sincronizăm stocul prin ajustări (intrări/ieșiri)
         diff = faptic_quantity - system_stock
         if diff > 0:
             cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
@@ -266,7 +279,7 @@ def audit_save():
             cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
 
         conn.commit()
-        return jsonify({"status": "success", "new_system_stock": faptic_quantity})
+        return jsonify({"status": "success", "new_status": new_status})
     except Exception as e:
         conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400
