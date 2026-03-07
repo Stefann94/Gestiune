@@ -187,19 +187,19 @@
                                     oninput="updateRowStatus(this)">
                             </td>
                             <td class="text-center"><span class="status-indicator synced">OK</span></td>
-                            <td class="text-right">
-                                <div style="display: flex; gap: 5px; justify-content: flex-end;">
-                                    <button class="btn-sync" onclick="saveAuditRow(this)" title="Salvează modificările">
-                                        <i class="fas fa-save"></i>
-                                    </button>
+                                <td class="text-right">
+                                    <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                        <button class="btn-sync" onclick="saveAuditRow(this)" title="Salvează modificările">
+                                            <i class="fas fa-save"></i>
+                                        </button>
+                                        
                                         <button class="btn-delete" 
-                                                onclick="deleteProductRow(this, {{ p.id }})" 
-                                                title="Șterge produsul" 
-                                                style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                                onclick="deleteProductRow(this, '{{ p.id }}')" 
+                                                title="Șterge produsul">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                </div>
-                            </td>
+                                    </div>
+                                </td>
                         </tr>
                         {% endfor %}
                     </tbody>
