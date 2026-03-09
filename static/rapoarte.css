@@ -69,26 +69,44 @@ body.modal-open {
 .reports-summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem 2rem;
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
+    gap: 2rem; /* Spațiere mai mare pentru un look aerisit */
+    padding: 2rem;
+    background: #ffffff;
+    border-bottom: 1px solid #edf2f7;
     flex-shrink: 0;
 }
 
 .stat-box {
-    padding: 1rem;
-    border-radius: 1rem;
-    background: #f1f5f9;
-    border-left: 4px solid #94a3b8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5rem; /* Mai puțin padding pentru că e minimalist */
+    background: transparent;
 }
-
+.stat-box .stat-value-container {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
 .stat-box.success { border-left-color: #10b981; }
 .stat-box.danger { border-left-color: #ef4444; }
 .stat-box.warning { border-left-color: #f59e0b; }
 
-.stat-box span { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
-.stat-box h4 { margin: 0.2rem 0 0 0; font-size: 1.4rem; color: #1e293b; }
+.stat-box span { 
+    font-size: 0.7rem; 
+    color: #94a3b8; 
+    font-weight: 700; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+.stat-box h4 { 
+    margin: 0; 
+    font-size: 1.8rem; 
+    color: #1e293b;
+    font-weight: 700;
+    line-height: 1;
+}
 
 /* --- ACTIONS BAR --- */
 .reports-actions-bar {
@@ -157,3 +175,5 @@ body.modal-open {
     from { transform: translateY(50px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+

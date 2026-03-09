@@ -1,73 +1,115 @@
 /**
- * RAPOARTE.JS - Generare sumare și exporturi
+ * RAPOARTE.JS - Preluare date din DB și Export
  */
 
-function openReportsModal() {
+async function openReportsModal() {
     const modal = document.getElementById('reportsModal');
     if (modal) {
-        modal.style.display = 'flex'; // IMPORTANT: flex, nu block
-        toggleParentScroll(true); 
-        generateReportData();
+        // 1. Afișăm modalul
+        modal.style.display = 'flex';
+        
+        // 2. Blocăm scroll-ul pe pagina principală
+        document.body.classList.add('modal-open');
+
+        // 3. Resetăm tabelul cu un mesaj de încărcare
+        const tableBody = document.getElementById('reportsTableBody');
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Se încarcă datele din baza de date...
+                </td>
+            </tr>`;
+
+        // 4. Preluăm datele proaspete din API
+        await refreshReportsData();
     }
 }
 
 function closeReportsModal() {
-    document.getElementById('reportsModal').style.display = 'none';
-    toggleParentScroll(false); // <--- DEBLOCĂM PAGINA
+    const modal = document.getElementById('reportsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        // Deblocăm scroll-ul paginii
+        document.body.classList.remove('modal-open');
+    }
 }
 
-function generateReportData() {
-    const rows = document.querySelectorAll('#inventoryTableBody .product-row');
-    const tableBody = document.getElementById('reportsTableBody');
-    tableBody.innerHTML = ''; // Curățăm tabelul vechi
+async function refreshReportsData() {
+    try {
+        // Apelăm endpoint-ul de Python creat anterior
+        const response = await fetch('/api/stats/reports');
+        if (!response.ok) throw new Error("Eroare la comunicarea cu serverul");
+        
+        const data = await response.json();
 
-    let totalShortage = 0;
-    let totalSurplus = 0;
-    let syncedCount = 0;
+        // --- A. ACTUALIZARE CARDURI STATISTICE ---
+        document.getElementById('rep-total-items').textContent = data.stats.total_items || 0;
+        document.getElementById('rep-total-ok').textContent = data.stats.total_ok || 0;
+        document.getElementById('rep-total-short').textContent = data.stats.total_shortage || 0;
+        document.getElementById('rep-total-surplus').textContent = data.stats.total_surplus || 0;
 
-    rows.forEach(row => {
-        const name = row.querySelector('.editable-name').textContent;
-        const sku = row.querySelector('.editable-sku').textContent;
-        const status = row.getAttribute('data-status');
-        const diff = parseInt(row.querySelector('.status-indicator').textContent.match(/-?\d+/) || 0);
+        // --- B. ACTUALIZARE TABEL ---
+        const tableBody = document.getElementById('reportsTableBody');
+        tableBody.innerHTML = ''; // Curățăm mesajul de încărcare
 
-        // Calculăm statisticile pentru carduri
-        if (status === 'shortage') totalShortage += Math.abs(diff);
-        else if (status === 'surplus') totalSurplus += diff;
-        else syncedCount++;
+        if (data.products.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Nu există produse în bază.</td></tr>';
+            return;
+        }
 
-        // Adăugăm rândul în tabelul de raport
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${name}</strong></td>
-            <td><code>${sku}</code></td>
-            <td><span class="status-indicator ${status}">${status.toUpperCase()}</span></td>
-            <td class="text-center">${diff > 0 ? '+' + diff : diff}</td>
-        `;
-        tableBody.appendChild(tr);
-    });
+        data.products.forEach(p => {
+            const status = p.last_audit_status || 'synced';
+            const diff = p.last_audit_diff || 0;
+            
+            // Mapăm statusul intern în text prietenos
+            const statusLabels = {
+                'shortage': 'LIPSĂ',
+                'surplus': 'SURPLUS',
+                'synced': 'OK'
+            };
 
-    // Actualizăm cardurile de sus
-    document.getElementById('rep-total-items').textContent = rows.length;
-    document.getElementById('rep-total-short').textContent = totalShortage;
-    document.getElementById('rep-total-surplus').textContent = totalSurplus;
-    document.getElementById('rep-total-ok').textContent = syncedCount;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${p.name}</strong></td>
+                <td><code>${p.sku}</code></td>
+                <td><span class="status-indicator ${status}">${statusLabels[status] || 'OK'}</span></td>
+                <td class="text-center"><strong>${diff > 0 ? '+' + diff : diff}</strong></td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error("Eroare la preluarea datelor:", error);
+        document.getElementById('reportsTableBody').innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; color: red; padding: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Eroare: Nu s-au putut prelua datele.
+                </td>
+            </tr>`;
+    }
 }
 
 async function exportData(format) {
+    // Luăm butonul pe care s-a dat click pentru a arăta starea de încărcare
     const btn = event.currentTarget;
-    const originalText = btn.innerHTML;
+    const originalContent = btn.innerHTML;
     
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generare...';
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generare...';
     
     try {
         const response = await fetch(`/rapoarte/export/${format}`);
         const data = await response.json();
         
-        alert(`Succes: ${data.message}`);
+        if (data.status === "success") {
+            alert(`Succes: ${data.message}`);
+        } else {
+            alert("Eroare la generarea fișierului.");
+        }
     } catch (error) {
-        alert("Eroare la export!");
+        alert("Eroare de conexiune la server.");
     } finally {
-        btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
     }
 }

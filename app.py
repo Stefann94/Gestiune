@@ -602,7 +602,37 @@ def delete_product(id):
 
         conn.close()
 
+@app.route('/api/stats/reports')
+def get_reports_stats():
+    conn = get_db_connection()
+    if not conn: return jsonify({"error": "DB connection failed"}), 500
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Calculăm statisticile globale de audit
+        query_stats = """
+            SELECT 
+                COUNT(*) as total_items,
+                COUNT(*) FILTER (WHERE last_audit_status = 'synced' OR last_audit_status IS NULL) as total_ok,
+                ABS(COALESCE(SUM(last_audit_diff) FILTER (WHERE last_audit_diff < 0), 0)) as total_shortage,
+                COALESCE(SUM(last_audit_diff) FILTER (WHERE last_audit_diff > 0), 0) as total_surplus
+            FROM products;
+        """
+        cur.execute(query_stats)
+        stats = cur.fetchone()
 
+        # Luăm lista de produse pentru tabel
+        query_list = "SELECT name, sku, last_audit_status, last_audit_diff FROM products ORDER BY name ASC;"
+        cur.execute(query_list)
+        products = cur.fetchall()
+
+        return jsonify({
+            "stats": stats,
+            "products": products
+        })
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/rapoarte/export/<format>')
 
