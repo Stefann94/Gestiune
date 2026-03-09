@@ -90,24 +90,42 @@ async function refreshReportsData() {
 }
 
 async function exportData(format) {
-    // Luăm butonul pe care s-a dat click pentru a arăta starea de încărcare
+    // Luăm butonul pentru feedback vizual
     const btn = event.currentTarget;
     const originalContent = btn.innerHTML;
     
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generare...';
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Se descarcă...';
     
     try {
+        console.log(`Cerere export pentru formatul: ${format}`);
         const response = await fetch(`/rapoarte/export/${format}`);
-        const data = await response.json();
         
-        if (data.status === "success") {
-            alert(`Succes: ${data.message}`);
-        } else {
-            alert("Eroare la generarea fișierului.");
-        }
+        if (!response.ok) throw new Error("Serverul a returnat o eroare");
+
+        // IMPORTANT: Citim ca BLOB, nu ca JSON
+        const blob = await response.blob();
+        
+        // Creăm un obiect URL pentru fișierul primit
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Setăm numele fișierului
+        const extensie = format === 'excel' ? 'xlsx' : 'pdf';
+        a.download = `Raport_Audit_${new Date().getTime()}.${extensie}`;
+        
+        // Declanșăm descărcarea
+        document.body.appendChild(a);
+        a.click();
+        
+        // Curățenie
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
     } catch (error) {
-        alert("Eroare de conexiune la server.");
+        console.error("Eroare la export:", error);
+        alert("Fișierul a fost generat, dar browser-ul nu l-a putut descărca.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalContent;
