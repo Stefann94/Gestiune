@@ -251,6 +251,22 @@ def stock_flow():
     finally:
         conn.close()
 
+@app.route('/dashboard') # <--- Aceasta trebuie să coincidă cu href-ul din JS
+def dashboard():
+    return render_template('panou.html') # sau index.html, cum l-ai numit
+@app.route('/intrari')
+def intrari(): return "Pagina Intrări în lucru"
+
+@app.route('/iesiri')
+def iesiri(): return "Pagina Ieșiri în lucru"
+
+@app.route('/furnizori')
+def furnizori(): return "Pagina Furnizori în lucru"
+
+@app.route('/rapoarte')
+def rapoarte_pagina(): return "Pagina Rapoarte în lucru"
+
+
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
 def delete_product(id):
     conn = get_db_connection()
@@ -266,3 +282,5 @@ def delete_product(id):
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
+    
+ 

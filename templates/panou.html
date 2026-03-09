@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - Stoc Avansat</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="dashboard">
+        <header class="kpi-grid">
+            <div class="card kpi">
+                <span>Valoare Inventar</span>
+                <strong>45.200 RON</strong>
+            </div>
+            <div class="card kpi alert">
+                <span>Urgențe Stoc</span>
+                <strong>12 Produse</strong>
+            </div>
+            <div class="card kpi info">
+                <span>Categorii</span>
+                <strong>8 Active</strong>
+            </div>
+        </header>
+
+        <section class="analysis-row">
+            <div class="card chart-box">
+                <h3>Analiză Polară: Valoare vs Categorie</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="polarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card action-box">
+                <h3>Modificări Rapide</h3>
+                <div class="control-group">
+                    <label>Ajustează Preț Global (%)</label>
+                    <div class="input-inline">
+                        <input type="number" placeholder="ex: 5">
+                        <button class="btn-primary">Aplică</button>
+                    </div>
+                </div>
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #eee;">
+                <div class="dead-stock">
+                    <h4>Produse Fără Mișcare (60 zile+)</h4>
+                    <ul class="stock-list" style="list-style: none; padding: 0;">
+                        <li style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                            Produs X <span class="badge" style="background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Redu 10%</span>
+                        </li>
+                        <li style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                            Produs Y <span class="badge" style="background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Redu 15%</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-container card">
+            <h3>Stocuri Critice - Editare Directă</h3>
+            <div class="responsive-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produs</th>
+                            <th>Categorie</th>
+                            <th>Stoc</th>
+                            <th>Stoc Minim (Editabil)</th>
+                            <th>Acțiune</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Monitor Gaming</td>
+                            <td>Electronice</td>
+                            <td><span class="warning">2 buc</span></td>
+                            <td><input type="number" value="10" class="input-edit" style="width: 60px;"></td>
+                            <td><button class="btn-save">Salvează</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script>
+        // 1. Inițializăm Navbar-ul
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initCommonComponents === 'function') {
+                initCommonComponents();
+            }
+
+            // 2. Inițializăm Graficul Polar (În loc de fișier separat, îl punem aici pentru siguranță)
+            const ctx = document.getElementById('polarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Electronice', 'Periferice', 'Software', 'Retelistica'],
+                    datasets: [{
+                        data: [12000, 7000, 15000, 5000],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(241, 196, 15, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+    </script>
+</body>
+</html>
