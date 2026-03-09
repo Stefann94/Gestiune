@@ -63,3 +63,20 @@ window.onclick = function (event) {
     if (event.target == invModal) closeInventoryModal();
     if (event.target == prodModal) closeModal();
 }
+
+/**
+ * Funcție globală pentru a bloca/debloca scroll-ul paginii
+ * @param {boolean} isLocked - true pentru a bloca, false pentru a debloca
+ */
+function toggleParentScroll(isLocked) {
+    const body = document.body;
+    if (isLocked) {
+        // Calculăm lățimea scrollbar-ului pentru a evita "săritura" paginii
+        const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+        body.style.setProperty('--scrollbar-width', scrollBarWidth + 'px');
+        body.classList.add('modal-open');
+    } else {
+        body.classList.remove('modal-open');
+        body.style.removeProperty('--scrollbar-width');
+    }
+}

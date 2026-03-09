@@ -1,38 +1,46 @@
 /* --- 0. OVERLAY (FUNDALUL) - CENTRARE ABSOLUTĂ --- */
 .modal-overlay {
-    display: none;
-    /* MODIFICARE: Forțăm starea închisă la refresh */
+    display: none; /* Se activează din JS (flex) */
     position: fixed;
-    top: 70px;
+    top: 0;
     left: 0;
-    width: 100vw;
-    height: calc(100vh - 70px);
-    background: rgba(6, 78, 59, 0.45);
-    backdrop-filter: blur(8px);
-    z-index: 3000;
+    width: 100%;
+    height: 100%;
+    
+    /* MODIFICARE: Fundal semi-întunecat identic cu rapoarte.css */
+    background: rgba(0, 0, 0, 0.5); 
+    
+    /* Efect de blur */
+    backdrop-filter: blur(4px);
+    z-index: 9999;
 
-    /* MODIFICARE: Nu mai punem display: flex aici direct */
+    /* Centrare perfectă a conținutului */
     justify-content: center;
     align-items: center;
-    padding: 1rem;
+    
+    /* Spațiere pentru a nu lipi modalul de margini pe ecrane mici */
+    padding-top: 5rem; 
+    padding-bottom: 2rem;
+    box-sizing: border-box;
 }
 
 
 /* --- 1. CONTAINER MODAL (DESIGN PREMIUM) --- */
 .inventory-modal-wide {
-    width: 95vw;
+    width: 90vw; /* Ajustat la 90vw ca în rapoarte */
     max-width: 1200px;
-    /* Micșorăm puțin height-ul pentru a respira mai bine în spațiul dintre navbar și subsol */
-    height: 80vh;
+    height: 85vh; /* Ajustat la 85vh pentru consistență */
     background: #ffffff;
     border-radius: 1.5rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.35);
+    
+    /* Umbră mai pronunțată ca în rapoarte */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
 
-    /* Păstrăm efectul tău original intact */
+    /* Animație */
     animation: modalAppear 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 

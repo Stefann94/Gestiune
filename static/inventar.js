@@ -369,33 +369,21 @@ async function deleteProductRow(button, id) {
 // --- 5. MODALE ---
 
 function openInventoryModal() {
-
     const modal = document.getElementById('inventoryModal');
-
     if (modal) {
-
         modal.style.display = 'flex';
-
+        toggleParentScroll(true); // <--- BLOCĂM PAGINA
         initSafeStates();
-
     }
-
 }
 
-
-
 function closeInventoryModal() {
-
     const modal = document.getElementById('inventoryModal');
-
     if (modal) {
-
         modal.style.display = 'none';
-
+        toggleParentScroll(false); // <--- DEBLOCĂM PAGINA
         applyCombinedFilters();
-
     }
-
 }
 
 

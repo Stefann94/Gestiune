@@ -36,3 +36,42 @@ li {
 li strong {
     color: #059669;
 }
+
+/* --- GESTIUNE SCROLL GLOBAL --- */
+
+/* Când un modal este activ, blocăm scroll-ul pe body */
+body.modal-open {
+    overflow: hidden;
+    /* Opțional: prevenim tremuratul paginii dacă dispare scrollbar-ul */
+    padding-right: var(--scrollbar-width, 0px); 
+}
+
+/* Ne asigurăm că overlay-ul ocupă tot ecranul și permite scroll intern */
+.modal-overlay {
+    display: none; /* Controlat de JS */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    
+    /* Centrare și activare scroll doar în interiorul overlay-ului */
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto; 
+    padding: 20px;
+}
+
+/* Containerul modalului nu trebuie să fie mai înalt decât ecranul */
+.modal-content, .inventory-modal-wide, .reports-modal-wide {
+    max-height: 90vh;
+    overflow-y: auto; /* Permite scroll doar în interiorul modalului */
+}
+
+body.modal-open {
+    overflow: hidden;
+    padding-right: 15px; /* Opțional: previne "săritura" paginii când dispare scrollbar-ul */
+}
