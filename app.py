@@ -49,7 +49,7 @@ def index():
     cur.execute("SELECT COUNT(*) as total FROM products;")
     total = cur.fetchone()['total'] or 0
     
-    critical_products = [p for p in products if (p['current_calculated_stock'] or 0) <= (p['stock_min'] or 0)]
+    critical_products = [p for p in products if (p['current_calculated_stock'] or 0) < 0]
     
     cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
     moves = cur.fetchone()['moves'] or 0
@@ -296,57 +296,73 @@ def stock_flow():
 @app.route('/dashboard')
 def dashboard():
     conn = get_db_connection()
-    if not conn: return "Eroare DB"
+    if not conn: 
+        return "Eroare la conexiunea cu baza de date!"
+    
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # 1. Valoare Inventar (Pret * Stoc)
-    query_valoare = """
-        SELECT SUM(p.price * (
-            COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-            COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
-        )) as total_valoare FROM products p;
-    """
-    cur.execute(query_valoare)
-    valoare_inventar = cur.fetchone()['total_valoare'] or 0
+    try:
+        # 1. Valoare Inventar (Preț Unitar * Stoc Curent pentru fiecare produs)
+        query_valoare = """
+            SELECT SUM(p.price * (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+            )) as total_valoare FROM products p;
+        """
+        cur.execute(query_valoare)
+        valoare_inventar = cur.fetchone()['total_valoare'] or 0
 
-    # 2. Urgențe Stoc (Produse sub pragul minim)
-    query_urgente = """
-        SELECT COUNT(*) as count FROM (
-            SELECT p.id, 
+        # 2. Urgențe Stoc (Numărăm toate produsele care au stocul <= 20 unități)
+        query_urgente_count = """
+            SELECT COUNT(*) as count FROM (
+                SELECT (
+                    COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                    COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+                ) as current_stock
+                FROM products p
+            ) as inv WHERE current_stock <= 20;
+        """
+        cur.execute(query_urgente_count)
+        urgente_count = cur.fetchone()['count'] or 0
+
+        # 3. Flux Ieșiri (Total unități ieșite din stoc în ultimele 24 de ore)
+        cur.execute("""
+            SELECT SUM(quantity) as iesiri 
+            FROM stock_exits 
+            WHERE exit_date > NOW() - INTERVAL '24 hours';
+        """)
+        flux_iesiri = cur.fetchone()['iesiri'] or 0
+
+        # 4. Tabel Monitorizare (Lista produselor care sunt sub pragul de 20)
+        # Acestea vor apărea în tabelul din josul paginii panou.html
+        query_critice = """
+            SELECT p.name, p.stock_min,
             (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-             COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_stock,
-            p.stock_min
+             COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
             FROM products p
-        ) as inventory WHERE current_stock <= stock_min;
-    """
-    cur.execute(query_urgente)
-    urgente_count = cur.fetchone()['count']
+            WHERE (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+            ) <= 20
+            ORDER BY stock ASC
+            LIMIT 10;
+        """
+        cur.execute(query_critice)
+        produse_critice = cur.fetchall()
 
-    # 3. Flux Ieșiri (Ultimele 24h)
-    cur.execute("SELECT SUM(quantity) as iesiri FROM stock_exits WHERE exit_date > NOW() - INTERVAL '24 hours';")
-    flux_iesiri = cur.fetchone()['iesiri'] or 0
+        return render_template('panou.html', 
+                               valoare=valoare_inventar, 
+                               urgente=urgente_count, 
+                               flux=flux_iesiri,
+                               critice=produse_critice)
 
-    # 4. Date pentru tabelul de Stocuri Critice
-    query_critice = """
-        SELECT p.name, p.stock_min,
-        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
-        FROM products p
-        WHERE (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-               COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) <= p.stock_min
-        LIMIT 5;
-    """
-    cur.execute(query_critice)
-    produse_critice = cur.fetchall()
-
-    cur.close()
-    conn.close()
-
-    return render_template('panou.html', 
-                           valoare=valoare_inventar, 
-                           urgente=urgente_count, 
-                           flux=flux_iesiri,
-                           critice=produse_critice)
+    except Exception as e:
+        print(f"Eroare Dashboard: {e}")
+        return f"A intervenit o eroare la procesarea datelor: {e}"
+    
+    finally:
+        cur.close()
+        conn.close()
     
 @app.route('/api/stats/categorii')
 def stats_categorii():
@@ -383,7 +399,32 @@ def stats_categorii():
         cur.close()
         conn.close()
 
+@app.route('/api/stats/top-produse')
+def top_produse():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Top 5 cele mai scumpe (Preț unitar)
+        cur.execute("SELECT name, price FROM products ORDER BY price DESC LIMIT 5;")
+        scumpe = cur.fetchall()
 
+        # Top 5 cele mai vândute (Suma cantităților din stock_exits)
+        cur.execute("""
+            SELECT p.name, SUM(se.quantity) as total_vandut
+            FROM products p
+            JOIN stock_exits se ON p.id = se.product_id
+            GROUP BY p.name
+            ORDER BY total_vandut DESC
+            LIMIT 5;
+        """)
+        vandute = cur.fetchall()
+
+        return jsonify({
+            "scumpe": scumpe,
+            "vandute": vandute
+        })
+    finally:
+        conn.close()
 
     
 @app.route('/intrari')

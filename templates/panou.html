@@ -157,7 +157,62 @@
             </div>
         </section>
     </main>
+<div id="valoareModal" class="modal-overlay">
+    <div class="inventory-modal-wide analysis-modal">
+        <div class="inventory-header-brand">
+            <div>
+                <h2><i class="fas fa-chart-line"></i> Analiză Detaliată Inventar</h2>
+                <p>Top performanță și valoare activă</p>
+            </div>
+            <span class="close-audit-btn close-modal">&times;</span>
+        </div>
 
+        <div class="inventory-filters-nav">
+             <div class="filter-pills-audit">
+                <span class="pill-audit active">Statistici Live</span>
+             </div>
+             <div class="text-white opacity-80">
+                <i class="fas fa-clock"></i> Actualizat acum
+             </div>
+        </div>
+
+        <div class="modal-body-scroll">
+            <div class="analysis-grid">
+                <div class="analysis-col">
+                    <h3 class="col-title"><i class="fas fa-crown text-gold"></i> Top 5 Cele mai Scumpe</h3>
+                    <div class="analysis-table-wrapper">
+                        <table id="tableScumpe">
+                            <thead>
+                                <tr>
+                                    <th>Produs</th>
+                                    <th class="text-right">Preț Unitar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaScumpe">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="analysis-col">
+                    <h3 class="col-title"><i class="fas fa-fire text-orange"></i> Top 5 Cele mai Vândute</h3>
+                    <div class="analysis-table-wrapper">
+                        <table id="tableVandute">
+                            <thead>
+                                <tr>
+                                    <th>Produs</th>
+                                    <th class="text-right">Unități Ieșite</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaVandute">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='panou.js') }}"></script>

@@ -269,3 +269,213 @@ td {
         font-size: 115%;
     }
 }
+
+/* --- ADAPTĂRI PENTRU ANALIZĂ --- */
+.analysis-modal {
+    height: auto !important; /* Lăsăm înălțimea să se adapteze dacă e puțin conținut */
+    max-height: 85vh;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    padding-top: 2rem;
+}
+
+.col-title {
+    font-size: 1.1rem;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.analysis-table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: auto !important; /* Resetăm min-width de la tabelul mare */
+}
+
+.analysis-table-wrapper th {
+    background: #f8fafc;
+    padding: 0.8rem;
+    color: #64748b;
+    font-size: 0.7rem;
+}
+
+.analysis-table-wrapper td {
+    padding: 1rem 0.8rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.analysis-table-wrapper tr:hover {
+    background: #f0fdf4; /* Feedback vizual la hover */
+}
+
+.text-gold { color: #f59e0b; }
+.text-orange { 
+    color: #059669 !important; /* Verde închis pentru unități vândute */
+    font-weight: 800;
+}
+
+/* Responsivitate pentru modal */
+@media (max-width: 48rem) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* --- FUNDALUL (OVERLAY) --- */
+.modal-overlay {
+    display: none; /* Controlat din JS prin .style.display = 'flex' */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Starea activă */
+.modal-overlay.active {
+    display: flex !important;
+}
+
+/* --- CONTAINER MODAL (DESIGN PREMIUM CA ÎN INVENTAR) --- */
+.analysis-modal {
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalAppear 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* --- ANTETUL (VERDE ÎNCHIS BRAND) --- */
+.inventory-header-brand {
+    background: #064e3b;
+    padding: 1.5rem 2.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-modal {
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.8);
+    user-select: none;
+}
+
+.close-modal:hover {
+    transform: scale(1.1);
+    color: #ef4444; /* Roșu aprins la hover ca în inventar */
+}
+
+.inventory-header-brand h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* --- BARA DE SUB ANTET (STATISTICI LIVE) --- */
+.inventory-filters-nav {
+    background: #065f46; /* Verdele secundar */
+    padding: 0.8rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #10b981;
+    color: white;
+}
+
+
+
+.opacity-80 {
+    opacity: 0.8;
+    color: white !important;
+}
+
+/* --- CORPUL MODALULUI ȘI GRID-UL DE DATE --- */
+.modal-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem 2.5rem;
+    background: #f8fafc;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.col-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+/* --- TABELE INTERNE STILIZATE --- */
+.analysis-table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 0.8rem;
+    overflow: hidden;
+}
+
+.analysis-table-wrapper th {
+    background: #f1f5f9;
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.analysis-table-wrapper td {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.95rem;
+}
+
+.analysis-table-wrapper tr:hover {
+    background: #f0fdf4;
+}
+
+/* Culori specifice pentru valori */
+.text-gold { 
+    color: #10b981 !important; /* Am schimbat din aur în verdele tău smarald */
+    font-weight: 800;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.text-orange { color: #dc2626; font-weight: 700; }
+
+@keyframes modalAppear {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
