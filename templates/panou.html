@@ -3,127 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Panel - Stoc Avansat</title>
-    
+    <title>Dashboard | StockMaster Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
     <div id="navbar-placeholder"></div>
 
-    <main class="dashboard">
-        <header class="kpi-grid">
-            <div class="card kpi">
-                <span>Valoare Inventar</span>
-                <strong>45.200 RON</strong>
+    <main class="dashboard-container">
+        <header class="db-header">
+            <div class="welcome-text">
+                <h1>Sistem Gestiune <span class="text-gradient">Live</span></h1>
+                <p>Status operațional: <span class="status-chip online">Optim</span></p>
             </div>
-            <div class="card kpi alert">
-                <span>Urgențe Stoc</span>
-                <strong>12 Produse</strong>
-            </div>
-            <div class="card kpi info">
-                <span>Categorii</span>
-                <strong>8 Active</strong>
+            <div class="header-actions">
+                <button class="btn-ghost"><i class="fas fa-calendar"></i> Ultima lună</button>
+                <button class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </header>
 
-        <section class="analysis-row">
-            <div class="card chart-box">
-                <h3>Analiză Polară: Valoare vs Categorie</h3>
-                <div class="canvas-wrapper">
-                    <canvas id="polarChart"></canvas>
+        <section class="bento-grid-kpi">
+            <div class="kpi-card glass">
+                <div class="kpi-icon money"><i class="fas fa-wallet"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Valoare Inventar</span>
+                    <h2 class="value">45.200 <small>RON</small></h2>
+                    <span class="trend up"><i class="fas fa-arrow-up"></i> 12% vs luna trecută</span>
+                </div>
+            </div>
+            <div class="kpi-card glass warning">
+                <div class="kpi-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Urgențe Stoc</span>
+                    <h2 class="value">12 <small>Produse</small></h2>
+                    <span class="trend neutral">Necesită reaprovizionare</span>
+                </div>
+            </div>
+            <div class="kpi-card glass info">
+                <div class="kpi-icon box"><i class="fas fa-layer-group"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Categorii Active</span>
+                    <h2 class="value">8</h2>
+                    <span class="trend blue">Performanță optimă</span>
+                </div>
+            </div>
+            <div class="kpi-card glass activity">
+                <div class="kpi-icon chart"><i class="fas fa-bolt"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Flux Ieșiri (24h)</span>
+                    <h2 class="value">156 <small>Unități</small></h2>
+                    <span class="trend up"><i class="fas fa-fire"></i> Cerere ridicată</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="main-content-layout">
+            <div class="content-column visual-analysis">
+                <div class="card glass-dark">
+                    <div class="card-header">
+                        <h3>Distribuție Valoare per Categorie</h3>
+                        <div class="chart-legend-custom" id="customLegend"></div>
+                    </div>
+                    <div class="chart-container-large">
+                        <canvas id="polarChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="card action-box">
-                <h3>Modificări Rapide</h3>
-                <div class="control-group">
-                    <label>Ajustează Preț Global (%)</label>
-                    <div class="input-inline">
-                        <input type="number" placeholder="ex: 5">
-                        <button class="btn-primary">Aplică</button>
+            <div class="content-column quick-actions">
+                <div class="card glass gradient-border">
+                    <h3>Bulk Operations</h3>
+                    <div class="bulk-control">
+                        <p>Ajustează Preț Global (%)</p>
+                        <div class="fancy-input-group">
+                            <input type="number" placeholder="0.00">
+                            <button class="btn-action">Aplică</button>
+                        </div>
                     </div>
                 </div>
-                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #eee;">
-                <div class="dead-stock">
-                    <h4>Produse Fără Mișcare (60 zile+)</h4>
-                    <ul class="stock-list" style="list-style: none; padding: 0;">
-                        <li style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                            Produs X <span class="badge" style="background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Redu 10%</span>
+
+                <div class="card glass">
+                    <div class="card-header-flex">
+                        <h3>Stock Inactiv</h3>
+                        <span class="badge-count">60 zile+</span>
+                    </div>
+                    <ul class="dead-stock-list">
+                        <li>
+                            <div class="item-meta">
+                                <strong>Monitor Gaming AOC</strong>
+                                <span>3 buc rămase</span>
+                            </div>
+                            <span class="action-tag">Reducere 10%</span>
                         </li>
-                        <li style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                            Produs Y <span class="badge" style="background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Redu 15%</span>
+                        <li>
+                            <div class="item-meta">
+                                <strong>Tastatură Mecanică</strong>
+                                <span>12 buc rămase</span>
+                            </div>
+                            <span class="action-tag">Reducere 15%</span>
                         </li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <section class="table-container card">
-            <h3>Stocuri Critice - Editare Directă</h3>
-            <div class="responsive-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produs</th>
-                            <th>Categorie</th>
-                            <th>Stoc</th>
-                            <th>Stoc Minim (Editabil)</th>
-                            <th>Acțiune</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Monitor Gaming</td>
-                            <td>Electronice</td>
-                            <td><span class="warning">2 buc</span></td>
-                            <td><input type="number" value="10" class="input-edit" style="width: 60px;"></td>
-                            <td><button class="btn-save">Salvează</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+        <section class="table-section">
+            <div class="card glass no-padding">
+                <div class="table-header-custom">
+                    <h3>Monitorizare Stocuri Critice</h3>
+                    <div class="table-filters">
+                        <input type="text" placeholder="Caută în critice..." id="tableSearch">
+                    </div>
+                </div>
+                <div class="modern-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produs</th>
+                                <th>Stare</th>
+                                <th>Stoc Curent</th>
+                                <th>Prag Minim</th>
+                                <th class="text-right">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-img">M</div>
+                                        <div>
+                                            <p class="p-name">Monitor Gaming</p>
+                                            <p class="p-cat">Electronice</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-indicator-dot critical"></span> Critic</td>
+                                <td><strong class="text-danger">2 buc</strong></td>
+                                <td><input type="number" value="10" class="inline-edit"></td>
+                                <td class="text-right"><button class="btn-table-save"><i class="fas fa-save"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
-    <script>
-        // 1. Inițializăm Navbar-ul
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof initCommonComponents === 'function') {
-                initCommonComponents();
-            }
+    <script src="{{ url_for('static', filename='panou.js') }}"></script>
 
-            // 2. Inițializăm Graficul Polar (În loc de fișier separat, îl punem aici pentru siguranță)
-            const ctx = document.getElementById('polarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'polarArea',
-                data: {
-                    labels: ['Electronice', 'Periferice', 'Software', 'Retelistica'],
-                    datasets: [{
-                        data: [12000, 7000, 15000, 5000],
-                        backgroundColor: [
-                            'rgba(16, 185, 129, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(231, 76, 60, 0.7)',
-                            'rgba(241, 196, 15, 0.7)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initCommonComponents === 'function') {
+                window.initCommonComponents();
+            }
         });
     </script>
 </body>

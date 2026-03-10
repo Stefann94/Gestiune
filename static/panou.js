@@ -1,79 +1,58 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Configurare Grafic Polar Area
+    // 1. Configurare Chart.js cu gradient și fonturi custom
     const ctx = document.getElementById('polarChart').getContext('2d');
     
-    // Date de test (le vom înlocui ulterior cu fetch din Python)
-    const dataCategorii = {
-        labels: ['Electronice', 'Electrocasnice', 'Birotică', 'Gadgets', 'Altele'],
-        datasets: [{
-            label: 'Valoare Stoc (RON)',
-            data: [12000, 7500, 3000, 5000, 2000],
-            backgroundColor: [
-                'rgba(52, 152, 219, 0.7)',  // Albastru
-                'rgba(231, 76, 60, 0.7)',   // Roșu
-                'rgba(46, 204, 113, 0.7)',  // Verde
-                'rgba(241, 196, 15, 0.7)',  // Galben
-                'rgba(155, 89, 182, 0.7)'   // Mov
-            ],
-            borderWidth: 2,
-            borderColor: '#ffffff'
-        }]
-    };
-
-    const polarChart = new Chart(ctx, {
+    // Gradient pentru un efect vizual deosebit
+    const chart = new Chart(ctx, {
         type: 'polarArea',
-        data: dataCategorii,
+        data: {
+            labels: ['Electronice', 'Periferice', 'Software', 'Retelistica', 'Accesorii'],
+            datasets: [{
+                data: [18000, 12000, 25000, 8000, 5000],
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(99, 102, 241, 0.7)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(239, 68, 68, 0.7)',
+                    'rgba(100, 116, 139, 0.7)'
+                ],
+                borderWidth: 0
+            }]
+        },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    grid: { color: '#ddd' },
-                    ticks: { display: false } // Ascundem numerele brute pentru un aspect curat
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { display: false }
                 }
             },
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: { padding: 20, font: { size: 14 } }
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 25,
+                        font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' }
+                    }
                 }
             }
         }
     });
 
-    // 2. Interactivitate: Salvare Stoc Minim (Quick Edit)
-    const saveButtons = document.querySelectorAll('.btn-save');
+    // 2. Simulări UI
+    console.log("Dashboard Premium inițializat...");
     
-    saveButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const productName = row.cells[0].innerText;
-            const newMinStock = row.querySelector('.input-edit').value;
-
-            // Simulare apel API
-            console.log(`Salvare pentru ${productName}: Stoc minim nou = ${newMinStock}`);
-            
-            // Efect vizual de succes
-            this.innerText = '✅ OK';
-            this.style.background = '#2ecc71';
-            
-            setTimeout(() => {
-                this.innerText = 'Salvează';
-                this.style.background = '#3498db';
-            }, 2000);
-            
-            // Aici vei adăuga ulterior: 
-            // fetch('/update-min-stock', { method: 'POST', body: ... })
+    // Exemplu de animație la hover pe carduri KPI
+    const kpiCards = document.querySelectorAll('.kpi-card');
+    kpiCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = "translateY(-5px) scale(1.02)";
+            card.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
         });
-    });
-
-    // 3. Interactivitate: Ajustare Preț Global
-    const btnApplyPrice = document.querySelector('.btn-primary');
-    btnApplyPrice.addEventListener('click', function() {
-        const percent = this.previousElementSibling.value;
-        if(percent) {
-            alert(`Se aplică o modificare de ${percent}% asupra prețurilor din baza de date...`);
-            // Logica de backend va veni aici
-        }
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = "translateY(0) scale(1)";
+        });
     });
 });

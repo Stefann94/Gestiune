@@ -1,137 +1,271 @@
-/* panou.css - Fără PX, Full Responsive */
-body {
+/* --- RESET & GLOBAL --- */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f8fafc;
+}
+
+body {
+    background-color: #f0f2f5;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: #1e293b;
-    font-size: 1rem;
+    line-height: 1.5;
+    /* Font size de bază pentru a controla restul unităților rem */
+    font-size: 100%; 
 }
 
-.dashboard {
-    /* Spațiu pentru navbar-ul fixed (care are 5.5rem) */
-    margin-top: 5.5rem; 
-    padding: 2rem;
+/* --- LAYOUT CONTAINER --- */
+.dashboard-container {
+    margin-top: 5.5rem;
+    padding: 2.5rem 5%; /* Padding lateral procentual pentru responsivitate */
+    max-width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    max-width: 100vw;
+    gap: 2.5rem;
 }
 
-.card {
-    background: white;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    border: 0.06rem solid #e2e8f0;
-    box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.03);
-}
-
-/* KPI-uri cu culori din StockMaster */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1.5rem;
-}
-
-.kpi {
+/* --- HEADER --- */
+.db-header {
     display: flex;
-    flex-direction: column;
-    transition: transform 0.2s;
-}
-
-.kpi:hover { transform: translateY(-0.2rem); }
-.kpi span { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
-.kpi strong { font-size: 2rem; margin-top: 0.5rem; color: #064e3b; }
-
-.kpi.alert { border-left: 0.5rem solid #ef4444; }
-.kpi.info { border-left: 0.5rem solid #10b981; }
-
-/* Layout Secțiuni */
-.analysis-row {
-    display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
 }
 
-.chart-box { flex: 2; min-width: 22rem; }
-.action-box { flex: 1; min-width: 18rem; }
-
-.canvas-wrapper {
-    position: relative;
-    height: 22rem; /* Controlat prin REM */
-    width: 100%;
+.text-gradient {
+    background: linear-gradient(90deg, #10b981, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
 }
 
-/* Utilitare Listă și Badge */
-.stock-list {
-    list-style: none;
-    padding: 0;
+/* --- BENTO GRID KPI --- */
+.bento-grid-kpi {
+    display: grid;
+    /* Grid adaptiv care nu crapă la rezoluții mici */
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1.5rem;
+}
+
+.kpi-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(0.6rem);
+    -webkit-backdrop-filter: blur(0.6rem);
+    border: 0.06rem solid rgba(255, 255, 255, 0.4);
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: 0 0.6rem 1.8rem -0.6rem rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-0.3rem);
+}
+
+.kpi-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    min-width: 3.5rem; /* Previne turtirea iconiței */
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Culori KPI fără variabile */
+.kpi-icon.money { background: #dcfce7; color: #166534; }
+.kpi-icon.alert { background: #fee2e2; color: #991b1b; }
+.kpi-icon.box { background: #e0e7ff; color: #3730a3; }
+.kpi-icon.chart { background: #fef3c7; color: #92400e; }
+
+.value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: block;
+}
+
+.label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* --- MAIN CONTENT SPLIT --- */
+.main-content-layout {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 2rem;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.04);
+    border: 0.06rem solid #e2e8f0;
+}
+
+/* --- QUICK ACTIONS & LISTS --- */
+.fancy-input-group {
+    display: flex;
+    gap: 0.5rem;
     margin-top: 1rem;
 }
 
-.stock-list li {
-    padding: 0.8rem 0;
-    border-bottom: 0.06rem solid #f1f5f9;
+.fancy-input-group input {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    border: 0.12rem solid #e2e8f0;
+    outline: none;
+    font-family: inherit;
+}
+
+.btn-action {
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.dead-stock-list {
+    list-style: none;
+    margin-top: 1.5rem;
+}
+
+.dead-stock-list li {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 0;
+    border-bottom: 0.06rem solid #f1f5f9;
 }
 
-.badge {
-    background: #fef2f2;
-    color: #ef4444;
-    padding: 0.3rem 0.6rem;
-    border-radius: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-/* Butoane și Input-uri */
-.btn-primary, .btn-save {
-    background: #10b981; /* Verdele tau principal */
-    color: white;
-    border: none;
-    padding: 0.7rem 1.2rem;
+.action-tag {
+    background: #fff1f2;
+    color: #e11d48;
+    padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
-.btn-primary:hover { background: #059669; }
-
-.input-edit, input[type="number"] {
-    padding: 0.6rem;
-    border: 0.1rem solid #e2e8f0;
-    border-radius: 0.4rem;
-    outline: none;
-}
-
-.input-edit:focus { border-color: #10b981; }
-
-/* Responsivitate Table */
-.responsive-table {
-    overflow-x: auto;
-    margin-top: 1rem;
+/* --- TABLE SECTION --- */
+.modern-table-wrapper {
+    overflow-x: auto; /* Scroll orizontal pe mobil */
+    width: 100%;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 40rem; /* Garantează că tabelul nu se înghesuie prea tare */
 }
 
 th {
-    background: #f8fafc;
-    padding: 1rem;
     text-align: left;
-    font-size: 0.9rem;
+    padding: 1.25rem;
+    background: #f8fafc;
     color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-td { padding: 1.2rem 1rem; border-top: 0.06rem solid #f1f5f9; }
+td {
+    padding: 1.25rem;
+    border-bottom: 0.06rem solid #f1f5f9;
+}
 
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-img {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #f1f5f9;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #475569;
+}
+
+.inline-edit {
+    width: 4.5rem;
+    padding: 0.4rem;
+    border: 0.1rem solid #cbd5e1;
+    border-radius: 0.4rem;
+    text-align: center;
+}
+
+.btn-table-save {
+    background: #10b981;
+    color: white;
+    border: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+/* --- RESPONSIVITATE (MEDIA QUERIES) --- */
+
+/* Pentru tablete și ecrane medii */
+@media (max-width: 64rem) {
+    .main-content-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-container {
+        padding: 1.5rem 3%;
+    }
+}
+
+/* Pentru ecrane mici (Mobile) */
 @media (max-width: 48rem) {
-    .dashboard { padding: 1rem; }
-    .kpi strong { font-size: 1.6rem; }
-    .chart-box { min-width: 100%; }
+    .db-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .kpi-card {
+        padding: 1rem;
+    }
+    
+    .value {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        padding: 1.25rem;
+    }
+
+    .fancy-input-group {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
+}
+
+/* Ajustare font-size global pentru ecrane foarte mari */
+@media (min-width: 120rem) {
+    body {
+        font-size: 115%;
+    }
 }

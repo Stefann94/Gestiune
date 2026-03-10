@@ -1,9 +1,11 @@
 window.initCommonComponents = function () {
     const navbarHTML = `
     <nav class="navbar">
-        <div class="logo">
-            <i class="fas fa-boxes"></i> <span>StockMaster</span>
-        </div>
+        <a href="/" class="logo-link">
+                    <div class="logo">
+                        <i class="fas fa-boxes"></i> <span>StockMaster</span>
+                    </div>
+        </a>
         <ul class="nav-links">
             <li>
                 <a href="/dashboard"> 
