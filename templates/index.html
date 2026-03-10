@@ -248,68 +248,82 @@
 
                     <tbody id="inventoryTableBody">
 
-                        {% for p in products %}
+{% for p in products %}
 
-                        <tr class="product-row" data-id="{{ p.id }}"
-                            data-system-stock="{{ p.stock - (p.last_audit_diff or 0) }}"
-                            data-status="{{ p.last_audit_status if p.last_audit_status else 'synced' }}">
+<tr class="product-row"
+    data-id="{{ p.id }}"
+    data-system-stock="{{ p.stock }}"
+    data-status="{{ p.last_audit_status or 'synced' }}">
 
-                            <td contenteditable="true" class="editable-name">{{ p.name }}</td>
+    <td contenteditable="true" class="editable-name">
+        {{ p.name }}
+    </td>
 
-                            <td contenteditable="true" class="editable-sku">
-                                <code>{{ p.sku }}</code>
-                            </td>
+    <td contenteditable="true" class="editable-sku">
+        <code>{{ p.sku }}</code>
+    </td>
 
-                            <td class="text-center">
-                                <span class="system-stock-badge">
-                                    {{ p.stock - (p.last_audit_diff or 0) }}
-                                </span>
-                            </td>
+    <td class="text-center">
+        <span class="system-stock-badge">
+            {{ p.stock }}
+        </span>
+    </td>
 
-                            <td class="text-center">
-                                <input type="number" class="faptic-input" value="{{ p.stock }}"
-                                    oninput="updateRowStatus(this)">
-                            </td>
+    <td class="text-center">
 
-                            <td class="text-center">
+        <input
+            type="number"
+            class="faptic-input"
+            value="{{ p.last_faptic_value or p.stock }}"
+            oninput="updateRowStatus(this)">
 
-                                <span
-                                    class="status-indicator {{ p.last_audit_status if p.last_audit_status else 'synced' }}">
+    </td>
 
-                                    {% if p.last_audit_status == 'shortage' %}
-                                    Lipsă ({{ p.last_audit_diff | abs }})
+    <td class="text-center">
 
-                                    {% elif p.last_audit_status == 'surplus' %}
-                                    Surplus ({{ p.last_audit_diff }})
+        <span class="status-indicator {{ p.last_audit_status or 'synced' }}">
 
-                                    {% else %}
-                                    OK
-                                    {% endif %}
+            {% if p.last_audit_status == 'shortage' %}
+                Lipsă ({{ p.last_audit_diff | abs }})
 
-                                </span>
+            {% elif p.last_audit_status == 'surplus' %}
+                Surplus ({{ p.last_audit_diff }})
 
-                            </td>
+            {% else %}
+                OK
+            {% endif %}
 
-                            <td class="text-right">
+        </span>
 
-                                <div style="display:flex;gap:5px;justify-content:flex-end;">
+    </td>
 
-                                    <button class="btn-sync" onclick="saveAuditRow(this)" title="Salvează modificările">
-                                        <i class="fas fa-save"></i>
-                                    </button>
+    <td class="text-right">
 
-                                    <button class="btn-delete" onclick="deleteProductRow(this,'{{ p.id }}')"
-                                        title="Șterge produsul">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+        <div style="display:flex;gap:5px;justify-content:flex-end;">
 
-                                </div>
+            <button class="btn-sync"
+                onclick="saveAuditRow(this)"
+                title="Salvează modificările">
 
-                            </td>
+                <i class="fas fa-save"></i>
 
-                        </tr>
+            </button>
 
-                        {% endfor %}
+            <button class="btn-delete"
+                onclick="deleteProductRow(this,'{{ p.id }}')"
+                title="Șterge produsul">
+
+                <i class="fas fa-trash"></i>
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+{% endfor %}
 
                     </tbody>
 

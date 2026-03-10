@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | StockMaster Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
 </head>
+
 <body>
 
     <div id="navbar-placeholder"></div>
@@ -31,7 +34,7 @@
                 <div class="kpi-icon money"><i class="fas fa-wallet"></i></div>
                 <div class="kpi-info">
                     <span class="label">Valoare Inventar</span>
-                    <h2 class="value">45.200 <small>RON</small></h2>
+                    <h2 class="value">{{ "{:,.2f}".format(valoare) }} <small>RON</small></h2>
                     <span class="trend up"><i class="fas fa-arrow-up"></i> 12% vs luna trecută</span>
                 </div>
             </div>
@@ -39,7 +42,7 @@
                 <div class="kpi-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
                 <div class="kpi-info">
                     <span class="label">Urgențe Stoc</span>
-                    <h2 class="value">12 <small>Produse</small></h2>
+                    <h2 class="value">{{ urgente }} <small>Produse</small></h2>
                     <span class="trend neutral">Necesită reaprovizionare</span>
                 </div>
             </div>
@@ -55,7 +58,7 @@
                 <div class="kpi-icon chart"><i class="fas fa-bolt"></i></div>
                 <div class="kpi-info">
                     <span class="label">Flux Ieșiri (24h)</span>
-                    <h2 class="value">156 <small>Unități</small></h2>
+                    <h2 class="value">{{ flux }} <small>Unități</small></h2>
                     <span class="trend up"><i class="fas fa-fire"></i> Cerere ridicată</span>
                 </div>
             </div>
@@ -131,21 +134,23 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for p in critice %}
                             <tr>
                                 <td>
                                     <div class="product-cell">
-                                        <div class="product-img">M</div>
+                                        <div class="product-img">{{ p.name[0] }}</div>
                                         <div>
-                                            <p class="p-name">Monitor Gaming</p>
-                                            <p class="p-cat">Electronice</p>
+                                            <p class="p-name">{{ p.name }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td><span class="status-indicator-dot critical"></span> Critic</td>
-                                <td><strong class="text-danger">2 buc</strong></td>
-                                <td><input type="number" value="10" class="inline-edit"></td>
-                                <td class="text-right"><button class="btn-table-save"><i class="fas fa-save"></i></button></td>
+                                <td><strong class="text-danger">{{ p.stock }} buc</strong></td>
+                                <td>{{ p.stock_min }}</td>
+                                <td class="text-right"><button class="btn-table-save"><i
+                                            class="fas fa-save"></i></button></td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -158,11 +163,12 @@
     <script src="{{ url_for('static', filename='panou.js') }}"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             if (typeof window.initCommonComponents === 'function') {
                 window.initCommonComponents();
             }
         });
     </script>
 </body>
+
 </html>

@@ -56,3 +56,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+fetch('/api/stats/categorii')
+    .then(response => response.json())
+    .then(data => {
+        const chart = new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.values,
+                    // ... culorile tale
+                }]
+            },
+            // ... opțiunile tale
+        });
+    });

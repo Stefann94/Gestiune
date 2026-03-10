@@ -81,10 +81,33 @@ def inventar():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     query = """
-        SELECT p.id, p.name, p.sku, p.last_audit_status, p.last_audit_diff,
-        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-        COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
-        FROM products p;
+    SELECT 
+        p.id,
+        p.name,
+        p.sku,
+        p.last_audit_status,
+        p.last_audit_diff,
+        p.last_faptic_value,
+
+        COALESCE(
+            p.last_system_stock,
+            (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id),0)
+                -
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id),0)
+            )
+        ) as stock_sistem,
+
+        COALESCE(
+            p.last_faptic_value,
+            (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id),0)
+                -
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id),0)
+            )
+        ) as stock_faptic
+
+    FROM products p;
     """
     cur.execute(query)
     products = cur.fetchall()
@@ -132,29 +155,47 @@ def produs_nou():
 @app.route('/api/audit-save', methods=['POST'])
 def audit_save():
     data = request.json
-    p_id, new_name, new_sku, faptic_quantity = data.get('id'), data.get('name'), data.get('sku'), int(data.get('stock'))
+    p_id = data.get('id')
+    faptic_input = int(data.get('stock'))
+    
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    
     try:
+        # 1. Aflăm stocul de sistem (care NU se va schimba)
         cur.execute("""
-            SELECT (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
-                    COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)) as system_stock
+            SELECT (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = %s), 0)
+            ) as stoc_sistem
         """, (p_id, p_id))
-        system_stock = cur.fetchone()['system_stock']
-        diff = faptic_quantity - system_stock
-        new_status = 'synced' if diff == 0 else ('shortage' if diff < 0 else 'surplus')
         
-        cur.execute("""
-            UPDATE products SET name = %s, sku = %s, last_audit_status = %s, last_audit_diff = %s WHERE id = %s
-        """, (new_name, new_sku, new_status, diff, p_id))
+        stoc_sistem = cur.fetchone()['stoc_sistem'] or 0
+        
+        # 2. Calculăm diferența față de sistemul înghețat
+        # 92 (faptic) - 96 (sistem) = -4
+        diferenta_audit = faptic_input - stoc_sistem 
+        
+        status_nou = 'synced' if diferenta_audit == 0 else ('shortage' if diferenta_audit < 0 else 'surplus')
 
-        if diff > 0: cur.execute("INSERT INTO stock_entries (product_id, quantity) VALUES (%s, %s)", (p_id, diff))
-        elif diff < 0: cur.execute("INSERT INTO stock_exits (product_id, quantity) VALUES (%s, %s)", (p_id, abs(diff)))
+        # 3. Salvăm auditul în coloane separate, fără să atingem tabelele de mișcări
+        cur.execute("""
+            UPDATE products 
+            SET last_audit_status = %s,
+                last_audit_diff = %s,
+                last_faptic_value = %s,
+                last_system_stock = %s
+            WHERE id = %s
+        """, (status_nou, diferenta_audit, faptic_input, stoc_sistem, p_id))
         
         conn.commit()
-        return jsonify({"status": "success", "new_status": new_status, "new_diff": diff})
+        return jsonify({
+            "status": "success", 
+            "new_status": status_nou, 
+            "new_diff": diferenta_audit
+        })
     except Exception as e:
-        conn.rollback()
+        if conn: conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         conn.close()
@@ -251,9 +292,99 @@ def stock_flow():
     finally:
         conn.close()
 
-@app.route('/dashboard') # <--- Aceasta trebuie să coincidă cu href-ul din JS
+@app.route('/dashboard')
 def dashboard():
-    return render_template('panou.html') # sau index.html, cum l-ai numit
+    conn = get_db_connection()
+    if not conn: return "Eroare DB"
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # 1. Valoare Inventar (Pret * Stoc)
+    query_valoare = """
+        SELECT SUM(p.price * (
+            COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+            COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+        )) as total_valoare FROM products p;
+    """
+    cur.execute(query_valoare)
+    valoare_inventar = cur.fetchone()['total_valoare'] or 0
+
+    # 2. Urgențe Stoc (Produse sub pragul minim)
+    query_urgente = """
+        SELECT COUNT(*) as count FROM (
+            SELECT p.id, 
+            (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+             COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_stock,
+            p.stock_min
+            FROM products p
+        ) as inventory WHERE current_stock <= stock_min;
+    """
+    cur.execute(query_urgente)
+    urgente_count = cur.fetchone()['count']
+
+    # 3. Flux Ieșiri (Ultimele 24h)
+    cur.execute("SELECT SUM(quantity) as iesiri FROM stock_exits WHERE exit_date > NOW() - INTERVAL '24 hours';")
+    flux_iesiri = cur.fetchone()['iesiri'] or 0
+
+    # 4. Date pentru tabelul de Stocuri Critice
+    query_critice = """
+        SELECT p.name, p.stock_min,
+        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+        FROM products p
+        WHERE (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+               COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) <= p.stock_min
+        LIMIT 5;
+    """
+    cur.execute(query_critice)
+    produse_critice = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template('panou.html', 
+                           valoare=valoare_inventar, 
+                           urgente=urgente_count, 
+                           flux=flux_iesiri,
+                           critice=produse_critice)
+    
+@app.route('/api/stats/categorii')
+def stats_categorii():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Facem JOIN între products și categories pentru a lua numele real al categoriei
+    query = """
+        SELECT c.name as categorie, SUM(p.price * (
+            COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+            COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+        )) as valoare
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        GROUP BY c.name;
+    """
+    
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        
+        # Dacă nu ai date încă, trimitem niște valori goale să nu crape JS-ul
+        if not rows:
+            return jsonify({"labels": ["Fără date"], "values": [0]})
+
+        return jsonify({
+            "labels": [r['categorie'] for r in rows],
+            "values": [float(r['valoare']) for r in rows]
+        })
+    except Exception as e:
+        print(f"Eroare SQL: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
+
+    
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 
@@ -265,6 +396,9 @@ def furnizori(): return "Pagina Furnizori în lucru"
 
 @app.route('/rapoarte')
 def rapoarte_pagina(): return "Pagina Rapoarte în lucru"
+
+
+from flask import request, jsonify
 
 
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])

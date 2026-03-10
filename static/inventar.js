@@ -248,8 +248,8 @@ async function saveAuditRow(btn) {
 
             // --- ACTUALIZĂM STATUSUL VIZUAL CONFORM SERVERULUI ---
 
+            
             row.setAttribute('data-status', data.new_status);
-
            
 
             const statusSpan = row.querySelector('.status-indicator');
