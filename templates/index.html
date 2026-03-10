@@ -250,77 +250,46 @@
 
 {% for p in products %}
 
-<tr class="product-row"
-    data-id="{{ p.id }}"
-    data-system-stock="{{ p.stock }}"
+<tr class="product-row" 
+    data-id="{{ p.id }}" 
+    data-system-stock="{{ p.last_system_stock if p.last_system_stock is not none else p.current_calculated_stock }}"
     data-status="{{ p.last_audit_status or 'synced' }}">
 
-    <td contenteditable="true" class="editable-name">
-        {{ p.name }}
-    </td>
-
-    <td contenteditable="true" class="editable-sku">
-        <code>{{ p.sku }}</code>
-    </td>
+    <td contenteditable="true" class="editable-name">{{ p.name }}</td>
+    <td contenteditable="true" class="editable-sku"><code>{{ p.sku }}</code></td>
 
     <td class="text-center">
         <span class="system-stock-badge">
-            {{ p.stock }}
+            {# Afișăm sistemul înghețat la ultimul audit, sau cel calculat dacă n-a fost niciun audit #}
+            {{ p.last_system_stock if p.last_system_stock is not none else p.current_calculated_stock }}
         </span>
     </td>
 
     <td class="text-center">
-
-        <input
-            type="number"
-            class="faptic-input"
-            value="{{ p.last_faptic_value or p.stock }}"
-            oninput="updateRowStatus(this)">
-
+        <input type="number" class="faptic-input" 
+               {# Aici punem valoarea faptică salvată în DB, altfel punem stocul curent #}
+               value="{{ p.last_faptic_value if p.last_faptic_value is not none else p.current_calculated_stock }}" 
+               oninput="updateRowStatus(this)">
     </td>
 
     <td class="text-center">
-
         <span class="status-indicator {{ p.last_audit_status or 'synced' }}">
-
             {% if p.last_audit_status == 'shortage' %}
                 Lipsă ({{ p.last_audit_diff | abs }})
-
             {% elif p.last_audit_status == 'surplus' %}
                 Surplus ({{ p.last_audit_diff }})
-
             {% else %}
                 OK
             {% endif %}
-
         </span>
-
     </td>
 
     <td class="text-right">
-
         <div style="display:flex;gap:5px;justify-content:flex-end;">
-
-            <button class="btn-sync"
-                onclick="saveAuditRow(this)"
-                title="Salvează modificările">
-
-                <i class="fas fa-save"></i>
-
-            </button>
-
-            <button class="btn-delete"
-                onclick="deleteProductRow(this,'{{ p.id }}')"
-                title="Șterge produsul">
-
-                <i class="fas fa-trash"></i>
-
-            </button>
-
+            <button class="btn-sync" onclick="saveAuditRow(this)"><i class="fas fa-save"></i></button>
+            <button class="btn-delete" onclick="deleteProductRow(this,'{{ p.id }}')"><i class="fas fa-trash"></i></button>
         </div>
-
     </td>
-
 </tr>
 
 {% endfor %}

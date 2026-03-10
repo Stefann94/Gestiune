@@ -35,25 +35,26 @@ def index():
     if not conn: return "Eroare la baza de date!"
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    cur.execute("SELECT COUNT(*) as total FROM products;")
-    total = cur.fetchone()['total'] or 0
-    
+    # 1. Extragem TOATE coloanele, inclusiv cele de audit
     query_products = """
-        SELECT p.id, p.name, p.sku, p.price, p.stock_min, p.last_audit_status, p.last_audit_diff,
+        SELECT p.*, 
         (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_calculated_stock
         FROM products p;
     """
     cur.execute(query_products)
     products = cur.fetchall()
     
-    critical_products = [p for p in products if p['stock'] <= (p['stock_min'] or 0)]
-    alerts_count = len(critical_products)
+    # 2. Statistici simple
+    cur.execute("SELECT COUNT(*) as total FROM products;")
+    total = cur.fetchone()['total'] or 0
+    
+    critical_products = [p for p in products if (p['current_calculated_stock'] or 0) <= (p['stock_min'] or 0)]
     
     cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
     moves = cur.fetchone()['moves'] or 0
     
-    stats = {'total': total, 'alerts': alerts_count, 'moves': moves}
+    stats = {'total': total, 'alerts': len(critical_products), 'moves': moves}
     cur.close()
     conn.close()
     return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5])
