@@ -435,7 +435,55 @@ def top_produse():
     finally:
         conn.close()
 
+@app.route('/api/stats/urgente-detaliate')
+def urgente_detaliate():
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "DB connection failed"}), 500
     
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Folosim o subinterogare sau calcul direct pentru a afla stocul REAL (intrari - iesiri)
+        # Chiar dacă last_faptic_value este NULL
+        query = """
+            SELECT 
+                p.name, 
+                p.sku,
+                -- Calculăm stocul real din tranzacții
+                (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                 COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_real
+            FROM products p
+            -- Filtrăm să luăm doar ce este sub pragul de alertă (20)
+            WHERE (
+                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
+            ) <= 20
+            ORDER BY stoc_real ASC;
+        """
+        cur.execute(query)
+        produse = cur.fetchall()
+
+        # Clasificăm produsele folosind 'stoc_real' (care e valoarea calculată, nu cea înghețată)
+        categorii = {
+            # DOAR cele cu stoc negativ sau zero (Strict sub 0 conform cerinței tale, sau <=0)
+            "critice": [p for p in produse if p['stoc_real'] < 0],
+            "limitate": [p for p in produse if 0 <= p['stoc_real'] <= 10],
+            "atentie": [p for p in produse if 10 < p['stoc_real'] <= 20]
+        }
+        
+        # Trimitem și valorile spre frontend sub numele așteptate de JS (stoc_faptic/sistem)
+        # pentru a nu strica designul, dar cu datele reale
+        for p in produse:
+            p['stoc_faptic'] = p['stoc_real']
+            p['stoc_sistem'] = p['stoc_real']
+
+        return jsonify(categorii)
+    except Exception as e:
+        print(f"Eroare Urgente: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 

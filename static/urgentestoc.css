@@ -1,0 +1,174 @@
+/* --- URGENTESTOC.CSS - DESIGN PREMIUM (MODAL IDENTIC CU PANOU) --- */
+
+/* 1. FUNDALUL (OVERLAY) - Unitat cu panou.css */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.modal-overlay.active {
+    display: flex !important;
+}
+
+/* 2. CONTAINER MODAL (IDENTIC CU CEL DIN PANOU) */
+.analysis-modal {
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalAppear 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 3. ANTETUL (VERDE ÎNCHIS BRAND) */
+.inventory-header-brand {
+    background: #064e3b;
+    padding: 1.5rem 2.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-header-brand h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.close-modal {
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s ease-in-out;
+    color: rgba(255, 255, 255, 0.8);
+    user-select: none;
+    display: inline-block;
+}
+
+.close-modal:hover {
+    transform: scale(1.15);
+    color: #ef4444 !important; /* Roșu aprins la hover */
+}
+
+/* 4. CORPUL MODALULUI */
+.modal-body-scroll {
+    flex: 1;
+    overflow-y: auto; /* Permite scroll în interiorul modalului */
+    padding: 1.5rem 2.5rem;
+    background: #f8fafc;
+}
+
+/* 5. GRID-UL PENTRU LISTE DE URGENȚE */
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.col-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+/* 6. DESIGN SIMPLU PE RÂNDURI (FĂRĂ MUCHII/DREPTUNGHIURI) */
+.urgente-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Lipite pentru aspect de listă */
+}
+
+.urgente-card {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #e2e8f0; /* Doar o linie fină între produse */
+    border-radius: 0;
+    padding: 0.75rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.urgente-card:hover {
+    background: rgba(0,0,0,0.02);
+    transform: none; /* Am scos animația de mișcare */
+    box-shadow: none;
+}
+
+.urgente-info {
+    flex: 1;
+}
+
+.urgente-info strong {
+    color: #1e293b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: block;
+}
+
+.urgente-info small {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.urgente-values {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.val-faptic {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.val-sistem {
+    color: #64748b;
+}
+
+/* 7. ELIMINARE CULORI BORDURI */
+.border-red, .border-orange, .border-yellow {
+    border-left: none !important;
+}
+
+/* 8. ANIMAȚII & RESPONSIVITATE */
+@keyframes modalAppear {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 48rem) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+    .inventory-header-brand {
+        padding: 1rem 1.5rem;
+    }
+    .modal-body-scroll {
+        padding: 1rem 1.5rem;
+    }
+}

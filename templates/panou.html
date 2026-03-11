@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='urgentestoc.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fixstoc.css') }}">
 </head>
 
 <body>
@@ -157,65 +159,117 @@
             </div>
         </section>
     </main>
-<div id="valoareModal" class="modal-overlay">
-    <div class="inventory-modal-wide analysis-modal">
-        <div class="inventory-header-brand">
-            <div>
-                <h2><i class="fas fa-chart-line"></i> Analiză Detaliată Inventar</h2>
-                <p>Top performanță și valoare activă</p>
-            </div>
-            <span class="close-audit-btn close-modal">&times;</span>
-        </div>
-
-        <div class="inventory-filters-nav">
-             <div class="filter-pills-audit">
-                <span class="pill-audit active">Statistici Live</span>
-             </div>
-             <div class="text-white opacity-80">
-                <i class="fas fa-clock"></i> Actualizat acum
-             </div>
-        </div>
-
-        <div class="modal-body-scroll">
-            <div class="analysis-grid">
-                <div class="analysis-col">
-                    <h3 class="col-title"><i class="fas fa-money-bill-trend-up text-success"></i> Top 5 Cele mai Scumpe</h3>
-                    <div class="analysis-table-wrapper">
-                        <table id="tableScumpe">
-                            <thead>
-                                <tr>
-                                    <th>Produs</th>
-                                    <th class="text-right">Preț Unitar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listaScumpe">
-                                </tbody>
-                        </table>
-                    </div>
+    <div id="valoareModal" class="modal-overlay">
+        <div class="inventory-modal-wide analysis-modal">
+            <div class="inventory-header-brand">
+                <div>
+                    <h2><i class="fas fa-chart-line"></i> Analiză Detaliată Inventar</h2>
+                    <p>Top performanță și valoare activă</p>
                 </div>
+                <span class="close-audit-btn close-modal">&times;</span>
+            </div>
 
-                <div class="analysis-col">
-                    <h3 class="col-title"><i class="fas fa-fire text-orange"></i> Top 5 Cele mai Vândute</h3>
-                    <div class="analysis-table-wrapper">
-                        <table id="tableVandute">
-                            <thead>
-                                <tr>
-                                    <th>Produs</th>
-                                    <th class="text-right">Unități Ieșite</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listaVandute">
+            <div class="inventory-filters-nav">
+                <div class="filter-pills-audit">
+                    <span class="pill-audit active">Statistici Live</span>
+                </div>
+                <div class="text-white opacity-80">
+                    <i class="fas fa-clock"></i> Actualizat acum
+                </div>
+            </div>
+
+            <div class="modal-body-scroll">
+                <div class="analysis-grid">
+                    <div class="analysis-col">
+                        <h3 class="col-title"><i class="fas fa-money-bill-trend-up text-success"></i> Top 5 Cele mai
+                            Scumpe</h3>
+                        <div class="analysis-table-wrapper">
+                            <table id="tableScumpe">
+                                <thead>
+                                    <tr>
+                                        <th>Produs</th>
+                                        <th class="text-right">Preț Unitar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaScumpe">
                                 </tbody>
-                        </table>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="analysis-col">
+                        <h3 class="col-title"><i class="fas fa-fire text-orange"></i> Top 5 Cele mai Vândute</h3>
+                        <div class="analysis-table-wrapper">
+                            <table id="tableVandute">
+                                <thead>
+                                    <tr>
+                                        <th>Produs</th>
+                                        <th class="text-right">Unități Ieșite</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaVandute">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div id="urgenteModal" class="modal-overlay">
+        <div class="analysis-modal">
+            <div class="inventory-header-brand">
+                <div>
+                    <h2><i class="fas fa-exclamation-triangle"></i> Analiză Urgențe Stoc</h2>
+                    <p>Produse care necesită reaprovizionare imediată</p>
+                </div>
+                <span class="close-modal" onclick="closeUrgenteModal()">&times;</span>
+            </div>
+
+            <div class="inventory-filters-nav">
+                <div class="filter-pills-audit">
+                    <span class="pill-audit active" onclick="switchTab('status')">Status Stocuri</span>
+                    <button class="pill-audit btn-fix-stoc" onclick="openFixStocModal()">
+                        <i class="fas fa-tools"></i> Fixare Stoc (Audit)
+                    </button>
+                </div>
+                <div class="text-white opacity-80">
+                    <i class="fas fa-bolt"></i> Verificare în timp real
+                </div>
+            </div>
+
+            <div class="modal-body-scroll">
+                <div class="analysis-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="analysis-col">
+                        <h3 class="col-title"><i class="fas fa-skull-crossbones text-red"></i> CRITIC (<= 0)</h3>
+                                <div id="col-critice" class="urgente-list"></div>
+                    </div>
+
+                    <div class="analysis-col">
+                        <h3 class="col-title"><i class="fas fa-hourglass-half text-orange"></i> LIMITAT (1-10)</h3>
+                        <div id="col-limitate" class="urgente-list"></div>
+                    </div>
+
+                    <div class="analysis-col">
+                        <h3 class="col-title">
+                            <i class="fa-solid fa-eye text-brand-green"></i> ATENȚIE (11-20)
+                        </h3>
+                        <div id="col-atentie" class="urgente-list"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='panou.js') }}"></script>
+    <script src="{{ url_for('static', filename='urgentestoc.js') }}"></script>
+     <script src="{{ url_for('static', filename='fixstoc.js') }}"></script>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
