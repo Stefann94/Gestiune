@@ -272,17 +272,17 @@ td {
 
 /* --- ADAPTĂRI PENTRU ANALIZĂ --- */
 .analysis-modal {
-    height: auto !important; /* Lăsăm înălțimea să se adapteze dacă e puțin conținut */
-    max-height: 85vh;
+    height: auto !important; 
+    max-height: 90vh;
+    /* restul proprietăților rămân neschimbate */
 }
 
 .analysis-grid {
+    padding-top: 0.5rem; /* Am scăzut de la 2rem la 0.5rem */
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    padding-top: 2rem;
+    gap: 2.5rem;
 }
-
 .col-title {
     font-size: 1.1rem;
     color: #1e293b;
@@ -290,7 +290,11 @@ td {
     padding-bottom: 0.8rem;
     border-bottom: 2px solid #f1f5f9;
 }
-
+/* Clasul care va "îngheța" pagina din spate */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 15px; /* Opțional: previne "săritura" layout-ului când dispare scrollbar-ul nativ */
+}
 .analysis-table-wrapper table {
     width: 100%;
     border-collapse: collapse;
@@ -416,8 +420,8 @@ td {
 /* --- CORPUL MODALULUI ȘI GRID-UL DE DATE --- */
 .modal-body-scroll {
     flex: 1;
-    overflow-y: auto;
-    padding: 2rem 2.5rem;
+    overflow-y: hidden; /* Elimină scrollbar-ul din dreapta */
+    padding: 0.5rem 2.5rem 2rem 2.5rem; /* Am scăzut de la 2rem la 0.5rem sus */
     background: #f8fafc;
 }
 

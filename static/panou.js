@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardValoare.style.cursor = "pointer";
         cardValoare.addEventListener('click', () => {
             modal.classList.add('active');
+            document.body.classList.add('modal-open'); // ÎNGHEAȚĂ PAGINA DIN SPATE
             
             fetch('/api/stats/top-produse')
                 .then(res => res.json())
@@ -100,15 +101,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(err => console.error("Eroare incarcare top produse:", err));
         });
     }
-
-    // Închidere Modal
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    }
     
-    window.addEventListener('click', (e) => { 
-        if(e.target === modal) modal.classList.remove('active'); 
-    });
+    // Închidere Modal
+    // Funcție pentru închidere (reutilizabilă)
+function closeModal() {
+    modal.classList.remove('active');
+    document.body.classList.remove('modal-open'); // DEZGHEAȚĂ PAGINA
+}
+
+// Închidere la butonul X
+if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+}
+
+// Închidere la click în afara modalului
+window.addEventListener('click', (e) => { 
+    if(e.target === modal) closeModal(); 
+});
 
 
     // --- 3. UI ANIMATIONS & FILTERS ---
