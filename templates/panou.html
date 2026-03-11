@@ -262,6 +262,34 @@
             </div>
         </div>
     </div>
+    <div id="fixStocModal" class="modal-overlay">
+    <div class="analysis-modal modal-fix-stoc">
+        <div class="inventory-header-brand" style="background: #1e293b;"> <div>
+                <h2><i class="fas fa-tools"></i> Fixare Stoc & Audit</h2>
+                <p>Corectare valori faptice vs sistem</p>
+            </div>
+            <span class="close-modal" onclick="document.getElementById('fixStocModal').classList.remove('active')">&times;</span>
+        </div>
+
+        <div class="modal-body-scroll">
+            <div class="analysis-table-wrapper">
+                <table class="table-fix">
+                    <thead>
+                        <tr>
+                            <th>Produs / SKU</th>
+                            <th>Stoc Sistem</th>
+                            <th>Stoc Real (Faptic)</th>
+                            <th>Preț Unitar</th>
+                            <th class="text-right">Acțiune</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-fixstoc">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
