@@ -411,13 +411,15 @@ def top_produse():
         cur.execute("SELECT name, price FROM products ORDER BY price DESC LIMIT 5;")
         scumpe = cur.fetchall()
 
-        # Top 5 cele mai vândute - REPARAT
-        # Folosim INNER JOIN ca să vedem doar ce s-a vândut real
+        # 2. Top 5 cele mai vândute (Calculate ca diferență reală)
+        # Calculăm: (Sistem - Faptic) as total_vandut
+        # Punem condiția WHERE stoc_sistem > stoc_faptic pentru a vedea doar ieșirile
         cur.execute("""
-            SELECT p.name, SUM(se.quantity) as total_vandut
-            FROM products p
-            INNER JOIN stock_exits se ON p.id = se.product_id
-            GROUP BY p.name
+            SELECT name, 
+                   (last_system_stock - last_faptic_value) as total_vandut
+            FROM products 
+            WHERE last_audit_status = 'shortage' 
+              AND last_system_stock > last_faptic_value
             ORDER BY total_vandut DESC
             LIMIT 5;
         """)
