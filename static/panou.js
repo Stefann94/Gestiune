@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // --- 1. CONFIGURARE GRAFIC POLAR (Categorii) ---
     const ctx = document.getElementById('polarChart').getContext('2d');
     let myChart; // Păstrăm referința pentru a-l putea actualiza
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (myChart) {
             myChart.destroy(); // Distrugem graficul vechi dacă facem refresh
         }
-        
+
         myChart = new Chart(ctx, {
             type: 'polarArea',
             data: {
@@ -68,60 +68,79 @@ document.addEventListener('DOMContentLoaded', function() {
         cardValoare.addEventListener('click', () => {
             modal.classList.add('active');
             document.body.classList.add('modal-open'); // ÎNGHEAȚĂ PAGINA DIN SPATE
-            
+
+            // --- În interiorul panou.js, înlocuiește secțiunea FETCH de la punctul 2 ---
+
             fetch('/api/stats/top-produse')
                 .then(res => res.json())
                 .then(data => {
                     const listaScumpe = document.getElementById('listaScumpe');
                     const listaVandute = document.getElementById('listaVandute');
 
-                    // Populare Tabel Cele mai Scumpe (cu reparare .toFixed)
-                    listaScumpe.innerHTML = data.scumpe.map(p => {
-                        const pretNumar = parseFloat(p.price) || 0;
-                        return `
-                            <tr>
-                                <td><strong>${p.name}</strong></td>
-                                <td class="text-right">
-                                    <strong class="text-gold">${pretNumar.toFixed(2)} RON</strong>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
+                    // 1. Populare Cele mai Scumpe
+                    if (data.scumpe && data.scumpe.length > 0) {
+                        listaScumpe.innerHTML = data.scumpe.map(p => `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td class="text-right">
+                        <strong class="text-gold">${parseFloat(p.price).toFixed(2)} RON</strong>
+                    </td>
+                </tr>
+            `).join('');
+                    } else {
+                        listaScumpe.innerHTML = '<tr><td colspan="2">Fără date disponibile</td></tr>';
+                    }
 
-                    // Populare Tabel Cele mai Vândute
-                    listaVandute.innerHTML = data.vandute.map(p => `
-                        <tr>
-                            <td><strong>${p.name}</strong></td>
-                            <td class="text-right">
-                                <strong class="text-orange">${parseInt(p.total_vandut) || 0} unități</strong>
-                            </td>
-                        </tr>
-                    `).join('');
+                    // 2. Populare Cele mai Vândute (Fără simbolul #)
+                    if (data.vandute && data.vandute.length > 0) {
+                        listaVandute.innerHTML = data.vandute.map(p => {
+                            const total = parseInt(p.total_vandut) || 0;
+                            return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                <strong style="color: #1e293b;">${p.name}</strong>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <strong class="text-orange" style="font-size: 1.1rem;">
+                                ${total} <small style="font-weight: 400; font-size: 0.8rem; color: #64748b;">unități</small>
+                            </strong>
+                        </td>
+                    </tr>
+                `;
+                        }).join('');
+                    } else {
+                        listaVandute.innerHTML = '<tr><td colspan="2" class="text-center">Nicio vânzare înregistrată</td></tr>';
+                    }
                 })
-                .catch(err => console.error("Eroare incarcare top produse:", err));
+                .catch(err => {
+                    console.error("Eroare incarcare top produse:", err);
+                    document.getElementById('listaVandute').innerHTML = '<tr><td colspan="2">Eroare la încărcare date</td></tr>';
+                });
         });
     }
-    
+
     // Închidere Modal
     // Funcție pentru închidere (reutilizabilă)
-function closeModal() {
-    modal.classList.remove('active');
-    document.body.classList.remove('modal-open'); // DEZGHEAȚĂ PAGINA
-}
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open'); // DEZGHEAȚĂ PAGINA
+    }
 
-// Închidere la butonul X
-if (closeBtn) {
-    closeBtn.addEventListener('click', closeModal);
-}
+    // Închidere la butonul X
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
 
-// Închidere la click în afara modalului
-window.addEventListener('click', (e) => { 
-    if(e.target === modal) closeModal(); 
-});
+    // Închidere la click în afara modalului
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
 
 
     // --- 3. UI ANIMATIONS & FILTERS ---
-    
+
     // Animație hover pe carduri KPI
     const kpiCards = document.querySelectorAll('.kpi-card');
     kpiCards.forEach(card => {
@@ -136,16 +155,16 @@ window.addEventListener('click', (e) => {
     // Search în tabelul de stocuri critice
     const tableSearch = document.getElementById('tableSearch');
     if (tableSearch) {
-        tableSearch.addEventListener('keyup', function() {
+        tableSearch.addEventListener('keyup', function () {
             const value = this.value.toLowerCase();
             const rows = document.querySelectorAll('.table-section tbody tr');
-            
+
             rows.forEach(row => {
                 const productName = row.querySelector('.p-name').textContent.toLowerCase();
                 row.style.display = productName.includes(value) ? '' : 'none';
             });
         });
     }
-    
+
     console.log("Dashboard Master inițializat cu succes.");
 });

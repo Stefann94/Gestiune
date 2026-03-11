@@ -402,17 +402,21 @@ def stats_categorii():
 @app.route('/api/stats/top-produse')
 def top_produse():
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "DB connection failed"}), 500
+    
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        # Top 5 cele mai scumpe (Preț unitar)
+        # Top 5 cele mai scumpe
         cur.execute("SELECT name, price FROM products ORDER BY price DESC LIMIT 5;")
         scumpe = cur.fetchall()
 
-        # Top 5 cele mai vândute (Suma cantităților din stock_exits)
+        # Top 5 cele mai vândute - REPARAT
+        # Folosim INNER JOIN ca să vedem doar ce s-a vândut real
         cur.execute("""
             SELECT p.name, SUM(se.quantity) as total_vandut
             FROM products p
-            JOIN stock_exits se ON p.id = se.product_id
+            INNER JOIN stock_exits se ON p.id = se.product_id
             GROUP BY p.name
             ORDER BY total_vandut DESC
             LIMIT 5;
@@ -423,6 +427,9 @@ def top_produse():
             "scumpe": scumpe,
             "vandute": vandute
         })
+    except Exception as e:
+        print(f"Eroare API top-produse: {e}")
+        return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
 
