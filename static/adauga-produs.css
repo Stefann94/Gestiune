@@ -1,84 +1,65 @@
-/* --- FUNDALUL MODALULUI (OVERLAY) --- */
-.modal-overlay {
-    display: none;
-    /* Ascuns implicit din JS */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(6, 78, 59, 0.4);
-    /* Verde închis transparent */
-    backdrop-filter: blur(0.5rem);
-    /* Efect de sticlă mată */
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    padding: 1.5rem;
-}
+/* --- Noul Design Modal Produs --- */
 
-/* --- CARDUL DIN INTERIORUL MODALULUI --- */
-.product-card-form {
-    background: #ffffff;
-    width: 100%;
-    max-width: 40rem;
-    /* Aproximativ 640px */
-    border-radius: 1.2rem;
-    padding: 2.5rem;
-    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2);
-    position: relative;
-
+.product-modal-styled {
+    background: #f8fafc;
+    width: 95vw;
+    max-width: 600px;
+    border-radius: 1.5rem;
+    overflow: hidden; /* Important pentru a tăia colțurile header-ului */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     animation: modalAppear 0.3s ease-out;
 }
 
-/* --- BUTONUL DE ÎNCHIDERE (X) --- */
-.close-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    font-size: 2rem;
-    color: #9ca3af;
-    cursor: pointer;
-    transition: color 0.2s;
-    line-height: 1;
+/* Header-ul verde identic cu Rapoarte/Audit */
+.modal-header-brand {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.close-btn:hover {
-    color: #ef4444;
-    /* Roșu la hover */
-}
-
-/* --- ANTET FORMULAR --- */
-.form-header {
-    margin-bottom: 2rem;
-}
-
-.form-header h2 {
-    color: #064e3b;
-    font-size: 1.7rem;
-    font-weight: 800;
+.modal-header-brand h2 {
+    margin: 0;
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    margin-bottom: 0.4rem;
 }
 
-.form-header p {
-    color: #6b7280;
-    font-size: 0.95rem;
+.modal-header-brand p {
+    margin: 0.2rem 0 0 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
 }
 
-/* --- GRID ȘI INPUT-URI --- */
+/* Butonul X de sus */
+.close-btn-white {
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-btn-white:hover {
+    color: white;
+}
+
+/* Corpul formularului */
+.modal-body-padding {
+    padding: 2rem;
+}
+
 .grid-form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 1.2rem;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .full-width {
@@ -86,153 +67,48 @@
 }
 
 .form-group label {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: #374151;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.05rem;
+    letter-spacing: 0.5px;
 }
 
-.form-group input,
-.form-group select {
-    font-size: 1rem;
-    padding: 0.9rem;
-    border: 0.125rem solid #e5e7eb;
+.form-group input {
+    padding: 0.8rem;
+    border: 1px solid #e2e8f0;
     border-radius: 0.6rem;
-    background: #f9fafb;
-    transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.2s;
 }
 
 .form-group input:focus {
     outline: none;
     border-color: #10b981;
-    background: #ffffff;
-    box-shadow: 0 0 0 0.3rem rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
-/* --- BUTON SALVARE --- */
-.btn-save {
+/* Butonul de salvare */
+.btn-save-new {
     grid-column: span 2;
     background: #10b981;
     color: white;
     border: none;
-    padding: 1.2rem;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 1rem;
     border-radius: 0.8rem;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
     margin-top: 1rem;
-    box-shadow: 0 0.4rem 1.2rem rgba(16, 185, 129, 0.2);
     transition: all 0.2s;
 }
 
-.btn-save:hover {
+.btn-save-new:hover {
     background: #059669;
-    transform: translateY(-0.1rem);
-    box-shadow: 0 0.6rem 1.5rem rgba(16, 185, 129, 0.3);
-}
-
-.btn-save:active {
-    transform: translateY(0);
-}
-
-/* --- NOTIFICARE TOAST --- */
-.toast-container {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    z-index: 3000;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.toast {
-    background: #ffffff;
-    color: #1f2937;
-    padding: 1rem 1.5rem;
-    border-radius: 0.8rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    border-left: 0.4rem solid #10b981;
-    /* Verde pentru succes */
-    animation: toastIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-    min-width: 18rem;
-}
-
-.toast.error {
-    border-left-color: #ef4444;
-    /* Roșu pentru eroare */
-}
-
-.toast i {
-    font-size: 1.2rem;
-}
-
-.toast.success i {
-    color: #10b981;
-}
-
-.toast.error i {
-    color: #ef4444;
-}
-
-@keyframes toastIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes toastOut {
-    to {
-        transform: translateX(120%);
-        opacity: 0;
-    }
-}
-
-/* Stare de încărcare pe buton */
-.btn-save.loading {
-    pointer-events: none;
-    opacity: 0.7;
-    filter: grayscale(0.5);
-}
-
-/* --- ANIMAȚIE INTRARE --- */
-@keyframes modalAppear {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(2rem);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* --- RESPONSIVITATE --- */
-@media (max-width: 40rem) {
-    .grid-form {
-        grid-template-columns: 1fr;
-    }
-
-    .full-width,
-    .btn-save {
-        grid-column: span 1;
-    }
-
-    .product-card-form {
-        padding: 1.5rem;
-        border-radius: 1rem;
-    }
+    transform: translateY(-2px);
 }

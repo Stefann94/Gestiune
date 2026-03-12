@@ -140,45 +140,56 @@
 
     <div id="productModal" class="modal-overlay">
 
-        <div class="product-card-form modal-content">
-
-            <div class="form-header">
-                <h2><i class="fas fa-plus-circle"></i> Produs Nou</h2>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="product-modal-styled">
+            <div class="modal-header-brand">
+                <div class="header-content">
+                    <h2><i class="fas fa-plus-circle"></i> Produs Nou</h2>
+                    <p>Introdu un articol nou și stabilește stocul inițial</p>
+                </div>
+                <span class="close-btn-white" onclick="closeModal()">&times;</span>
             </div>
 
-            <form id="addProductForm">
+            <div class="modal-body-padding">
+                <form id="addProductForm">
+                    <div class="grid-form">
+                        <div class="form-group full-width">
+                            <label>Nume Produs</label>
+                            <input type="text" name="name" placeholder="ex: Monitor LED 27 inch" required>
+                        </div>
 
-                <div class="grid-form">
+                        <div class="form-group">
+                            <label>Cod SKU (Unic)</label>
+                            <input type="text" name="sku" placeholder="ex: MON-LG-24-BK" required>
+                        </div>
 
-                    <div class="form-group full-width">
-                        <label>Nume Produs</label>
-                        <input type="text" name="name" placeholder="ex: Monitor LED 27 inch" required>
+                        <div class="form-group">
+                            <label>Preț Unitar (RON)</label>
+                            <input type="number" step="0.01" name="price" placeholder="0.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stoc Sistem</label>
+                            <input type="number" name="system_stock" value="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stoc Faptic</label>
+                            <input type="number" name="faptic_stock" value="0" min="0">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Alertă Stoc Minim</label>
+                            <input type="number" name="stock_min" value="5">
+                        </div>
+
+                        <button type="submit" class="btn-save-new">
+                            <i class="fas fa-check"></i> Confirmă Adăugarea
+                        </button>
                     </div>
-
-                    <div class="form-group">
-                        <label>Cod SKU (Unic)</label>
-                        <input type="text" name="sku" placeholder="ex: MON-LG-24-BK" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Preț Unitar (RON)</label>
-                        <input type="number" step="0.01" name="price" placeholder="0.00" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Alertă Stoc Minim</label>
-                        <input type="number" name="stock_min" value="5">
-                    </div>
-
-                </div>
-
-                <button type="submit" class="btn-save">Confirmă Adăugarea</button>
-
-            </form>
+                </form>
+            </div>
 
         </div>
-
     </div>
 
     <!-- MODAL INVENTAR -->
@@ -248,51 +259,54 @@
 
                     <tbody id="inventoryTableBody">
 
-{% for p in products %}
+                        {% for p in products %}
 
-<tr class="product-row" 
-    data-id="{{ p.id }}" 
-    data-system-stock="{{ p.last_system_stock if p.last_system_stock is not none else p.current_calculated_stock }}"
-    data-status="{{ p.last_audit_status or 'synced' }}">
+                        <tr class="product-row" data-id="{{ p.id }}"
+                            data-system-stock="{{ p.last_system_stock if p.last_system_stock is not none else p.current_calculated_stock }}"
+                            data-status="{{ p.last_audit_status or 'synced' }}">
 
-    <td contenteditable="true" class="editable-name">{{ p.name }}</td>
-    <td contenteditable="true" class="editable-sku"><code>{{ p.sku }}</code></td>
+                            <td contenteditable="true" class="editable-name">{{ p.name }}</td>
+                            <td contenteditable="true" class="editable-sku"><code>{{ p.sku }}</code></td>
 
-    <td class="text-center">
-        <span class="system-stock-badge">
-            {# Afișăm sistemul înghețat la ultimul audit, sau cel calculat dacă n-a fost niciun audit #}
-            {{ p.last_system_stock if p.last_system_stock is not none else p.current_calculated_stock }}
-        </span>
-    </td>
+                            <td class="text-center">
+                                <span class="system-stock-badge">
+                                    {# Afișăm sistemul înghețat la ultimul audit, sau cel calculat dacă n-a fost niciun
+                                    audit #}
+                                    {{ p.last_system_stock if p.last_system_stock is not none else
+                                    p.current_calculated_stock }}
+                                </span>
+                            </td>
 
-    <td class="text-center">
-        <input type="number" class="faptic-input" 
-               {# Aici punem valoarea faptică salvată în DB, altfel punem stocul curent #}
-               value="{{ p.last_faptic_value if p.last_faptic_value is not none else p.current_calculated_stock }}" 
-               oninput="updateRowStatus(this)">
-    </td>
+                            <td class="text-center">
+                                <input type="number" class="faptic-input" {# Aici punem valoarea faptică salvată în DB,
+                                    altfel punem stocul curent #}
+                                    value="{{ p.last_faptic_value if p.last_faptic_value is not none else p.current_calculated_stock }}"
+                                    oninput="updateRowStatus(this)">
+                            </td>
 
-    <td class="text-center">
-        <span class="status-indicator {{ p.last_audit_status or 'synced' }}">
-            {% if p.last_audit_status == 'shortage' %}
-                Lipsă ({{ p.last_audit_diff | abs }})
-            {% elif p.last_audit_status == 'surplus' %}
-                Surplus ({{ p.last_audit_diff }})
-            {% else %}
-                OK
-            {% endif %}
-        </span>
-    </td>
+                            <td class="text-center">
+                                <span class="status-indicator {{ p.last_audit_status or 'synced' }}">
+                                    {% if p.last_audit_status == 'shortage' %}
+                                    Lipsă ({{ p.last_audit_diff | abs }})
+                                    {% elif p.last_audit_status == 'surplus' %}
+                                    Surplus ({{ p.last_audit_diff }})
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </span>
+                            </td>
 
-    <td class="text-right">
-        <div style="display:flex;gap:5px;justify-content:flex-end;">
-            <button class="btn-sync" onclick="saveAuditRow(this)"><i class="fas fa-save"></i></button>
-            <button class="btn-delete" onclick="deleteProductRow(this,'{{ p.id }}')"><i class="fas fa-trash"></i></button>
-        </div>
-    </td>
-</tr>
+                            <td class="text-right">
+                                <div style="display:flex;gap:5px;justify-content:flex-end;">
+                                    <button class="btn-sync" onclick="saveAuditRow(this)"><i
+                                            class="fas fa-save"></i></button>
+                                    <button class="btn-delete" onclick="deleteProductRow(this,'{{ p.id }}')"><i
+                                            class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
 
-{% endfor %}
+                        {% endfor %}
 
                     </tbody>
 

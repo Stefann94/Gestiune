@@ -138,17 +138,43 @@ def produs_nou():
     sku = request.form.get('sku')
     price = request.form.get('price')
     stock_min = request.form.get('stock_min')
+    
+    # Noile câmpuri
+    sys_stock = int(request.form.get('system_stock', 0))
+    fap_stock = int(request.form.get('faptic_stock', 0))
+    
+    # Calculăm statusul auditului inițial
+    diff = fap_stock - sys_stock
+    audit_status = 'synced' if diff == 0 else ('shortage' if diff < 0 else 'surplus')
+
     conn = get_db_connection()
     if not conn: return jsonify({"status": "error", "message": "Conexiune DB eșuată"}), 500
+    
     try:
         cur = conn.cursor()
+        
+        # 1. Inserăm produsul cu valorile de audit inițiale
         cur.execute("""
-            INSERT INTO products (name, sku, price, stock_min) 
-            VALUES (%s, %s, %s, %s)
-        """, (name, sku, float(price) if price else 0, int(stock_min) if stock_min else 0))
+            INSERT INTO products (name, sku, price, stock_min, last_system_stock, last_faptic_value, last_audit_diff, last_audit_status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (name, sku, float(price) if price else 0, int(stock_min) if stock_min else 0, 
+              sys_stock, fap_stock, diff, audit_status))
+        
+        product_id = cur.fetchone()[0]
+
+        # 2. IMPORTANT: Creăm o intrare în stoc pentru a valida cantitatea faptică
+        # Dacă ai adus 10 bucăți, trebuie să existe o tranzacție de intrare de 10
+        if fap_stock > 0:
+            cur.execute("""
+                INSERT INTO stock_entries (product_id, quantity, entry_date)
+                VALUES (%s, %s, NOW())
+            """, (product_id, fap_stock))
+
         conn.commit()
         return jsonify({"status": "success"}), 200
     except Exception as e:
+        if conn: conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         conn.close()
