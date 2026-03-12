@@ -29,7 +29,7 @@ function showToast(message, type = 'success') {
 document.getElementById('addProductForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const btn = this.querySelector('.btn-save');
+    const btn = this.querySelector('.btn-save-new');
     btn.classList.add('loading');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
 
