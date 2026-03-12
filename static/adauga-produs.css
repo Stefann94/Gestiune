@@ -112,3 +112,62 @@
     background: #059669;
     transform: translateY(-2px);
 }
+
+/* Container Flexibil */
+.grid-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem; /* ~20px */
+    width: 100%;
+}
+
+/* Elementele standard ocupă jumătate (minus gap-ul) */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1 1 calc(50% - 0.625rem);
+    min-width: 12.5rem; /* ~200px pentru a declanșa wrap-ul pe mobil */
+}
+
+/* Forțare lățime completă (pentru Nume și Buton) */
+.full-width {
+    flex: 1 1 100% !important;
+}
+
+/* Stil Select unitar */
+.select-styled {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    border: 0.0625rem solid #e2e8f0;
+    background-color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.select-styled:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.1);
+}
+
+/* Ajustări Buton */
+.btn-save-new {
+    margin-top: 1rem;
+    width: 100%; /* Îl asigurăm că stă pe mijloc/toată lățimea */
+    cursor: pointer;
+}
+
+/* Mobile Friendly: sub 600px totul devine pe un singur rând */
+@media (max-width: 37.5rem) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+    
+    .modal-body-padding {
+        padding: 1.25rem;
+    }
+}

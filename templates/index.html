@@ -177,12 +177,22 @@
                             <input type="number" name="faptic_stock" value="0" min="0">
                         </div>
 
-                        <div class="form-group full-width">
+                        <div class="form-group">
                             <label>Alertă Stoc Minim</label>
                             <input type="number" name="stock_min" value="5">
                         </div>
 
-                        <button type="submit" class="btn-save-new">
+                        <div class="form-group">
+                            <label>Categorie Produs</label>
+                            <select name="category_id" required class="select-styled">
+                                <option value="" disabled selected>Alege...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-save-new full-width">
                             <i class="fas fa-check"></i> Confirmă Adăugarea
                         </button>
                     </div>
@@ -221,7 +231,7 @@
 
                     <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()"
                         title="Mergi la analiza urgențelor">
-                        <i class="fas fa-arrow-right"></i> Fix Stoc 
+                        <i class="fas fa-arrow-right"></i> Fix Stoc
                     </button>
 
                 </div>

@@ -55,9 +55,13 @@ def index():
     moves = cur.fetchone()['moves'] or 0
     
     stats = {'total': total, 'alerts': len(critical_products), 'moves': moves}
+    
+    cur.execute("SELECT * FROM categories ORDER BY name ASC;")
+    categories = cur.fetchall()
+    
     cur.close()
     conn.close()
-    return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5])
+    return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5], categories=categories)
 
 @app.route('/produse')
 def produse():
@@ -138,7 +142,7 @@ def produs_nou():
     sku = request.form.get('sku')
     price = request.form.get('price')
     stock_min = request.form.get('stock_min')
-    
+    category_id = request.form.get('category_id')
     # Noile câmpuri
     sys_stock = int(request.form.get('system_stock', 0))
     fap_stock = int(request.form.get('faptic_stock', 0))
@@ -152,14 +156,12 @@ def produs_nou():
     
     try:
         cur = conn.cursor()
-        
-        # 1. Inserăm produsul cu valorile de audit inițiale
         cur.execute("""
-            INSERT INTO products (name, sku, price, stock_min, last_system_stock, last_faptic_value, last_audit_diff, last_audit_status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO products (name, sku, price, category_id, stock_min, last_system_stock, last_faptic_value, last_audit_diff, last_audit_status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
-        """, (name, sku, float(price) if price else 0, int(stock_min) if stock_min else 0, 
-              sys_stock, fap_stock, diff, audit_status))
+        """, (name, sku, float(price) if price else 0, category_id, 
+              int(stock_min) if stock_min else 0, sys_stock, fap_stock, diff, audit_status))
         
         product_id = cur.fetchone()[0]
 
