@@ -1,5 +1,30 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    // Verificăm dacă venim din pagina de Inventar cu dorința de a deschide modalul
+    if (localStorage.getItem('openUrgenteModal') === 'true') {
+
+        setTimeout(() => {
+            // Verificăm dacă funcția de deschidere a tabelului de audit există
+            if (typeof openFixStocModal === 'function') {
+                console.log("Redirecționare directă către Fixare Stoc & Audit...");
+                openFixStocModal();
+            } else {
+                // Fallback: Dacă nu e încărcat fixstoc.js, forțăm afișarea modalului
+                const fixModal = document.getElementById('fixStocModal');
+                if (fixModal) {
+                    fixModal.style.display = 'flex';
+                    fixModal.classList.add('active');
+                    document.body.classList.add('modal-open');
+                    // Încercăm să încărcăm datele dacă funcția e disponibilă
+                    if (typeof incarcaDateFixStoc === 'function') incarcaDateFixStoc();
+                }
+            }
+
+            // Ștergem flag-ul
+            localStorage.removeItem('openUrgenteModal');
+        }, 500);
+    }
+
     // --- 1. CONFIGURARE GRAFIC POLAR (Categorii) ---
     const ctx = document.getElementById('polarChart').getContext('2d');
     let myChart; // Păstrăm referința pentru a-l putea actualiza

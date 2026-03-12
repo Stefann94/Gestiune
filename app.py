@@ -179,6 +179,14 @@ def produs_nou():
     finally:
         conn.close()
 
+
+@app.route('/panou')  # <--- Aceasta este ruta pe care o caută window.location.href
+def orice_nume():
+    return render_template('panou.html')
+
+
+
+
 @app.route('/api/audit-save', methods=['POST'])
 def audit_save():
     data = request.json

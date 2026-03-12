@@ -388,70 +388,12 @@ function closeInventoryModal() {
 
 
 
-// --- 6. RESETARE (UNDO / FIX STOC) ---
+// --- redirectionare - panou (Dashboard) - urgente stoc ---
 
 function resetAllUnsavedChanges() {
-
-    const editedRows = document.querySelectorAll('.product-row.is-editing, .product-row.modified');
-
-   
-
-    if (editedRows.length === 0) {
-
-        const btn = document.querySelector('.btn-fix-stock');
-
-        const originalText = btn.innerHTML;
-
-        btn.innerHTML = '<i class="fas fa-check"></i> Nimic de anulat';
-
-        setTimeout(() => btn.innerHTML = originalText, 1500);
-
-        return;
-
-    }
-
-
-
-    editedRows.forEach(row => {
-
-        const input = row.querySelector('.faptic-input');
-
-        const indicator = row.querySelector('.status-indicator');
-
-
-
-        if (input && row.hasAttribute('data-safe-val')) {
-
-            input.value = row.getAttribute('data-safe-val');
-
-        }
-
-       
-
-        if (indicator && row.hasAttribute('data-safe-html')) {
-
-            indicator.innerHTML = row.getAttribute('data-safe-html');
-
-            indicator.className = row.getAttribute('data-safe-class');
-
-           
-
-            if (indicator.classList.contains('synced')) row.setAttribute('data-status', 'synced');
-
-            if (indicator.classList.contains('shortage')) row.setAttribute('data-status', 'shortage');
-
-            if (indicator.classList.contains('surplus')) row.setAttribute('data-status', 'surplus');
-
-        }
-
-
-
-        row.classList.remove('is-editing', 'modified');
-
-    });
-
-
-
-    applyCombinedFilters();
-
+    // 1. Salvăm semnalul pentru modal
+    localStorage.setItem('openUrgenteModal', 'true');
+    
+    // 2. Redirecționăm către ruta corectă definită în app.py
+    window.location.href = '/dashboard'; 
 }
