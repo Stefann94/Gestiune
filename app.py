@@ -477,41 +477,39 @@ def urgente_detaliate():
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        # Folosim o subinterogare sau calcul direct pentru a afla stocul REAL (intrari - iesiri)
-        # Chiar dacă last_faptic_value este NULL
         query = """
             SELECT 
                 p.name, 
                 p.sku,
-                p.price,
-                -- Calculăm stocul real din tranzacții
+                price,
+                -- 1. Stocul de Sistem (Calculat strict din intrări minus ieșiri)
                 (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                 COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_real
+                 COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_sistem,
+                
+                -- 2. Stocul Faptic (Ultimul audit, sau calculul dacă auditul e NULL)
+                COALESCE(p.last_faptic_value, 
+                    (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
+                ) as stoc_faptic
             FROM products p
-            -- Filtrăm să luăm doar ce este sub pragul de alertă (20)
-            WHERE (
-                COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
-            ) <= 20
-            ORDER BY stoc_real ASC;
+            WHERE 
+                -- Filtrarea se face pe valoarea Faptică
+                COALESCE(p.last_faptic_value, 
+                    (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
+                ) <= 20
+            ORDER BY stoc_faptic ASC;
         """
         cur.execute(query)
         produse = cur.fetchall()
 
-        # Clasificăm produsele folosind 'stoc_real' (care e valoarea calculată, nu cea înghețată)
+        # Clasificăm produsele pe coloane folosind 'stoc_faptic'
         categorii = {
-            # DOAR cele cu stoc negativ sau zero (Strict sub 0 conform cerinței tale, sau <=0)
-            "critice": [p for p in produse if p['stoc_real'] < 0],
-            "limitate": [p for p in produse if 0 <= p['stoc_real'] <= 10],
-            "atentie": [p for p in produse if 10 < p['stoc_real'] <= 20]
+            "critice": [p for p in produse if p['stoc_faptic'] < 0],
+            "limitate": [p for p in produse if 0 <= p['stoc_faptic'] <= 10],
+            "atentie": [p for p in produse if 10 < p['stoc_faptic'] <= 20]
         }
         
-        # Trimitem și valorile spre frontend sub numele așteptate de JS (stoc_faptic/sistem)
-        # pentru a nu strica designul, dar cu datele reale
-        for p in produse:
-            p['stoc_faptic'] = p['stoc_real']
-            p['stoc_sistem'] = p['stoc_real']
-
         return jsonify(categorii)
     except Exception as e:
         print(f"Eroare Urgente: {e}")

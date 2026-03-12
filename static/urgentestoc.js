@@ -1,5 +1,3 @@
-// urgentestoc.js
-
 function incarcaUrgente() {
     console.log("Se încarcă datele pentru urgențe...");
     fetch('/api/stats/urgente-detaliate')
@@ -17,7 +15,6 @@ function incarcaUrgente() {
                     </div>
                     <div class="urgente-values">
                         <span class="val-faptic">Faptic: ${p.stoc_faptic}</span>
-                        <span class="val-sistem">Sistem: ${p.stoc_sistem}</span>
                     </div>
                 </div>
             `;
@@ -26,35 +23,35 @@ function incarcaUrgente() {
             if(containerLimitate) containerLimitate.innerHTML = data.limitate.map(p => createCard(p)).join('') || '<p class="empty-msg">-</p>';
             if(containerAtentie) containerAtentie.innerHTML = data.atentie.map(p => createCard(p)).join('') || '<p class="empty-msg">-</p>';
         })
-        .catch(err => console.error("Eroare la încărcarea urgențelor:", err));
 }
 
-// Deschidere modal - Selectăm cardul folosind clasa 'warning' care există în HTML
+// Deschidere modal
 document.addEventListener('DOMContentLoaded', () => {
     const cardUrgente = document.querySelector('.kpi-card.warning');
     const modalUrgente = document.getElementById('urgenteModal');
 
     if (cardUrgente && modalUrgente) {
-        cardUrgente.style.cursor = 'pointer'; // Punem cursor de mână
+        cardUrgente.style.cursor = 'pointer';
         cardUrgente.addEventListener('click', () => {
-            modalUrgente.style.display = 'flex'; // Afișăm modalul
+            modalUrgente.style.display = 'flex';
+            document.body.classList.add('modal-open'); // BLOCARE SCROLL
             incarcaUrgente();
         });
     }
 });
 
-// Funcția de închidere (apelată de butonul X din HTML)
 function closeUrgenteModal() {
     const modal = document.getElementById('urgenteModal');
     if (modal) {
         modal.style.display = 'none';
+        document.body.classList.remove('modal-open'); // ACTIVARE SCROLL
     }
 }
 
-// Închidere la click în afara ferestrei albe
 window.onclick = function(event) {
     const modal = document.getElementById('urgenteModal');
     if (event.target == modal) {
         modal.style.display = "none";
+        document.body.classList.remove('modal-open'); // ACTIVARE SCROLL
     }
 }
