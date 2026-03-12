@@ -449,6 +449,7 @@ def urgente_detaliate():
             SELECT 
                 p.name, 
                 p.sku,
+                p.price,
                 -- Calculăm stocul real din tranzacții
                 (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
                  COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_real

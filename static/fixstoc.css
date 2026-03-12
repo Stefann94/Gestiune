@@ -1,87 +1,135 @@
-/* FIXSTOC.CSS */
+/* --- FIXSTOC.CSS - DESIGN INDEPENDENT (BRAND GREEN THEME) --- */
+
+/* 1. CONTAINER MODAL */
 .modal-fix-stoc {
     width: 95vw;
     max-width: 1100px;
     background: #ffffff;
-    border-radius: 1.2rem;
+    border-radius: 1.5rem; /* Unificat cu designul premium */
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    animation: modalAppearFix 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 2. HEADER-UL MODALULUI (VERDE BRAND) */
+.modal-fix-stoc .inventory-header-brand {
+    background: #064e3b !important; /* Verdele închis cerut */
+    padding: 1.5rem 2.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 3. TABEL ȘI CONȚINUT */
+.modal-body-fix {
+    padding: 1.5rem 2.5rem;
+    background: #f8fafc;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
 .table-fix {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    background: white;
+    border-radius: 0.8rem;
+    overflow: hidden;
 }
 
 .table-fix th {
     background: #f1f5f9;
-    padding: 12px;
+    padding: 14px 12px;
     text-align: left;
-    color: #064e3b;
+    color: #064e3b; /* Text antet tabel verde */
     font-size: 0.85rem;
     text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .table-fix td {
-    padding: 10px 12px;
+    padding: 12px;
     border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    font-size: 0.95rem;
 }
 
-/* Input-uri stilizate în tema verde */
+/* 4. INPUT-URI ȘI BUTOANE (TEMA VERDE) */
 .input-audit {
-    width: 80px;
-    padding: 6px;
+    width: 85px;
+    padding: 8px;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    border-radius: 6px;
     text-align: center;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .input-audit:focus {
     border-color: #064e3b;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(6, 78, 59, 0.1);
+    box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.15);
+    background: #f0fdf4; /* Light green tint on focus */
 }
 
+/* Butonul de Salvare/Fix în Tabel */
 .btn-save-audit {
-    background: #064e3b;
-    color: white;
+    background: #064e3b !important; /* Verde brand */
+    color: white !important;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 18px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-save-audit:hover {
-    background: #059669;
+    background: #059669 !important; /* Verde mai aprins la hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 
-/* Stil pentru butonul din header-ul modalului */
+/* Butonul din Header (dacă există) */
 .btn-fix-stoc {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border-radius: 50px;
     cursor: pointer;
-    font-family: inherit;
     font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    font-weight: 500;
     transition: all 0.2s;
 }
 
 .btn-fix-stoc:hover {
-    background: #059669; /* Verde la hover */
+    background: #059669;
     border-color: #059669;
 }
 
-/* Tabelul să fie lizibil */
-.table-fix {
-    width: 100%;
-    border-collapse: collapse;
+/* Butonul de închidere (X) */
+.modal-fix-stoc .close-modal {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 2rem;
+    cursor: pointer;
 }
 
+.modal-fix-stoc .close-modal:hover {
+    color: #ef4444;
+}
+
+/* Animație apariție */
+@keyframes modalAppearFix {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Helper classes */
 .text-right { text-align: right; }
