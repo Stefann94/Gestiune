@@ -32,36 +32,72 @@ def get_db_connection():
 @app.route('/')
 def index():
     conn = get_db_connection()
-    if not conn: return "Eroare la baza de date!"
+    if not conn: 
+        return "Eroare la baza de date!"
+    
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # 1. Extragem TOATE coloanele, inclusiv cele de audit
-    query_products = """
-        SELECT p.*, 
-        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_calculated_stock
-        FROM products p;
-    """
-    cur.execute(query_products)
-    products = cur.fetchall()
+    try:
+        # 1. Extragem toate produsele cu stocul calculat curent
+        # Folosim acest query pentru tabelul principal și pentru lista de urgențe
+        query_products = """
+            SELECT p.*, 
+            (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+             COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as current_calculated_stock
+            FROM products p;
+        """
+        cur.execute(query_products)
+        products = cur.fetchall()
+        
+        # --- STATISTICI PENTRU HERO SECTION ---
+        
+        # A. Total Articole: Numărul real de rânduri din tabelul products
+        cur.execute("SELECT COUNT(*) as total FROM products;")
+        total_items = cur.fetchone()['total'] or 0
+        
+        # B. Sub Limită: Doar produsele care au statusul specific de 'shortage' (din audit)
+        cur.execute("SELECT COUNT(*) as alerts FROM products WHERE last_audit_status = 'shortage';")
+        shortage_alerts = cur.fetchone()['alerts'] or 0
+        
+        # C. Mișcări Azi: Orice interacțiune cu DB (Intrări + Ieșiri + Audituri efectuate AZI)
+        # Verificăm intrările/ieșirile de azi și produsele actualizate (updated_at) azi
+        query_moves = """
+            SELECT (
+                (SELECT COUNT(*) FROM stock_entries WHERE entry_date::date = CURRENT_DATE) +
+                (SELECT COUNT(*) FROM stock_exits WHERE exit_date::date = CURRENT_DATE) +
+                (SELECT COUNT(*) FROM products WHERE updated_at::date = CURRENT_DATE)
+            ) as moves_today;
+        """
+        cur.execute(query_moves)
+        moves_today = cur.fetchone()['moves_today'] or 0
+        
+        # Pregătim obiectul stats pentru frontend
+        stats = {
+            'total': total_items, 
+            'alerts': shortage_alerts, 
+            'moves': moves_today
+        }
+        
+        # 2. Produse Critice (pentru widget-ul de alertă din Dashboard)
+        # Păstrăm logica de afișare a produselor unde stocul calculat < pragul minim setat
+        critical_products = [p for p in products if (p['current_calculated_stock'] or 0) <= (p['stock_min'] or 0)]
+        
+        # 3. Categorii pentru select-ul din modal
+        cur.execute("SELECT * FROM categories ORDER BY name ASC;")
+        categories = cur.fetchall()
+
+    except Exception as e:
+        print(f"Eroare la procesarea datelor: {e}")
+        return f"Eroare sistem: {e}"
+    finally:
+        cur.close()
+        conn.close()
     
-    # 2. Statistici simple
-    cur.execute("SELECT COUNT(*) as total FROM products;")
-    total = cur.fetchone()['total'] or 0
-    
-    critical_products = [p for p in products if (p['current_calculated_stock'] or 0) < 0]
-    
-    cur.execute("SELECT (SELECT COUNT(*) FROM stock_entries) + (SELECT COUNT(*) FROM stock_exits) as moves;")
-    moves = cur.fetchone()['moves'] or 0
-    
-    stats = {'total': total, 'alerts': len(critical_products), 'moves': moves}
-    
-    cur.execute("SELECT * FROM categories ORDER BY name ASC;")
-    categories = cur.fetchall()
-    
-    cur.close()
-    conn.close()
-    return render_template('index.html', products=products, stats=stats, critical_products=critical_products[:5], categories=categories)
+    return render_template('index.html', 
+                           products=products, 
+                           stats=stats, 
+                           critical_products=critical_products[:5], 
+                           categories=categories)
 
 @app.route('/produse')
 def produse():
@@ -157,8 +193,9 @@ def produs_nou():
     try:
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO products (name, sku, price, category_id, stock_min, last_system_stock, last_faptic_value, last_audit_diff, last_audit_status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO products (name, sku, price, category_id, stock_min, last_system_stock, 
+                                last_faptic_value, last_audit_diff, last_audit_status, updated_at) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             RETURNING id
         """, (name, sku, float(price) if price else 0, category_id, 
               int(stock_min) if stock_min else 0, sys_stock, fap_stock, diff, audit_status))
@@ -193,16 +230,17 @@ def orice_nume():
 def audit_save():
     data = request.json
     p_id = data.get('id')
-    # Noua valoare pe care utilizatorul a văzut-o/introdus-o
+    # Valoarea faptică introdusă de utilizator în tabelul de audit
     noua_valoare_faptica = int(data.get('stock'))
     
     conn = get_db_connection()
-    if not conn: return jsonify({"status": "error", "message": "DB Connection Error"}), 500
+    if not conn: 
+        return jsonify({"status": "error", "message": "DB Connection Error"}), 500
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        # 1. Calculăm stocul de sistem actual (din tranzacții)
+        # 1. Calculăm stocul de sistem actual (din tranzacții: Intrări - Ieșiri)
         cur.execute("""
             SELECT (
                 COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
@@ -210,33 +248,38 @@ def audit_save():
             ) as stoc_sistem
         """, (p_id, p_id))
         
-        stoc_sistem = cur.fetchone()['stoc_sistem'] or 0
+        row = cur.fetchone()
+        stoc_sistem = row['stoc_sistem'] if row else 0
         
-        # 2. Calculăm noua diferență
+        # 2. Calculăm noua diferență și statusul
         diferenta_noua = noua_valoare_faptica - stoc_sistem
         status_nou = 'synced' if diferenta_noua == 0 else ('shortage' if diferenta_noua < 0 else 'surplus')
 
-        # 3. ACTUALIZĂM coloanele de stare. 
-        # De acum încolo, sistemul va considera 'last_faptic_value' ca fiind stocul real.
+        # 3. ACTUALIZĂM produsele
+        # IMPORTANT: Am adăugat updated_at = NOW() ca să apară la "Mișcări Azi"
         cur.execute("""
             UPDATE products 
             SET last_faptic_value = %s,
                 last_system_stock = %s,
                 last_audit_diff = %s,
-                last_audit_status = %s
+                last_audit_status = %s,
+                updated_at = NOW()
             WHERE id = %s
         """, (noua_valoare_faptica, stoc_sistem, diferenta_noua, status_nou, p_id))
         
         conn.commit()
+        
         return jsonify({
             "status": "success",
-            "message": "Stoc faptic actualizat cu succes",
+            "message": "Audit salvat! Mișcarea a fost înregistrată.",
             "new_faptic": noua_valoare_faptica,
-            "new_status": status_nou,      # Trimitem 'shortage', 'surplus' sau 'synced'
-            "new_diff": diferenta_noua     # Trimitem valoarea numerică (ex: -5)
+            "new_status": status_nou,
+            "new_diff": diferenta_noua
         })
+        
     except Exception as e:
         if conn: conn.rollback()
+        print(f"Eroare la salvare audit: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         conn.close()
@@ -523,6 +566,26 @@ def urgente_detaliate():
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+@app.route('/api/stats-quick')
+def get_quick_stats():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Reutilizăm logica ta de numărare generală
+    query_moves = """
+    SELECT (
+        (SELECT COUNT(*) FROM stock_entries WHERE entry_date::date = CURRENT_DATE) +
+        (SELECT COUNT(*) FROM stock_exits WHERE exit_date::date = CURRENT_DATE) +
+        (SELECT COUNT(*) FROM products WHERE updated_at::date = CURRENT_DATE)
+    ) as moves_today,
+        (SELECT COUNT(*) FROM products) as total_items,
+        (SELECT COUNT(*) FROM products WHERE last_audit_status = 'shortage') as alerts;
+    """
+    cur.execute(query_moves)
+    stats = cur.fetchone()
+    conn.close()
+    return jsonify(stats)
 
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"

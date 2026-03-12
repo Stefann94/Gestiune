@@ -80,3 +80,47 @@ function toggleParentScroll(isLocked) {
         body.style.removeProperty('--scrollbar-width');
     }
 }
+
+// Funcție globală care trage datele noi din DB și le pune în Hero
+async function refreshHeroStats() {
+    try {
+        const response = await fetch('/api/stats-quick');
+        const data = await response.json();
+
+        // Căutăm direct după textul label-ului în interiorul stat-item-urilor
+        const statItems = document.querySelectorAll('.stat-item');
+        
+        statItems.forEach(item => {
+            const labelElement = item.querySelector('.label');
+            const valueSpan = item.querySelector('.value');
+            
+            if (!labelElement || !valueSpan) return;
+
+            const labelText = labelElement.innerText.trim();
+
+            if (labelText === "Total Articole") valueSpan.innerText = data.total_items;
+            if (labelText === "Sub Limită") valueSpan.innerText = data.alerts;
+            if (labelText === "Mișcări Azi") valueSpan.innerText = data.moves_today;
+        });
+        
+        console.log("Statistici actualizate:", data);
+    } catch (e) {
+        console.error("Update Hero eșuat:", e);
+    }
+}
+
+// "ȘMECHERIA": Interceptăm orice cerere fetch care modifică date
+// Ori de câte ori o funcție (audit, adăugare, ștergere) se termină cu succes,
+// chemăm automat refresh-ul de statistici.
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+    const response = await originalFetch(...args);
+    
+    // Dacă cererea a fost un succes (POST, DELETE, PUT)
+    if (response.ok && args[1] && ['POST', 'DELETE', 'PUT'].includes(args[1].method)) {
+        // Așteptăm un pic să se proceseze în DB, apoi cerem cifrele noi
+        setTimeout(refreshHeroStats, 300); 
+    }
+    
+    return response;
+};

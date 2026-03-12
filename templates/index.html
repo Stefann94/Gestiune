@@ -393,27 +393,24 @@
     <script src="{{ url_for('static', filename='adauga-produs.js') }}"></script>
     <script src="{{ url_for('static', filename='inventar.js') }}"></script>
     <script src="{{ url_for('static', filename='rapoarte.js') }}"></script>
-    <script>
+<script>
+    window.addEventListener('load', () => {
+        if (typeof initNavbar === "function") initNavbar();
 
-        window.addEventListener('load', () => {
+        // Singurul apel initHero necesar
+        if (typeof initHero === "function") {
+            initHero(
+                "{{ stats.total }}",   // Din Python: cur.execute("SELECT COUNT(*) FROM products")
+                "{{ stats.alerts }}",  // Din Python: last_audit_status = 'shortage'
+                "{{ stats.moves }}"    // Din Python: intrări + ieșiri + updated_at de azi
+            );
+        }
 
-            if (typeof initNavbar === "function") initNavbar();
-
-            if (typeof initHero === "function") {
-                initHero(
-                    "{{ stats.total if stats else 0 }}",
-                    "{{ stats.alerts if stats else 0 }}",
-                    "{{ stats.moves if stats else 0 }}"
-                );
-            }
-
-            if (typeof initDashboardCharts === "function") {
-                initDashboardCharts();
-            }
-
-        });
-
-    </script>
+        if (typeof initDashboardCharts === "function") {
+            initDashboardCharts();
+        }
+    });
+</script>
 
 </body>
 
