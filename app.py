@@ -229,7 +229,9 @@ def audit_save():
         return jsonify({
             "status": "success",
             "message": "Stoc faptic actualizat cu succes",
-            "new_faptic": noua_valoare_faptica
+            "new_faptic": noua_valoare_faptica,
+            "new_status": status_nou,      # Trimitem 'shortage', 'surplus' sau 'synced'
+            "new_diff": diferenta_noua     # Trimitem valoarea numerică (ex: -5)
         })
     except Exception as e:
         if conn: conn.rollback()
