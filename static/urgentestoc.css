@@ -173,3 +173,81 @@
     }
 }
 
+/* Containerul secundar pentru a sta peste primul modal */
+.secondary-modal {
+    z-index: 10100;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+.mini-analysis-card {
+    width: clamp(18rem, 90%, 25rem); /* Se adaptează de la mobil la desktop */
+    background: #ffffff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+.mini-modal-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.product-label {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+    border-left: 0.25rem solid #064e3b;
+    padding-left: 0.75rem;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+/* Butoane Responsive */
+.btn-primary {
+    background: #064e3b;
+    color: white;
+    padding: 0.8rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.manual-input-group {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.manual-input-group input {
+    padding: 0.7rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.4rem;
+    outline: none;
+    font-size: 1rem;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #064e3b;
+    color: #064e3b;
+    padding: 0.7rem 1rem;
+    border-radius: 0.4rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10%); }
+    to { opacity: 1; transform: translateY(0); }
+}

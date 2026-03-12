@@ -191,13 +191,16 @@ def orice_nume():
 def audit_save():
     data = request.json
     p_id = data.get('id')
-    faptic_input = int(data.get('stock'))
+    # Noua valoare pe care utilizatorul a văzut-o/introdus-o
+    noua_valoare_faptica = int(data.get('stock'))
     
     conn = get_db_connection()
+    if not conn: return jsonify({"status": "error", "message": "DB Connection Error"}), 500
+    
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        # 1. Aflăm stocul de sistem (care NU se va schimba)
+        # 1. Calculăm stocul de sistem actual (din tranzacții)
         cur.execute("""
             SELECT (
                 COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = %s), 0) - 
@@ -207,27 +210,26 @@ def audit_save():
         
         stoc_sistem = cur.fetchone()['stoc_sistem'] or 0
         
-        # 2. Calculăm diferența față de sistemul înghețat
-        # 92 (faptic) - 96 (sistem) = -4
-        diferenta_audit = faptic_input - stoc_sistem 
-        
-        status_nou = 'synced' if diferenta_audit == 0 else ('shortage' if diferenta_audit < 0 else 'surplus')
+        # 2. Calculăm noua diferență
+        diferenta_noua = noua_valoare_faptica - stoc_sistem
+        status_nou = 'synced' if diferenta_noua == 0 else ('shortage' if diferenta_noua < 0 else 'surplus')
 
-        # 3. Salvăm auditul în coloane separate, fără să atingem tabelele de mișcări
+        # 3. ACTUALIZĂM coloanele de stare. 
+        # De acum încolo, sistemul va considera 'last_faptic_value' ca fiind stocul real.
         cur.execute("""
             UPDATE products 
-            SET last_audit_status = %s,
+            SET last_faptic_value = %s,
+                last_system_stock = %s,
                 last_audit_diff = %s,
-                last_faptic_value = %s,
-                last_system_stock = %s
+                last_audit_status = %s
             WHERE id = %s
-        """, (status_nou, diferenta_audit, faptic_input, stoc_sistem, p_id))
+        """, (noua_valoare_faptica, stoc_sistem, diferenta_noua, status_nou, p_id))
         
         conn.commit()
         return jsonify({
-            "status": "success", 
-            "new_status": status_nou, 
-            "new_diff": diferenta_audit
+            "status": "success",
+            "message": "Stoc faptic actualizat cu succes",
+            "new_faptic": noua_valoare_faptica
         })
     except Exception as e:
         if conn: conn.rollback()
@@ -478,7 +480,8 @@ def urgente_detaliate():
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
         query = """
-            SELECT 
+            SELECT
+                p.id, 
                 p.name, 
                 p.sku,
                 price,

@@ -133,3 +133,46 @@
 
 /* Helper classes */
 .text-right { text-align: right; }
+
+
+/* Stil pentru notificarea de succes (Tranziția) */
+.audit-toast-success {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #064e3b;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideUp 0.4s ease-out;
+}
+
+.audit-toast-success i { color: #10b981; font-size: 1.2rem; }
+
+.fade-out { opacity: 0; transition: opacity 0.5s; }
+
+@keyframes slideUp {
+    from { bottom: -50px; opacity: 0; }
+    to { bottom: 30px; opacity: 1; }
+}
+
+/* Asigură-te că cursorul arată că X-ul este interactiv */
+.close-modal {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.status-updated {
+    color: #059669;
+    font-weight: bold;
+    font-size: 0.75rem;
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
