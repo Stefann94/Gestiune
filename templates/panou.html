@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='urgentestoc.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='fixstoc.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='categorii.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='iesiri.css') }}">
 </head>
 
 <body>
@@ -377,6 +378,30 @@
         </div>
     </div>
 
+    <div id="fluxModal" class="modal-overlay">
+        <div class="analysis-modal">
+            <div class="inventory-header-brand">
+                <div>
+                    <h2><i class="fas fa-bolt"></i> Monitorizare Flux Ieșiri (24h)</h2>
+                    <p>Activitatea de vânzare și consum în timp real</p>
+                </div>
+                <span class="close-modal" onclick="closeFluxModal()">&times;</span>
+            </div>
+
+            <div class="modal-body-scroll">
+                <div class="flux-grid">
+                    <div class="flux-col">
+                        <h3 class="col-title"><i class="fas fa-history"></i> Ultimele Mișcări</h3>
+                        <div id="recentIesiriContent" class="feed-list"></div>
+                    </div>
+                    <div class="flux-col">
+                        <h3 class="col-title"><i class="fas fa-trophy"></i> Cele mai solicitate</h3>
+                        <div id="topIesiriContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
@@ -385,7 +410,7 @@
     <script src="{{ url_for('static', filename='urgentestoc.js') }}"></script>
     <script src="{{ url_for('static', filename='fixstoc.js') }}"></script>
     <script src="{{ url_for('static', filename='categorii.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='iesiri.js') }}"></script>
 
 
     <script>

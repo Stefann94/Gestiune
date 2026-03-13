@@ -395,15 +395,21 @@ def dashboard():
         cur.execute(query_valoare)
         valoare_inventar = cur.fetchone()['total_valoare'] or 0
 
-        # 2. Urgențe Stoc (Numărăm toate produsele care au stocul <= 20 unități)
+        # 2. Urgențe Stoc (Numărăm doar produsele care respectă noua regulă)
         query_urgente_count = """
             SELECT COUNT(*) as count FROM (
-                SELECT (
-                    COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                    COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)
-                ) as current_stock
+                SELECT 
+                    p.id,
+                    (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_sistem,
+                    COALESCE(p.last_faptic_value, 
+                        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
+                    ) as stoc_faptic
                 FROM products p
-            ) as inv WHERE current_stock <= 20;
+            ) as inv 
+            WHERE inv.stoc_faptic < 20 
+              AND inv.stoc_faptic < inv.stoc_sistem;
         """
         cur.execute(query_urgente_count)
         urgente_count = cur.fetchone()['count'] or 0
@@ -533,38 +539,40 @@ def urgente_detaliate():
     
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
+        # Folosim un query care calculează stocurile întâi, apoi aplică filtrele cerute
         query = """
-            SELECT
-                p.id, 
-                p.name, 
-                p.sku,
-                price,
-                -- 1. Stocul de Sistem (Calculat strict din intrări minus ieșiri)
-                (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                 COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_sistem,
-                
-                -- 2. Stocul Faptic (Ultimul audit, sau calculul dacă auditul e NULL)
-                COALESCE(p.last_faptic_value, 
+            WITH StockData AS (
+                SELECT
+                    p.id, 
+                    p.name, 
+                    p.sku,
+                    p.price,
+                    -- Calculăm Stoc Sistem (Intrări - Ieșiri)
                     (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
-                ) as stoc_faptic
-            FROM products p
+                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stoc_sistem,
+                    
+                    -- Calculăm Stoc Faptic (Ultimul audit sau calculul matematic)
+                    COALESCE(p.last_faptic_value, 
+                        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+                         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
+                    ) as stoc_faptic
+                FROM products p
+            )
+            SELECT * FROM StockData
             WHERE 
-                -- Filtrarea se face pe valoarea Faptică
-                COALESCE(p.last_faptic_value, 
-                    (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
-                     COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0))
-                ) <= 20
+                stoc_faptic < 20             -- Regula 1: Fapticul să fie sub 20
+                AND stoc_faptic < stoc_sistem -- Regula 2: Fapticul să fie mai mic decât sistemul (lipsă stoc)
             ORDER BY stoc_faptic ASC;
         """
         cur.execute(query)
         produse = cur.fetchall()
 
         # Clasificăm produsele pe coloane folosind 'stoc_faptic'
+        # Logica de Python rămâne neschimbată pentru a nu afecta restul interfeței
         categorii = {
-            "critice": [p for p in produse if p['stoc_faptic'] < 0],
-            "limitate": [p for p in produse if 0 <= p['stoc_faptic'] <= 10],
-            "atentie": [p for p in produse if 10 < p['stoc_faptic'] <= 20]
+            "critice": [p for p in produse if p['stoc_faptic'] <= 0],
+            "limitate": [p for p in produse if 0 < p['stoc_faptic'] <= 10],
+            "atentie": [p for p in produse if 10 < p['stoc_faptic'] < 20]
         }
         
         return jsonify(categorii)
