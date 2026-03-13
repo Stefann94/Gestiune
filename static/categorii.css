@@ -1,0 +1,54 @@
+.text-danger {
+    color: #e11d48;
+    font-weight: 600;
+}
+
+.text-danger small {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.analysis-table-wrapper table th {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+/* Alinierea generală în tabelul de analiză */
+.analysis-table-wrapper table th,
+.analysis-table-wrapper table td {
+    text-align: left !important; /* Forțează alinierea la stânga */
+    padding: 12px;
+}
+
+/* Stilul pentru textul de eroare/pierdere */
+.text-danger {
+    color: #e11d48;
+    font-weight: 600;
+    text-align: left; /* Asigură alinierea la stânga */
+    display: block;  /* Face containerul să ocupe tot rândul pentru aliniere */
+}
+
+.text-danger small {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Dacă vrei ca header-ele să rămână aliniate cu datele */
+.analysis-table-wrapper table th {
+    background: rgba(255, 255, 255, 0.05);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+/* Previne scroll-ul pe body când modalul este activ */
+body.modal-open {
+    overflow: hidden;
+    height: 100vh;
+}

@@ -416,7 +416,13 @@ def dashboard():
         """)
         flux_iesiri = cur.fetchone()['iesiri'] or 0
 
-        # 4. Tabel Monitorizare (Lista produselor care sunt sub pragul de 20)
+        # --- IMPLEMENTARE NOUĂ ---
+        # 4. Categorii Totale (Numărăm toate categoriile din tabelă, indiferent dacă au produse sau nu)
+        cur.execute("SELECT COUNT(*) as count FROM categories;")
+        categorii_totale = cur.fetchone()['count'] or 0
+        # -------------------------
+
+        # 5. Tabel Monitorizare (Lista produselor care sunt sub pragul de 20)
         # Acestea vor apărea în tabelul din josul paginii panou.html
         query_critice = """
             SELECT p.name, p.stock_min,
@@ -437,6 +443,7 @@ def dashboard():
                                valoare=valoare_inventar, 
                                urgente=urgente_count, 
                                flux=flux_iesiri,
+                               nr_categorii=categorii_totale,
                                critice=produse_critice)
 
     except Exception as e:
@@ -586,6 +593,74 @@ def get_quick_stats():
     stats = cur.fetchone()
     conn.close()
     return jsonify(stats)
+
+
+@app.route('/api/stats/categorii-active')
+def stats_categorii_active():
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "DB connection failed"}), 500
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Folosim un CTE pentru a calcula stocurile o singură dată
+        query = """
+        WITH ProductStock AS (
+            SELECT
+                p.id,
+                p.name,
+                p.category_id,
+                p.price,
+                COALESCE(p.last_faptic_value, 0) as stock_faptic,
+                (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) -
+                 COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock_sistem
+            FROM products p
+        )
+        SELECT 
+            c.id as cat_id,
+            c.name as categorie,
+            COUNT(ps.id) as nr_produse,
+            SUM(ps.price * ps.stock_sistem) as valoare_totala_categorie,
+            -- Subquery pentru produsul cu diferența maximă (Sistem - Faptic)
+            (SELECT ps2.name 
+             FROM ProductStock ps2 
+             WHERE ps2.category_id = c.id 
+               AND ps2.stock_faptic < ps2.stock_sistem
+             ORDER BY (ps2.stock_sistem - ps2.stock_faptic) DESC 
+             LIMIT 1) as top_produs_nume,
+            (SELECT (ps2.stock_sistem - ps2.stock_faptic)
+             FROM ProductStock ps2 
+             WHERE ps2.category_id = c.id 
+               AND ps2.stock_faptic < ps2.stock_sistem
+             ORDER BY (ps2.stock_sistem - ps2.stock_faptic) DESC 
+             LIMIT 1) as top_produs_dif
+        FROM categories c
+        LEFT JOIN ProductStock ps ON c.id = ps.category_id
+        GROUP BY c.id, c.name
+        HAVING COUNT(ps.id) > 0
+        ORDER BY valoare_totala_categorie DESC;
+        """
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        return jsonify({
+            "detalii": [
+                {
+                    "nume": r["categorie"],
+                    "produse": r["nr_produse"],
+                    "valoare": float(r["valoare_totala_categorie"] or 0),
+                    "top_produs": {
+                        "nume": r["top_produs_nume"],
+                        "diferenta": int(r["top_produs_dif"] or 0)
+                    } if r["top_produs_nume"] else None
+                } for r in rows
+            ]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
