@@ -33,6 +33,7 @@ async function openFluxModal() {
     modal.classList.add('active');
     document.body.classList.add('modal-open');
 
+    // Mesaj de încărcare
     container.innerHTML = '<div style="padding: 20px; text-align: center;">Se încarcă datele...</div>';
 
     try {
@@ -49,7 +50,7 @@ async function openFluxModal() {
         const totalUnitati = data.reduce((acc, p) => acc + p.unitati, 0);
         const totalValoare = data.reduce((acc, p) => acc + (p.unitati * p.pret), 0);
 
-        // Actualizăm badge-ul: "X produse | Y unități | Z.ZZZ,ZZ RON"
+        // Actualizăm badge-ul de sus
         badge.innerText = `${data.length} produse (${totalUnitati} unități) - Total: ${totalValoare.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON`;
 
         // Actualizăm și butonul din dashboard
@@ -85,11 +86,9 @@ async function openFluxModal() {
                                     <td>${p.categorie}</td>
                                     <td class="text-right"><strong>${p.pret.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong></td>
                                     <td class="text-right">
-                                        <strong class="text-orange">-${p.unitati} buc</strong>
-                                    </td>
+                                        <strong style="color: #dc2626;">-${p.unitati} buc</strong> </td>
                                     <td class="text-right">
-                                        <strong style="color: #ef4444;">${valoareProdus.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong>
-                                    </td>
+                                        <strong style="color: #10b981;">${valoareProdus.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong> </td>
                                 </tr>
                             `;
                         }).join('')}
