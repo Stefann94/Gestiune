@@ -33,7 +33,6 @@ async function openFluxModal() {
     modal.classList.add('active');
     document.body.classList.add('modal-open');
 
-    // Afișăm un mesaj de încărcare în interiorul wrapper-ului tău de tabel
     container.innerHTML = '<div style="padding: 20px; text-align: center;">Se încarcă datele...</div>';
 
     try {
@@ -46,19 +45,19 @@ async function openFluxModal() {
             return;
         }
 
-        // Calculăm totalul unităților ieșite (suma coloanei unitati)
+        // --- CALCULATE TOTALS ---
         const totalUnitati = data.reduce((acc, p) => acc + p.unitati, 0);
+        const totalValoare = data.reduce((acc, p) => acc + (p.unitati * p.pret), 0);
 
-        // Actualizăm badge-ul să arate: "X produse (Total: Y unități)"
-        badge.innerText = `${data.length} produse (Total: ${totalUnitati} unități)`;
+        // Actualizăm badge-ul: "X produse | Y unități | Z.ZZZ,ZZ RON"
+        badge.innerText = `${data.length} produse (${totalUnitati} unități) - Total: ${totalValoare.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON`;
 
-        // Actualizăm și butonul din spate în caz că s-au schimbat datele
+        // Actualizăm și butonul din dashboard
         const fluxValueDisplay = document.querySelector('.kpi-card.activity .value');
         if (fluxValueDisplay) {
             fluxValueDisplay.innerHTML = `${totalUnitati} <small>Unități</small>`;
         }
 
-        // Construim tabelul folosind strict clasele tale din CSS (table, modern-table-wrapper, text-right, etc.)
         let html = `
             <div class="modern-table-wrapper">
                 <table>
@@ -68,11 +67,14 @@ async function openFluxModal() {
                             <th>Categorie</th>
                             <th class="text-right">Preț Unitar</th>
                             <th class="text-right">Unități Ieșite</th>
+                            <th class="text-right">Valoare Totală</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.map(p => `
-                            <tr class="product-row">
+                        ${data.map(p => {
+                            const valoareProdus = p.unitati * p.pret;
+                            return `
+                                <tr class="product-row">
                                     <td>
                                         <div class="product-cell">
                                             <div class="product-info">
@@ -80,13 +82,17 @@ async function openFluxModal() {
                                             </div>
                                         </div>
                                     </td>
-                                <td>${p.categorie}</td>
-                                <td class="text-right"><strong>${p.pret.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong></td>
-                                <td class="text-right">
-                                    <strong class="text-orange">-${p.unitati} buc</strong>
-                                </td>
-                            </tr>
-                        `).join('')}
+                                    <td>${p.categorie}</td>
+                                    <td class="text-right"><strong>${p.pret.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong></td>
+                                    <td class="text-right">
+                                        <strong class="text-orange">-${p.unitati} buc</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong style="color: #ef4444;">${valoareProdus.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} RON</strong>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>
