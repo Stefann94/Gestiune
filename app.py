@@ -670,6 +670,51 @@ def stats_categorii_active():
         cur.close()
         conn.close()
 
+@app.route('/api/stats/flux-iesiri')
+def get_flux_iesiri():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Folosim coloanele tale reale din tabelul 'products'
+        cur.execute("""
+            SELECT 
+                p.name as nume, 
+                c.name as categorie, 
+                p.price as pret, 
+                p.last_system_stock as sistem, 
+                p.last_faptic_value as faptic
+            FROM products p
+            JOIN categories c ON p.category_id = c.id
+            WHERE p.last_system_stock > p.last_faptic_value
+        """)
+        produse = cur.fetchall()
+        
+        iesiri = []
+        for p in produse:
+            # Calculăm unitățile ieșite (Diferența)
+            sistem = p['sistem'] if p['sistem'] is not None else 0
+            faptic = p['faptic'] if p['faptic'] is not None else 0
+            dif = sistem - faptic
+            
+            if dif > 0:
+                iesiri.append({
+                    "nume": p['nume'],
+                    "categorie": p['categorie'],
+                    "pret": float(p['pret']),
+                    "unitati": int(dif)
+                })
+
+        # Sortăm după volumul ieșirilor
+        iesiri = sorted(iesiri, key=lambda x: x['unitati'], reverse=True)
+        return jsonify(iesiri)
+
+    except Exception as e:
+        # Debugging în consolă să vezi dacă mai crapă ceva
+        print(f"Eroare SQL Flux: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 

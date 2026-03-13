@@ -1,0 +1,10 @@
+/* --- EFECT HOVER VERDE PENTRU RÂNDURILE DIN TABEL --- */
+.modern-table-wrapper table tbody tr {
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.modern-table-wrapper table tbody tr:hover {
+    background-color: #f0fdf4 !important; /* Verdele pal din restul modalelor (#f0fdf4) */
+}
+
