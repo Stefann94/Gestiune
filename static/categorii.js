@@ -53,5 +53,9 @@ async function openCategoriiModal() {
 }
 
 function closeCategoriiModal() {
+    // 1. Închidem modalul vizual
     document.getElementById('categoriiModal').classList.remove('active');
+    
+    // 2. REACTIVĂM scroll-ul pe pagina principală (FOARTE IMPORTANT)
+    document.body.classList.remove('modal-open');
 }
