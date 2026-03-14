@@ -231,37 +231,90 @@ html { scrollbar-gutter: stable; }
 
 .emp-list-area { padding: 1rem; }
 
+/* Stil Carduri Angajați */
 .emp-card {
-    background: white;
-    padding: 0.8rem;
-    border-radius: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+    overflow: hidden;
+}
+.emp-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
 }
 
-.emp-card-name { font-weight: 600; display: block; font-size: 0.85rem; }
-.emp-card-username { color: #6b7280; font-size: 0.75rem; }
-
-.emp-actions {
-    margin-top: 0.5rem;
+.emp-info {
     display: flex;
+    flex-direction: column;
+}
+.emp-card-name {
+    color: #1a202c;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+}
+.emp-card-username {
+    color: #718096;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
     gap: 0.3rem;
 }
-
-.btn-promote {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
-    cursor: pointer;
-    border-radius: 0.3rem;
-    border: 1px solid #10b981;
+.emp-card-username::before {
+    content: '@';
     color: #10b981;
-    background: transparent;
-    transition: 0.2s;
+    font-weight: bold;
+}
+.emp-actions {
+    margin-top: 0.4rem;
+}
+.btn-promote {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 0.6rem;
+    border: none;
+    color: white;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
 }
 
-.btn-promote:hover { background: #10b981; color: white; }
+.btn-promote:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+    transform: scale(1.02);
+}
+.btn-promote:active {
+    transform: scale(0.98);
+}
+    .btn-promote i {
+    font-size: 0.8rem;
+}
 
+/* Diferențiere vizuală culori coloane */
+#list-pending .btn-promote { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+#list-pending .btn-promote:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+
+#list-admins .btn-promote { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 6px rgba(217, 119, 6, 0.2); }
+#list-admins .btn-promote:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
 .inventory-header-brand{
     display:flex;
     justify-content:space-between;
@@ -321,52 +374,56 @@ html { scrollbar-gutter: stable; }
        ========================= */
 
     window.loadEmployees = async function () {
-    const containers = {
-        'pending': document.getElementById('list-pending'),
-        'operator': document.getElementById('list-operators'),
-        'admin': document.getElementById('list-admins'),
-        'owner': document.getElementById('list-owners')
-    };
+        const containers = {
+            'pending': document.getElementById('list-pending'),
+            'operator': document.getElementById('list-operators'),
+            'admin': document.getElementById('list-admins'),
+            'owner': document.getElementById('list-owners')
+        };
 
-    // Curățăm listele existente
-    Object.values(containers).forEach(c => { if (c) c.innerHTML = ''; });
+        // Curățăm listele existente
+        Object.values(containers).forEach(c => { if (c) c.innerHTML = ''; });
 
-    try {
-        // 1. Aflăm cine este utilizatorul logat (rolul lui)
-        const sessionResp = await fetch('/api/get_current_session');
-        const sessionData = await sessionResp.json();
-        const myRole = (sessionData.role || 'guest').toLowerCase();
+        try {
+            // 1. Aflăm cine este utilizatorul logat (rolul lui)
+            const sessionResp = await fetch('/api/get_current_session');
+            const sessionData = await sessionResp.json();
+            const myRole = (sessionData.role || 'guest').toLowerCase();
 
-        // 2. Luăm toți utilizatorii din baza de date
-        const response = await fetch('/api/get_all_users_with_roles');
-        const users = await response.json();
+            // 2. Luăm toți utilizatorii din baza de date
+            const response = await fetch('/api/get_all_users_with_roles');
+            const users = await response.json();
 
-        users.forEach(user => {
-            let userRole = (user.role || 'pending').toLowerCase().trim();
-            const targetContainer = containers[userRole] || containers['pending'];
+            users.forEach(user => {
+                let userRole = (user.role || 'pending').toLowerCase().trim();
+                const targetContainer = containers[userRole] || containers['pending'];
 
-            if (targetContainer) {
-                const card = document.createElement('div');
-                card.className = 'emp-card';
+                if (targetContainer) {
+                    const card = document.createElement('div');
+                    card.className = 'emp-card';
 
-                // Calculăm ce rol ar urma dacă dăm click pe buton
-                let nextRole = '';
-                let btnText = '';
-                if (userRole === 'pending') { nextRole = 'operator'; btnText = 'Aprobă'; }
-                else if (userRole === 'operator') { nextRole = 'admin'; btnText = 'Promovează Admin'; }
-                else if (userRole === 'admin') { nextRole = 'owner'; btnText = 'Promovează Owner'; }
+                    // Calculăm ce rol ar urma dacă dăm click pe buton
+                    let nextRole = '';
+                    let btnText = '';
+                    if (userRole === 'pending') { nextRole = 'operator'; btnText = 'Aprobă'; }
+                    else if (userRole === 'operator') { nextRole = 'admin'; btnText = 'Promovează Admin'; }
+                    else if (userRole === 'admin') { nextRole = 'owner'; btnText = 'Promovează Owner'; }
 
-                // --- LOGICA DE PERMISIUNI (Cine vede butonul?) ---
-                let canPromote = false;
-                if (myRole === 'owner') {
-                    canPromote = true; // Ownerul poate promova pe oricine
-                } else if (myRole === 'admin' && userRole === 'pending') {
-                    canPromote = true; // Adminul poate doar să aprobe (pending -> operator)
-                }
+                    // --- LOGICA DE PERMISIUNI (Cine vede butonul?) ---
+                    let canPromote = false;
 
-                // Generăm HTML-ul cardului
-                // Cardul (numele și username-ul) apare MEREU
-                card.innerHTML = `
+                    // Dacă utilizatorul nu este logat sau este guest, canPromote rămâne false automat
+                    if (myRole !== 'guest') {
+                        if (myRole === 'owner') {
+                            canPromote = true; // Ownerul poate face orice
+                        } else if (myRole === 'admin' && userRole === 'pending') {
+                            canPromote = true; // Adminul poate doar să aprobe useri noi
+                        }
+                    }
+
+                    // Generăm HTML-ul cardului
+                    // Cardul (numele și username-ul) apare MEREU
+                    card.innerHTML = `
                     <div class="emp-info">
                         <span class="emp-card-name">${user.full_name || user.username}</span>
                         <small class="emp-card-username">@${user.username}</small>
@@ -378,14 +435,14 @@ html { scrollbar-gutter: stable; }
                         </button>
                     </div>` : ''}
                 `;
-                
-                targetContainer.appendChild(card);
-            }
-        });
-    } catch (err) {
-        console.error("Eroare la încărcare angajați:", err);
-    }
-};
+
+                    targetContainer.appendChild(card);
+                }
+            });
+        } catch (err) {
+            console.error("Eroare la încărcare angajați:", err);
+        }
+    };
 
     window.changeUserRole = async function (userId, newRole) {
         let endpoint = '/api/update_user_role'; // Default general
