@@ -321,60 +321,71 @@ html { scrollbar-gutter: stable; }
        ========================= */
 
     window.loadEmployees = async function () {
-        const containers = {
-            'pending': document.getElementById('list-pending'),
-            'operator': document.getElementById('list-operators'),
-            'admin': document.getElementById('list-admins'),
-            'owner': document.getElementById('list-owners')
-        };
-
-        Object.values(containers).forEach(c => { if (c) c.innerHTML = ''; });
-
-        try {
-            const response = await fetch('/api/get_all_users_with_roles');
-            const users = await response.json();
-
-            users.forEach(user => {
-                let userRole = (user.role || 'pending').toLowerCase().trim();
-                const targetContainer = containers[userRole] || containers['pending'];
-
-                if (targetContainer) {
-                    const card = document.createElement('div');
-                    card.className = 'emp-card';
-
-                    let nextRole = '';
-                    let btnText = '';
-
-                    if (userRole === 'pending') { 
-                        nextRole = 'operator'; 
-                        btnText = 'Aprobă'; 
-                    } else if (userRole === 'operator') { 
-                        nextRole = 'admin'; 
-                        btnText = 'Promovează Admin'; 
-                    } else if (userRole === 'admin') { 
-                        nextRole = 'owner'; 
-                        btnText = 'Promovează Owner'; 
-                    }
-
-                    card.innerHTML = `
-                        <div class="emp-info">
-                            <span class="emp-card-name">${user.full_name || user.username}</span>
-                            <small class="emp-card-username">@${user.username}</small>
-                        </div>
-                        ${nextRole ? `
-                        <div class="emp-actions">
-                            <button class="btn-promote" onclick="changeUserRole(${user.id}, '${nextRole}')">
-                                <i class="fas fa-arrow-up"></i> ${btnText}
-                            </button>
-                        </div>` : ''}
-                    `;
-                    targetContainer.appendChild(card);
-                }
-            });
-        } catch (err) {
-            console.error("Eroare la încărcare angajați:", err);
-        }
+    const containers = {
+        'pending': document.getElementById('list-pending'),
+        'operator': document.getElementById('list-operators'),
+        'admin': document.getElementById('list-admins'),
+        'owner': document.getElementById('list-owners')
     };
+
+    // Curățăm listele existente
+    Object.values(containers).forEach(c => { if (c) c.innerHTML = ''; });
+
+    try {
+        // 1. Aflăm cine este utilizatorul logat (rolul lui)
+        const sessionResp = await fetch('/api/get_current_session');
+        const sessionData = await sessionResp.json();
+        const myRole = (sessionData.role || 'guest').toLowerCase();
+
+        // 2. Luăm toți utilizatorii din baza de date
+        const response = await fetch('/api/get_all_users_with_roles');
+        const users = await response.json();
+
+        users.forEach(user => {
+            let userRole = (user.role || 'pending').toLowerCase().trim();
+            const targetContainer = containers[userRole] || containers['pending'];
+
+            if (targetContainer) {
+                const card = document.createElement('div');
+                card.className = 'emp-card';
+
+                // Calculăm ce rol ar urma dacă dăm click pe buton
+                let nextRole = '';
+                let btnText = '';
+                if (userRole === 'pending') { nextRole = 'operator'; btnText = 'Aprobă'; }
+                else if (userRole === 'operator') { nextRole = 'admin'; btnText = 'Promovează Admin'; }
+                else if (userRole === 'admin') { nextRole = 'owner'; btnText = 'Promovează Owner'; }
+
+                // --- LOGICA DE PERMISIUNI (Cine vede butonul?) ---
+                let canPromote = false;
+                if (myRole === 'owner') {
+                    canPromote = true; // Ownerul poate promova pe oricine
+                } else if (myRole === 'admin' && userRole === 'pending') {
+                    canPromote = true; // Adminul poate doar să aprobe (pending -> operator)
+                }
+
+                // Generăm HTML-ul cardului
+                // Cardul (numele și username-ul) apare MEREU
+                card.innerHTML = `
+                    <div class="emp-info">
+                        <span class="emp-card-name">${user.full_name || user.username}</span>
+                        <small class="emp-card-username">@${user.username}</small>
+                    </div>
+                    ${(nextRole && canPromote) ? `
+                    <div class="emp-actions">
+                        <button class="btn-promote" onclick="changeUserRole(${user.id}, '${nextRole}')">
+                            <i class="fas fa-arrow-up"></i> ${btnText}
+                        </button>
+                    </div>` : ''}
+                `;
+                
+                targetContainer.appendChild(card);
+            }
+        });
+    } catch (err) {
+        console.error("Eroare la încărcare angajați:", err);
+    }
+};
 
     window.changeUserRole = async function (userId, newRole) {
         let endpoint = '/api/update_user_role'; // Default general

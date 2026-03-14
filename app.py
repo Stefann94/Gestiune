@@ -877,6 +877,19 @@ def promote_to_admin(target_user_id):
         conn.close()
         
 
+@app.route('/api/current_user_role')
+def get_current_user_role():
+    return jsonify({
+        "role": session.get('role', 'guest'),
+        "username": session.get('username')
+    })
+@app.route('/api/get_current_session')
+def get_current_session():
+    return jsonify({
+        "logged_in": 'id' in session,
+        "role": session.get('role', 'guest')
+    })
+
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 
