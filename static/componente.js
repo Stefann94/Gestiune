@@ -1,6 +1,6 @@
 window.initCommonComponents = function () {
 
-    const navbarHTML = `
+const navbarHTML = `
 <nav class="navbar">
 <a href="/" class="logo-link">
 <div class="logo">
@@ -19,10 +19,20 @@ window.initCommonComponents = function () {
 </ul>
 
 <div class="navbar-auth">
-<div class="auth-buttons">
+
+<div class="auth-buttons" id="authButtons">
 <a href="#" class="btn-auth btn-login" id="openLogin">Log In</a>
 <a href="#" class="btn-auth btn-signup" id="openSignup">Sign Up</a>
 </div>
+
+<div class="user-info" id="userInfo" style="display:none">
+<span class="user-name">Salut, <strong id="loggedUser"></strong></span>
+<button class="logout-btn" id="logoutBtn">
+<i class="fas fa-sign-out-alt"></i>
+Logout
+</button>
+</div>
+
 </div>
 </nav>
 
@@ -66,8 +76,64 @@ window.initCommonComponents = function () {
 </div>
 `.trim();
 
-    const modalStyles = `
+const modalStyles = `
 <style>
+
+/* STIL NUME USER ȘI CONTAINER */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap; /* Împiedică ruperea rândului în navbar */
+}
+
+.user-name {
+  color: #6ee7b7;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px; /* Previne numele foarte lungi să împingă butonul afară */
+}
+
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+
+  /* Ajustăm padding-ul pentru a lăsa textul să respire */
+  padding: 0.5rem 0.8rem;
+  
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  
+  /* Această linie e importantă: */
+  width: auto; 
+  min-width: fit-content;
+  
+  transition: all 0.2s ease;
+}
+
+.logout-btn i {
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* STILURILE TALE ORIGINALE */
 
 .modal-overlay{
 display:none;
@@ -203,105 +269,130 @@ to{opacity:1;transform:translateY(0)}
 .header-text p{font-size:.8rem;}
 .form-group input{font-size:.9rem;}
 }
+
 </style>
 `;
 
-    const target = document.getElementById("navbar-placeholder");
-    if (target) target.innerHTML = navbarHTML + modalStyles;
+const target = document.getElementById("navbar-placeholder");
+if (target) target.innerHTML = navbarHTML + modalStyles;
 
-    const overlay = document.getElementById("authModalOverlay");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalSubtitle = document.getElementById("modalSubtitle");
-    const signupFields = document.getElementById("signupFields");
-    const closeBtn = document.querySelector(".close-auth-btn");
-    const authForm = document.getElementById("authForm");
+const overlay = document.getElementById("authModalOverlay");
+const modalTitle = document.getElementById("modalTitle");
+const modalSubtitle = document.getElementById("modalSubtitle");
+const signupFields = document.getElementById("signupFields");
+const closeBtn = document.querySelector(".close-auth-btn");
+const authForm = document.getElementById("authForm");
 
-    function openModal(type) {
-        if (!overlay) return;
-        overlay.style.setProperty("display", "flex", "important");
-        document.body.style.overflow = "hidden";
+const authButtons = document.getElementById("authButtons");
+const userInfo = document.getElementById("userInfo");
+const loggedUser = document.getElementById("loggedUser");
 
-        if (type === "login") {
-            modalTitle.innerHTML = '<i class="fas fa-user-lock"></i>Autentificare';
-            modalSubtitle.innerText = "Acces rapid în panoul de control";
-            signupFields.style.display = "none";
-        } else {
-            modalTitle.innerHTML = '<i class="fas fa-user-plus"></i>Cont Nou';
-            modalSubtitle.innerText = "Alătură-te echipei StockMaster";
-            signupFields.style.display = "block";
-        }
-    }
+function checkLogin(){
+const savedUser = localStorage.getItem("stockmaster_user");
+if(savedUser){
+authButtons.style.display="none";
+userInfo.style.display="flex";
+loggedUser.textContent=savedUser;
+}
+}
 
-    function closeModal() {
-        if (!overlay) return;
-        overlay.style.setProperty("display", "none", "important");
-        document.body.style.overflow = "auto";
-    }
+checkLogin();
 
-    document.getElementById("openLogin")?.addEventListener("click", e => {
-        e.preventDefault();
-        openModal("login");
-    });
+function openModal(type) {
+if (!overlay) return;
+overlay.style.setProperty("display", "flex", "important");
+document.body.style.overflow = "hidden";
 
-    document.getElementById("openSignup")?.addEventListener("click", e => {
-        e.preventDefault();
-        openModal("signup");
-    });
+if (type === "login") {
+modalTitle.innerHTML = '<i class="fas fa-user-lock"></i>Autentificare';
+modalSubtitle.innerText = "Acces rapid în panoul de control";
+signupFields.style.display = "none";
+} else {
+modalTitle.innerHTML = '<i class="fas fa-user-plus"></i>Cont Nou';
+modalSubtitle.innerText = "Alătură-te echipei StockMaster";
+signupFields.style.display = "block";
+}
+}
 
-    closeBtn?.addEventListener("click", closeModal);
+function closeModal() {
+overlay.style.setProperty("display", "none", "important");
+document.body.style.overflow = "auto";
+}
 
-    overlay?.addEventListener("click", e => {
-        if (e.target === overlay) closeModal();
-    });
+document.getElementById("openLogin")?.addEventListener("click", e => {
+e.preventDefault();
+openModal("login");
+});
 
-    // LOGICA LOGIN / SIGNUP
-    authForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
+document.getElementById("openSignup")?.addEventListener("click", e => {
+e.preventDefault();
+openModal("signup");
+});
 
-        const isSignup = signupFields.style.display === 'block';
+closeBtn?.addEventListener("click", closeModal);
 
-        const userInput = authForm.querySelector('input[placeholder*="ex: admin"]');
-        const passInput = authForm.querySelector('input[type="password"]');
-        const nameInput = authForm.querySelector('input[placeholder="Popescu Ion"]');
+overlay?.addEventListener("click", e => {
+if (e.target === overlay) closeModal();
+});
 
-        const payload = {
-            username: userInput.value.trim(),
-            password: passInput.value.trim()
-        };
+authForm?.addEventListener('submit', async (e) => {
+e.preventDefault();
 
-        if (isSignup) {
-            payload.full_name = nameInput.value.trim();
-            if (!payload.full_name) {
-                alert("Te rugăm să introduci numele complet!");
-                return;
-            }
-        }
+const isSignup = signupFields.style.display === 'block';
 
-        const endpoint = isSignup ? '/api/register' : '/api/login';
+const userInput = authForm.querySelector('input[placeholder*="ex: admin"]');
+const passInput = authForm.querySelector('input[type="password"]');
+const nameInput = authForm.querySelector('input[placeholder="Popescu Ion"]');
 
-        try {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+const payload = {
+username: userInput.value.trim(),
+password: passInput.value.trim()
+};
 
-            const result = await response.json();
+if (isSignup) {
+payload.full_name = nameInput.value.trim();
+}
 
-            if (response.ok && result.status === 'success') {
-                if (isSignup) {
-                    alert("Cont creat! Te poți loga acum.");
-                    authForm.reset();
-                    openModal('login');
-                } else {
-                    window.location.href = result.redirect;
-                }
-            } else {
-                alert("Eroare: " + (result.message || "Ceva nu a mers bine"));
-            }
-        } catch (err) {
-            console.error("Fetch error:", err);
-            alert("Serverul nu poate fi contactat.");
-        }
-    });
+const endpoint = isSignup ? '/api/register' : '/api/login';
+
+try {
+const response = await fetch(endpoint,{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(payload)
+});
+
+const result = await response.json();
+
+if(response.ok && result.status==='success'){
+
+if(isSignup){
+alert("Cont creat! Te poți loga acum.");
+authForm.reset();
+openModal('login');
+}else{
+localStorage.setItem(
+"stockmaster_user",
+result.user || result.username || payload.username
+);
+location.reload();
+}
+
+}else{
+alert(result.message || "Eroare login");
+}
+
+}catch(err){
+alert("Serverul nu poate fi contactat.");
+}
+
+});
+
+document.addEventListener("click",function(e){
+if(e.target.id==="logoutBtn"){
+localStorage.removeItem("stockmaster_user");
+location.reload();
+}
+});
+
 };
