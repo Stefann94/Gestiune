@@ -3,6 +3,8 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
 
 # Biblioteci pentru export
 import pandas as pd
@@ -715,6 +717,64 @@ def get_flux_iesiri():
     finally:
         cur.close()
         conn.close()
+        
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    full_name = data.get('full_name')
+    
+    if not username or not password or not full_name:
+        return jsonify({"status": "error", "message": "Toate câmpurile sunt obligatorii!"}), 400
+
+    hashed_pw = generate_password_hash(password)
+    
+    conn = get_db_connection()
+    if not conn: return jsonify({"status": "error", "message": "Eroare DB"}), 500
+    
+    cur = conn.cursor()
+    try:
+        # Folosim coloanele tale din imagine
+        cur.execute("""
+            INSERT INTO users (username, password_hash, full_name, role, created_at)
+            VALUES (%s, %s, %s, 'operator', NOW())
+        """, (username, hashed_pw, full_name))
+        conn.commit()
+        return jsonify({"status": "success", "message": "Utilizator înregistrat!"})
+    except psycopg2.IntegrityError:
+        return jsonify({"status": "error", "message": "Numele de utilizator este deja luat!"}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+    user = cur.fetchone()
+
+    if user and check_password_hash(user['password_hash'], password):
+        session['user_id'] = user['id']
+        session['username'] = user['username']
+        session['role'] = user['role']
+        
+        # Update last_login (coloana ta din imagine)
+        cur.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user['id'],))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"status": "success", "redirect": url_for('dashboard')})
+    
+    conn.close()
+    return jsonify({"status": "error", "message": "Utilizator sau parolă incorectă!"}), 401  
+
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 
