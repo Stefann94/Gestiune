@@ -345,9 +345,16 @@ html { scrollbar-gutter: stable; }
                     let nextRole = '';
                     let btnText = '';
 
-                    if (userRole === 'pending') { nextRole = 'operator'; btnText = 'Aprobă'; }
-                    else if (userRole === 'operator') { nextRole = 'admin'; btnText = 'Promovează Admin'; }
-                    else if (userRole === 'admin') { nextRole = 'owner'; btnText = 'Promovează Owner'; }
+                    if (userRole === 'pending') { 
+                        nextRole = 'operator'; 
+                        btnText = 'Aprobă'; 
+                    } else if (userRole === 'operator') { 
+                        nextRole = 'admin'; 
+                        btnText = 'Promovează Admin'; 
+                    } else if (userRole === 'admin') { 
+                        nextRole = 'owner'; 
+                        btnText = 'Promovează Owner'; 
+                    }
 
                     card.innerHTML = `
                         <div class="emp-info">
@@ -370,17 +377,34 @@ html { scrollbar-gutter: stable; }
     };
 
     window.changeUserRole = async function (userId, newRole) {
+        let endpoint = '/api/update_user_role'; // Default general
+
+        // Alegem endpoint-ul specific pe care l-ai definit in Python
+        if (newRole === 'operator') {
+            endpoint = `/api/user/approve/${userId}`;
+        } else if (newRole === 'admin') {
+            endpoint = `/api/user/promote/${userId}`;
+        }
+
         try {
-            const response = await fetch('/api/update_user_role', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: userId, role: newRole })
+                // Trimitem body doar pentru update_user_role, celelalte folosesc ID-ul din URL
+                body: (endpoint === '/api/update_user_role') ? JSON.stringify({ id: userId, role: newRole }) : null
             });
+
+            const result = await response.json();
+
             if (response.ok) {
-                window.loadEmployees();
+                alert(result.message || "Acțiune realizată cu succes!");
+                window.loadEmployees(); // Reîncărcăm listele pentru a vedea mutarea
+            } else {
+                alert("Eroare: " + (result.message || "Nu ai permisiunea necesară."));
             }
         } catch (err) {
-            alert("Nu s-a putut schimba rolul.");
+            console.error(err);
+            alert("Serverul nu a răspuns corect.");
         }
     };
 

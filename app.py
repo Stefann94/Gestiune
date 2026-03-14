@@ -837,6 +837,44 @@ def update_user_role():
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         conn.close()
+
+
+@app.route('/api/user/approve/<int:target_user_id>', methods=['POST'])
+def approve_user(target_user_id):
+    # Verificăm dacă cel logat are voie (Owner sau Admin)
+    if session.get('role') not in ['owner', 'admin']:
+        return jsonify({"status": "error", "message": "Acces interzis!"}), 403
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Adminul/Ownerul aprobă un pending -> devine operator
+        cur.execute("UPDATE users SET role = 'operator' WHERE id = %s AND role = 'pending'", (target_user_id,))
+        conn.commit()
+        return jsonify({"status": "success", "message": "Utilizator aprobat!"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/user/promote/<int:target_user_id>', methods=['POST'])
+def promote_to_admin(target_user_id):
+    # DOAR Ownerul poate promova pe cineva la Admin
+    if session.get('role') != 'owner':
+        return jsonify({"status": "error", "message": "Doar Owner-ul poate promova admini!"}), 403
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE users SET role = 'admin' WHERE id = %s", (target_user_id,))
+        conn.commit()
+        return jsonify({"status": "success", "message": "Utilizator promovat la Admin!"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
         
 
 @app.route('/intrari')
