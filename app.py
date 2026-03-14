@@ -817,21 +817,22 @@ def get_all_users_with_roles():
 
 @app.route('/api/update_user_role', methods=['POST'])
 def update_user_role():
+    # Verificăm dacă cel care face cererea este Owner
+    if session.get('role') != 'owner':
+        return jsonify({"status": "error", "message": "Doar Owner-ul poate promova alți Owneri!"}), 403
+
     data = request.json
     user_id = data.get('id')
-    new_role = data.get('role').lower() # Forțăm lowercase pentru consistență
+    new_role = data.get('role').lower()
     
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        # Actualizăm în tabelul users
+        # Actualizăm DOAR în tabelul users (tabelul employees nu există în DB-ul tău)
         cur.execute("UPDATE users SET role = %s WHERE id = %s", (new_role, user_id))
         
-        # OPȚIONAL: Dacă vrei să fie la fel și în employees (deși e redundant)
-        cur.execute("UPDATE employees SET role = %s WHERE user_id = %s", (new_role, user_id))
-        
         conn.commit()
-        return jsonify({"status": "success"})
+        return jsonify({"status": "success", "message": f"Utilizator actualizat la {new_role}!"})
     except Exception as e:
         conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
