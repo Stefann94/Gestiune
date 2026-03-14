@@ -388,7 +388,14 @@ html { scrollbar-gutter: stable; }
             // 1. Aflăm cine este utilizatorul logat (rolul lui)
             const sessionResp = await fetch('/api/get_current_session');
             const sessionData = await sessionResp.json();
-            const myRole = (sessionData.role || 'guest').toLowerCase();
+            let myRole = 'guest';
+
+            // dacă nu există utilizator salvat în localStorage => tratăm ca guest
+            const savedUser = localStorage.getItem("stockmaster_user");
+
+            if (savedUser && sessionData && sessionData.role) {
+                myRole = sessionData.role.toLowerCase();
+            }
 
             // 2. Luăm toți utilizatorii din baza de date
             const response = await fetch('/api/get_all_users_with_roles');
