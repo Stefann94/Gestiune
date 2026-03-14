@@ -19,11 +19,22 @@ window.initCommonComponents = function () {
             <li><a href="/furnizori"><i class="fas fa-truck"></i> <span>Furnizori</span></a></li>
             <li><a href="/rapoarte"><i class="fas fa-file-invoice"></i> <span>Rapoarte</span></a></li>
         </ul>
-        <div class="user-menu">
-            <span class="user-role">Admin</span>
-            <a href="/logout" class="logout-btn" title="Deconectare">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
+        <div class="navbar-auth">
+            <!-- PENTRU CÂND E LOGAT (Păstrat ca structură, momentan comentat) -->
+            <!--
+            <div class="user-menu">
+                <span class="user-role">Admin</span>
+                <a href="/logout" class="logout-btn" title="Deconectare">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            -->
+            
+            <!-- BUTOANELE DE LOGIN ȘI SIGN UP -->
+            <div class="auth-buttons">
+                <a href="/login" class="btn-auth btn-login">Log In</a>
+                <a href="/signup" class="btn-auth btn-signup">Sign Up</a>
+            </div>
         </div>
     </nav>`.trim(); // .trim() elimină spațiile de la începutul și sfârșitul stringului
 
