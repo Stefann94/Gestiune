@@ -731,19 +731,32 @@ def register():
     hashed_pw = generate_password_hash(password)
     
     conn = get_db_connection()
-    if not conn: return jsonify({"status": "error", "message": "Eroare DB"}), 500
+    if not conn: 
+        return jsonify({"status": "error", "message": "Eroare conexiune DB"}), 500
     
     cur = conn.cursor()
     try:
-        # Folosim coloanele tale din imagine
+        # Aici am schimbat 'operator' cu 'pending'
+        # NOW() va popula coloana created_at din imaginea ta
         cur.execute("""
             INSERT INTO users (username, password_hash, full_name, role, created_at)
-            VALUES (%s, %s, %s, 'operator', NOW())
+            VALUES (%s, %s, %s, 'pending', NOW())
         """, (username, hashed_pw, full_name))
+        
         conn.commit()
-        return jsonify({"status": "success", "message": "Utilizator înregistrat!"})
-    except psycopg2.IntegrityError:
-        return jsonify({"status": "error", "message": "Numele de utilizator este deja luat!"}), 400
+        return jsonify({"status": "success", "message": "Utilizator înregistrat cu succes! Contul este în așteptare."})
+
+    except Exception as e:
+        conn.rollback() # Esențial ca să nu blochezi baza de date la eroare
+        error_msg = str(e)
+        
+        if "unique" in error_msg.lower():
+            return jsonify({"status": "error", "message": "Numele de utilizator este deja luat!"}), 400
+        elif "check constraint" in error_msg.lower():
+            return jsonify({"status": "error", "message": "Rolul 'pending' nu este permis de baza de date. Rulează SQL-ul de update!"}), 400
+        
+        return jsonify({"status": "error", "message": "Eroare neprevăzută la înregistrare."}), 500
+        
     finally:
         cur.close()
         conn.close()
@@ -774,6 +787,57 @@ def login():
     
     conn.close()
     return jsonify({"status": "error", "message": "Utilizator sau parolă incorectă!"}), 401  
+
+@app.route('/api/get_all_users_with_roles', methods=['GET'])
+def get_all_users_with_roles():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor) 
+    try:
+        # Luăm datele direct și curat din tabelul users
+        query = """
+            SELECT 
+                id, 
+                username, 
+                full_name, 
+                LOWER(TRIM(role)) as role 
+            FROM users 
+            ORDER BY created_at DESC
+        """
+        cur.execute(query)
+        users = cur.fetchall()
+        return jsonify(users)
+    except Exception as e:
+        print(f"Eroare API utilizatori: {e}")
+        return jsonify([]), 500
+    finally:
+        cur.close()
+        conn.close()
+        
+        
+
+@app.route('/api/update_user_role', methods=['POST'])
+def update_user_role():
+    data = request.json
+    user_id = data.get('id')
+    new_role = data.get('role').lower() # Forțăm lowercase pentru consistență
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Actualizăm în tabelul users
+        cur.execute("UPDATE users SET role = %s WHERE id = %s", (new_role, user_id))
+        
+        # OPȚIONAL: Dacă vrei să fie la fel și în employees (deși e redundant)
+        cur.execute("UPDATE employees SET role = %s WHERE user_id = %s", (new_role, user_id))
+        
+        conn.commit()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+        
 
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
