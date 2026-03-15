@@ -88,8 +88,37 @@
             </div>
         </div>
     </div>
+    <div id="categoryProductsModal" class="modal-overlay">
+        <div class="analysis-modal">
+            <div class="inventory-header-brand">
+                <div>
+                    <h2 id="modalCategoryTitle"><i class="fas fa-boxes"></i> Produse Categorie</h2>
+                    <p>Lista completă a produselor și stocul faptic</p>
+                </div>
+                <span class="close-modal" onclick="closeModal('categoryProductsModal')">&times;</span>
+            </div>
 
+            <div class="modal-body-scroll" style="max-height: 70vh; overflow-y: auto;">
+                <div class="analysis-table-wrapper">
+                    <table class="main-table">
+                        <thead style="position: sticky; top: 0; background: #f1f5f9; z-index: 10;">
+                            <tr>
+                                <th>Cod (SKU)</th>
+                                <th>Denumire Produs</th>
+                                <th class="text-center">Preț Unitar</th>
+                                <th class="text-right">Stoc Faptic</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryProductsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='produse_btn.js') }}"></script>
     <script>
         function openModal(id) { document.getElementById(id).classList.add('active'); document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }

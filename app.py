@@ -922,6 +922,30 @@ def produse_btn():
     # Trimitem AMBELE liste către HTML
     return render_template('produse.html', products=all_products, categories=all_categories)
 
+
+@app.route('/api/produse/categorie/<int:cat_id>')
+def produse_per_categorie(cat_id):
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Am adăugat p.sku în SELECT
+    query = """
+        SELECT 
+            p.sku, 
+            p.name, 
+            p.price, 
+            (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+             COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+        FROM products p
+        WHERE p.category_id = %s
+        ORDER BY p.name ASC;
+    """
+    cur.execute(query, (cat_id,))
+    produse = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify(produse)
+
 @app.route('/intrari')
 def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)
