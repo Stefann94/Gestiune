@@ -923,10 +923,14 @@ def produse_btn():
     return render_template('produse.html', products=all_products, categories=all_categories)
 
 @app.route('/intrari')
-def intrari(): return "Pagina Intrări în lucru"
+def intrari():
+    # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)
+    return render_template('intrari.html')
 
 @app.route('/iesiri')
-def iesiri(): return "Pagina Ieșiri în lucru"
+def iesiri():
+    # Aici vei prelua datele din DB (ex: tranzactii de tip iesire)
+    return render_template('iesiri.html')
 
 @app.route('/furnizori')
 def furnizori(): return "Pagina Furnizori în lucru"

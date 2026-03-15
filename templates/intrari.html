@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intrări Stoc | StockMaster Pro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='intrari.css') }}">
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="dashboard-container">
+        <header class="db-header">
+            <div class="welcome-text">
+                <h1>Gestiune <span class="text-gradient">Intrări (NIR)</span></h1>
+            </div>
+            
+            <div class="header-actions">
+                <div class="fancy-input-group search-green">
+                    <input type="text" id="entrySearch" placeholder="Caută NIR sau furnizor...">
+                </div>
+
+                <button class="btn-action btn-green" onclick="openModal('entryModal')">
+                    <i class="fas fa-file-invoice"></i> Recepție Nouă
+                </button>
+            </div>
+        </header>
+
+        <section class="bento-grid-kpi">
+            <div class="kpi-card glass">
+                <div class="kpi-icon box green-icon"><i class="fas fa-truck-loading"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Total Intrări (Lună)</span>
+                    <h3 class="value">142 NIR-uri</h3>
+                </div>
+            </div>
+            <div class="kpi-card glass">
+                <div class="kpi-icon box green-icon"><i class="fas fa-coins"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Valoare Achiziții</span>
+                    <h3 class="value">45.280 RON</h3>
+                </div>
+            </div>
+            <div class="kpi-card glass">
+                <div class="kpi-icon box green-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Top Furnizor</span>
+                    <h3 class="value">Global Tech SRL</h3>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-container glass">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Dată</th>
+                        <th>Nr. NIR</th>
+                        <th>Furnizor</th>
+                        <th>Valoare (fără TVA)</th>
+                        <th>Status</th>
+                        <th class="text-right">Acțiuni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15.03.2024</td>
+                        <td><strong>NIR-8842</strong></td>
+                        <td>Distrib-Aliment SA</td>
+                        <td>1.250,00 RON</td>
+                        <td><span class="badge badge-success-green">Finalizat</span></td>
+                        <td class="text-right">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon color-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="entryModal" class="modal-overlay">
+        <div class="analysis-modal">
+            <div class="inventory-header-brand">
+                <h2><i class="fas fa-plus-circle"></i> Înregistrare NIR Nou</h2>
+                <span class="close-modal" onclick="closeModal('entryModal')">&times;</span>
+            </div>
+            <div class="modal-body-scroll">
+                <form id="entryForm" class="bulk-control">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Număr Document</label>
+                            <input type="text" placeholder="Ex: NIR-001" class="fancy-input-group">
+                        </div>
+                        <div class="form-group">
+                            <label>Furnizor</label>
+                            <select class="glass-select">
+                                <option>Selectează Furnizor</option>
+                                <option>Global Tech SRL</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-action btn-green" style="width: 100%; margin-top: 20px;">Salvează Recepția</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>

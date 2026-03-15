@@ -1,0 +1,194 @@
+/* --- HEADER SEARCH & ACTIONS --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box-emerald {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(0.5rem);
+    border: 0.06rem solid rgba(16, 185, 129, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.6rem 1.2rem;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 15rem;
+}
+
+.search-box-emerald:focus-within {
+    border-color: #10b981;
+    box-shadow: 0 0 1.2rem rgba(16, 185, 129, 0.15);
+    background: #ffffff;
+}
+
+.search-box-emerald i {
+    color: #10b981;
+    font-size: 1rem;
+}
+
+.search-box-emerald input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: #1e293b;
+    font-family: inherit;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.btn-emerald-main {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 0.4rem 1rem rgba(16, 185, 129, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+
+.btn-emerald-main:hover {
+    transform: translateY(-0.15rem);
+    box-shadow: 0 0.6rem 1.5rem rgba(16, 185, 129, 0.3);
+}
+
+/* --- TABLE CUSTOMIZATIONS --- */
+.emerald-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.emerald-table tr:hover td {
+    background: rgba(16, 185, 129, 0.03);
+}
+
+.category-tag {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.stock-count {
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* --- STATUS PILLS --- */
+.status-pill {
+    padding: 0.35rem 0.8rem;
+    border-radius: 10rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.status-pill.available {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-pill.low-stock {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- ACTION BUTTONS --- */
+.btn-icon-emerald {
+    background: transparent;
+    border: 0.06rem solid #e2e8f0;
+    color: #10b981;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon-emerald:hover {
+    background: #10b981;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.btn-icon-danger {
+    background: transparent;
+    border: 0.06rem solid #e2e8f0;
+    color: #ef4444;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    margin-left: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.btn-icon-danger:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+/* --- FILTERS & SELECTS --- */
+.glass-select {
+    padding: 0.6rem 1rem;
+    border-radius: 0.6rem;
+    border: 0.06rem solid #e2e8f0;
+    background: #ffffff;
+    font-family: inherit;
+    color: #475569;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    min-width: 12rem;
+}
+
+/* --- RESPONSIVITATE --- */
+@media (max-width: 48rem) {
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box-emerald {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .btn-emerald-main {
+        justify-content: center;
+    }
+
+    .glass-select {
+        width: 100%;
+    }
+
+    /* Ascundem coloana categorie pe mobil foarte mic pentru claritate */
+    .emerald-table th:nth-child(2),
+    .emerald-table td:nth-child(2) {
+        display: none;
+    }
+}
+
+@media (max-width: 64rem) {
+    .modern-table-wrapper {
+        margin: 0 -1rem; /* Permite scroll-ul fluid pe tablete */
+    }
+}
