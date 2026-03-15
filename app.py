@@ -946,6 +946,50 @@ def produse_per_categorie(cat_id):
     conn.close()
     return jsonify(produse)
 
+@app.route('/api/categorii/add', methods=['POST'])
+def add_category():
+    data = request.get_json()
+    name = data.get('name')
+
+    if not name:
+        return jsonify({"success": False, "message": "Numele este obligatoriu"}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Verificăm dacă mai există (opțional)
+        cur.execute("INSERT INTO categories (name) VALUES (%s) RETURNING id", (name,))
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+        
+@app.route('/api/categorii/delete/<int:cat_id>', methods=['DELETE'])
+def delete_category(cat_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # 1. Ștergem produsele din acea categorie (pentru a evita erori de integritate)
+        cur.execute("DELETE FROM products WHERE category_id = %s", (cat_id,))
+        
+        # 2. Ștergem categoria
+        cur.execute("DELETE FROM categories WHERE id = %s", (cat_id,))
+        
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 @app.route('/intrari')
 def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)

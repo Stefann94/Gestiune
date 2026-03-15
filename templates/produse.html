@@ -9,42 +9,59 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='categorii.css') }}">
+
+    <style>
+        /* Stiluri de urgență pentru a repara suprapunerea */
+        .modal-overlay {
+            z-index: 1000;
+        }
+
+        #confirmDeleteModal {
+            z-index: 9999 !important;
+            /* Forțează acest modal să fie cel mai sus */
+        }
+
+        #confirmDeleteModal .analysis-modal {
+            z-index: 10000 !important;
+            background: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 
 <body>
-
     <div id="navbar-placeholder"></div>
 
     <main class="dashboard-container">
-
-        <header class="db-header">
+        <header class="db-header"
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 20px;">
             <div class="welcome-text">
-                <h1>Gestiune <span class="text-gradient">Produse</span></h1>
+                <h1 style="margin: 0;">Gestiune <span class="text-gradient">Produse</span></h1>
             </div>
 
-            <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
-                <div class="fancy-input-group" style="width: 180px; margin-bottom: 0;">
-                    <input type="text" id="productSearch" placeholder="Caută..."
-                        style="padding: 8px 12px; font-size: 0.85rem;">
+            <div class="header-actions"
+                style="display: flex; gap: 15px; align-items: center; flex: 1; justify-content: flex-end;">
+                <div class="search-wrapper" style="position: relative; width: 300px;">
+                    <i class="fas fa-search"
+                        style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #064e3b; opacity: 0.7;"></i>
+                    <input type="text" id="mainProductSearch" placeholder="Caută categorie..."
+                        onkeyup="searchCategories()"
+                        style="width: 100%; padding: 12px 15px 12px 45px; border-radius: 12px; border: 2px solid #064e3b20; background: #f0fdf4; color: #064e3b; font-weight: 500; outline: none; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                 </div>
 
-                <select id="filterCategory" class="glass"
-                    style="padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; cursor: pointer;">
-                    <option value="">Toate Categoriile</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
+                <button class="btn-action" onclick="openModal('categoryModal')"
+                    style="padding: 12px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; white-space: nowrap; background: #064e3b; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
+                    <i class="fas fa-plus"></i> Categorie Nouă
+                </button>
 
-                <button class="btn-action" onclick="openModal('productModal')"
-                    style="padding: 10px 20px; border-radius: 10px; font-size: 0.9rem; white-space: nowrap;">
-                    <i class="fas fa-plus"></i> Produs Nou
+                <button class="btn-action" onclick="prepareDeleteModal()"
+                    style="padding: 12px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; white-space: nowrap; background: #ef4444; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
+                    <i class="fas fa-trash-alt"></i> Șterge Categorie
                 </button>
             </div>
         </header>
@@ -61,33 +78,8 @@
             </div>
             {% endfor %}
         </section>
-
     </main>
 
-    <div id="productModal" class="modal-overlay">
-        <div class="analysis-modal" style="max-width: 600px;">
-            <div class="inventory-header-brand">
-                <h2><i class="fas fa-box-open"></i> Produs Nou</h2>
-                <span class="close-modal" onclick="closeModal('productModal')">&times;</span>
-            </div>
-            <div class="modal-body-scroll" style="padding: 20px;">
-                <form id="productForm" class="bulk-control">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group">
-                            <label style="color: white; font-size: 0.8rem;">Nume Produs</label>
-                            <input type="text" name="name" class="fancy-input-group" required>
-                        </div>
-                        <div class="form-group">
-                            <label style="color: white; font-size: 0.8rem;">Cod SKU</label>
-                            <input type="text" name="sku" class="fancy-input-group">
-                        </div>
-                    </div>
-                    <br>
-                    <button type="submit" class="btn-action" style="width: 100%;">Salvează în Nomenclator</button>
-                </form>
-            </div>
-        </div>
-    </div>
     <div id="categoryProductsModal" class="modal-overlay">
         <div class="analysis-modal">
             <div class="inventory-header-brand">
@@ -97,7 +89,6 @@
                 </div>
                 <span class="close-modal" onclick="closeModal('categoryProductsModal')">&times;</span>
             </div>
-
             <div class="modal-body-scroll" style="max-height: 70vh; overflow-y: auto;">
                 <div class="analysis-table-wrapper">
                     <table class="main-table">
@@ -109,19 +100,89 @@
                                 <th class="text-right">Stoc Faptic</th>
                             </tr>
                         </thead>
-                        <tbody id="categoryProductsBody">
-                        </tbody>
+                        <tbody id="categoryProductsBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="categoryModal" class="modal-overlay">
+        <div class="analysis-modal" style="max-width: 400px; height: auto;">
+            <div class="inventory-header-brand">
+                <h2><i class="fas fa-folder-plus"></i> Categorie Nouă</h2>
+                <span class="close-modal" onclick="closeModal('categoryModal')">&times;</span>
+            </div>
+            <div style="padding: 25px;">
+                <form id="addCategoryForm">
+                    <div class="form-group">
+                        <label style="color: #1e293b; font-size: 0.85rem; font-weight: 600;">Nume Categorie</label>
+                        <input type="text" id="newCatName" class="fancy-input-group"
+                            placeholder="Ex: Periferice, Monitoare..." required
+                            style="width: 100%; margin-top: 8px; border: 1px solid #cbd5e1; color: black;">
+                    </div>
+                    <br>
+                    <button type="submit" class="btn-action" style="width: 100%; background: #064e3b;">Creează
+                        Categorie</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteCategoryModal" class="modal-overlay">
+        <div class="analysis-modal" style="max-width: 400px; height: auto;">
+            <div class="inventory-header-brand" style="background: #ef4444;">
+                <h2><i class="fas fa-exclamation-triangle"></i> Șterge Categorie</h2>
+                <span class="close-modal" onclick="closeModal('deleteCategoryModal')">&times;</span>
+            </div>
+            <div style="padding: 25px;">
+                <div class="form-group">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">Alege categoria de
+                        eliminat:</label>
+                    <select id="deleteCatDropdown" class="fancy-input-group"
+                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;"></select>
+                </div>
+                <br>
+                <button onclick="showConfirmDelete()" class="btn-action"
+                    style="width: 100%; background: #ef4444;">Elimină Categoria</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmDeleteModal" class="modal-overlay">
+        <div class="analysis-modal"
+            style="max-width: 350px; text-align: center; border: 2px solid #ef4444; background: white;">
+            <div style="padding: 30px;">
+                <i class="fas fa-radiation-alt" style="font-size: 3rem; color: #ef4444; margin-bottom: 15px;"></i>
+                <h3 style="color: #1e293b;">Ești sigur?</h3>
+                <p style="color: #64748b; font-size: 0.9rem; margin: 15px 0;">
+                    Această acțiune va șterge <strong>toate produsele</strong> asociate acestei categorii. Datele nu pot
+                    fi recuperate.
+                </p>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="closeModal('confirmDeleteModal')" class="btn-action"
+                        style="flex: 1; background: #94a3b8;">Anulează</button>
+                    <button onclick="executeDelete()" class="btn-action" style="flex: 1; background: #b91c1c;">Da,
+                        Șterge tot</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script src="{{ url_for('static', filename='produse_btn.js') }}"></script>
     <script>
-        function openModal(id) { document.getElementById(id).classList.add('active'); document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }
+        function openModal(id) {
+            const m = document.getElementById(id);
+            m.classList.add('active');
+            m.style.display = 'flex';
+        }
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            m.classList.remove('active');
+            m.style.display = 'none';
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof window.initCommonComponents === 'function') {
