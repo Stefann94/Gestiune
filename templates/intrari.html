@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intrări Stoc | StockMaster Pro</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='intrari.css') }}">
 </head>
+
 <body>
 
     <div id="navbar-placeholder"></div>
@@ -22,7 +25,7 @@
             <div class="welcome-text">
                 <h1>Gestiune <span class="text-gradient">Intrări (NIR)</span></h1>
             </div>
-            
+
             <div class="header-actions">
                 <div class="fancy-input-group search-green">
                     <input type="text" id="entrySearch" placeholder="Caută NIR sau furnizor...">
@@ -108,7 +111,8 @@
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn-action btn-green" style="width: 100%; margin-top: 20px;">Salvează Recepția</button>
+                    <button type="submit" class="btn-action btn-green" style="width: 100%; margin-top: 20px;">Salvează
+                        Recepția</button>
                 </form>
             </div>
         </div>
@@ -121,4 +125,5 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
+
 </html>

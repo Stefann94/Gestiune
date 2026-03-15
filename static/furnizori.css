@@ -1,0 +1,43 @@
+/* --- FURNIZORI PAGE --- */
+
+.supplier-products{
+
+background:#e0f2fe;
+color:#0369a1;
+
+padding:0.35rem 0.7rem;
+border-radius:0.5rem;
+
+font-size:0.75rem;
+font-weight:600;
+
+}
+
+
+.supplier-active{
+
+background:#dcfce7;
+color:#166534;
+
+padding:0.35rem 0.7rem;
+border-radius:0.5rem;
+
+font-size:0.75rem;
+font-weight:700;
+
+}
+
+
+.kpi-icon.chart{
+
+background:linear-gradient(135deg,#10b981,#059669);
+color:white;
+
+}
+
+
+.emerald-table tbody tr:hover{
+
+background:rgba(16,185,129,0.04);
+
+}

@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestiune Produse | StockMaster Pro</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='categorii.css') }}">
@@ -20,25 +22,28 @@
     <div id="navbar-placeholder"></div>
 
     <main class="dashboard-container">
-        
+
         <header class="db-header">
             <div class="welcome-text">
                 <h1>Gestiune <span class="text-gradient">Produse</span></h1>
             </div>
-            
+
             <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
                 <div class="fancy-input-group" style="width: 180px; margin-bottom: 0;">
-                    <input type="text" id="productSearch" placeholder="Caută..." style="padding: 8px 12px; font-size: 0.85rem;">
+                    <input type="text" id="productSearch" placeholder="Caută..."
+                        style="padding: 8px 12px; font-size: 0.85rem;">
                 </div>
 
-                <select id="filterCategory" class="glass" style="padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; cursor: pointer;">
+                <select id="filterCategory" class="glass"
+                    style="padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; cursor: pointer;">
                     <option value="">Toate Categoriile</option>
                     {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
                     {% endfor %}
                 </select>
 
-                <button class="btn-action" onclick="openModal('productModal')" style="padding: 10px 20px; border-radius: 10px; font-size: 0.9rem; white-space: nowrap;">
+                <button class="btn-action" onclick="openModal('productModal')"
+                    style="padding: 10px 20px; border-radius: 10px; font-size: 0.9rem; white-space: nowrap;">
                     <i class="fas fa-plus"></i> Produs Nou
                 </button>
             </div>
@@ -46,7 +51,8 @@
 
         <section class="bento-grid-kpi" style="margin-bottom: 2rem;">
             {% for cat in categories %}
-            <div class="kpi-card glass" style="cursor: pointer; min-height: 100px;" onclick="filterByCategory('{{ cat.id }}')">
+            <div class="kpi-card glass" style="cursor: pointer; min-height: 100px;"
+                onclick="filterByCategory('{{ cat.id }}')">
                 <div class="kpi-icon box"><i class="fas fa-tag"></i></div>
                 <div class="kpi-info">
                     <span class="label">Categorie</span>
@@ -56,7 +62,7 @@
             {% endfor %}
         </section>
 
-        </main>
+    </main>
 
     <div id="productModal" class="modal-overlay">
         <div class="analysis-modal" style="max-width: 600px;">
@@ -87,7 +93,7 @@
     <script>
         function openModal(id) { document.getElementById(id).classList.add('active'); document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }
-        
+
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof window.initCommonComponents === 'function') {
                 window.initCommonComponents();
@@ -95,4 +101,5 @@
         });
     </script>
 </body>
+
 </html>

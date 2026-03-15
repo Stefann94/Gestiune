@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ieșiri Stoc | StockMaster Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='iesiri.css') }}">
 </head>
+
 <body>
 
     <div id="navbar-placeholder"></div>
@@ -22,7 +25,7 @@
                 <h1>Monitorizare <span class="text-gradient">Ieșiri</span></h1>
                 <p>Fluxul de produse către clienți și departamente</p>
             </div>
-            
+
             <div class="header-actions">
                 <div class="search-box-emerald">
                     <i class="fas fa-file-invoice"></i>
@@ -106,4 +109,5 @@
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
+
 </html>

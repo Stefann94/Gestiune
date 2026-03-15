@@ -933,7 +933,8 @@ def iesiri():
     return render_template('iesiri.html')
 
 @app.route('/furnizori')
-def furnizori(): return "Pagina Furnizori în lucru"
+def furnizori():
+    return render_template('furnizori.html')
 
 @app.route('/rapoarte')
 def rapoarte():
