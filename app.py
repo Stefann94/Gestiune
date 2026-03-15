@@ -891,6 +891,37 @@ def get_current_session():
         "role": session.get('role', 'guest')
     })
 
+
+@app.route('/produse_btn')
+def produse_btn():
+    conn = get_db_connection()
+    if not conn: 
+        return "Eroare la baza de date!"
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # 1. Luăm produsele cu stocul calculat
+    query_products = """
+        SELECT p.id, p.name, p.sku, p.price, p.stock_min, c.name as categorie_nume,
+        (COALESCE((SELECT SUM(quantity) FROM stock_entries WHERE product_id = p.id), 0) - 
+         COALESCE((SELECT SUM(quantity) FROM stock_exits WHERE product_id = p.id), 0)) as stock
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        ORDER BY p.id DESC;
+    """
+    cur.execute(query_products)
+    all_products = cur.fetchall()
+    
+    # 2. Luăm TOATE categoriile pentru butoanele de sus
+    cur.execute("SELECT id, name FROM categories ORDER BY name ASC;")
+    all_categories = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    # Trimitem AMBELE liste către HTML
+    return render_template('produse.html', products=all_products, categories=all_categories)
+
 @app.route('/intrari')
 def intrari(): return "Pagina Intrări în lucru"
 

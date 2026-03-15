@@ -11,7 +11,7 @@ window.initCommonComponents = function () {
 
 <ul class="nav-links">
 <li><a href="/dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
-<li><a href="/produse"><i class="fas fa-box"></i><span>Produse</span></a></li>
+<li><a href="/produse_btn"><i class="fas fa-box"></i><span>Produse</span></a></li>
 <li><a href="/intrari"><i class="fas fa-arrow-down"></i><span>Intrări</span></a></li>
 <li><a href="/iesiri"><i class="fas fa-arrow-up"></i><span>Ieșiri</span></a></li>
 <li><a href="/furnizori"><i class="fas fa-truck"></i><span>Furnizori</span></a></li>
