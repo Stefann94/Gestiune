@@ -936,7 +936,8 @@ def iesiri():
 def furnizori(): return "Pagina Furnizori în lucru"
 
 @app.route('/rapoarte')
-def rapoarte_pagina(): return "Pagina Rapoarte în lucru"
+def rapoarte():
+    return render_template('rapoarte.html')
 
 
 from flask import request, jsonify

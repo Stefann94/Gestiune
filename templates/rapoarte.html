@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Rapoarte | StockMaster Pro</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='rapoarte_btn.css') }}">
+
+</head>
+
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<main class="dashboard-container">
+
+<header class="db-header">
+
+<div class="welcome-text">
+<h1>Analiză <span class="text-gradient">Rapoarte</span></h1>
+<p>Statistici și exporturi pentru activitatea stocului</p>
+</div>
+
+<div class="header-actions">
+
+<div class="search-box-emerald">
+<i class="fas fa-search"></i>
+<input type="text" id="reportSearch" placeholder="Caută raport...">
+</div>
+
+<button class="btn-emerald-main">
+<i class="fas fa-file-export"></i>
+Export General
+</button>
+
+</div>
+
+</header>
+
+
+<section class="bento-grid-kpi">
+
+<div class="kpi-card glass">
+<div class="kpi-icon chart">
+<i class="fas fa-chart-line"></i>
+</div>
+
+<div class="kpi-info">
+<span class="label">Total Produse</span>
+<h2 class="value">325</h2>
+</div>
+</div>
+
+
+<div class="kpi-card glass">
+<div class="kpi-icon chart">
+<i class="fas fa-arrow-down"></i>
+</div>
+
+<div class="kpi-info">
+<span class="label">Intrări Lună</span>
+<h2 class="value">1,240 <small>unități</small></h2>
+</div>
+</div>
+
+
+<div class="kpi-card glass">
+<div class="kpi-icon chart">
+<i class="fas fa-arrow-up"></i>
+</div>
+
+<div class="kpi-info">
+<span class="label">Ieșiri Lună</span>
+<h2 class="value">980 <small>unități</small></h2>
+</div>
+</div>
+
+
+<div class="kpi-card glass">
+<div class="kpi-icon chart">
+<i class="fas fa-box-open"></i>
+</div>
+
+<div class="kpi-info">
+<span class="label">Produse Critice</span>
+<h2 class="value">12</h2>
+</div>
+</div>
+
+</section>
+
+
+<section class="table-section">
+
+<div class="card glass no-padding">
+
+<div class="table-header-custom">
+
+<h3>Istoric Rapoarte Generate</h3>
+
+<div class="table-filters">
+
+<select class="glass-select">
+<option>Ultimele 7 zile</option>
+<option>Ultimele 30 zile</option>
+<option>Anul curent</option>
+</select>
+
+</div>
+
+</div>
+
+
+<div class="modern-table-wrapper">
+
+<table class="emerald-table">
+
+<thead>
+<tr>
+<th>Data</th>
+<th>Tip Raport</th>
+<th>Generat de</th>
+<th>Status</th>
+<th class="text-right">Acțiuni</th>
+</tr>
+</thead>
+
+
+<tbody>
+
+<tr>
+
+<td>
+<div class="date-cell">
+<strong>15.03.2026</strong>
+<small class="text-muted">14:20</small>
+</div>
+</td>
+
+<td>
+<div class="product-cell">
+<div class="product-img">
+<i class="fas fa-chart-bar"></i>
+</div>
+<strong>Raport Stoc</strong>
+</div>
+</td>
+
+<td>
+<span class="operator-badge">
+Admin
+</span>
+</td>
+
+<td>
+<span class="status-ok">
+Generat
+</span>
+</td>
+
+<td class="text-right">
+
+<button class="btn-icon-emerald">
+<i class="fas fa-download"></i>
+</button>
+
+<button class="btn-icon-emerald">
+<i class="fas fa-eye"></i>
+</button>
+
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+<div class="date-cell">
+<strong>14.03.2026</strong>
+<small class="text-muted">09:10</small>
+</div>
+</td>
+
+<td>
+<div class="product-cell">
+<div class="product-img">
+<i class="fas fa-file-invoice"></i>
+</div>
+<strong>Raport Intrări</strong>
+</div>
+</td>
+
+<td>
+<span class="operator-badge">
+Admin
+</span>
+</td>
+
+<td>
+<span class="status-ok">
+Generat
+</span>
+</td>
+
+<td class="text-right">
+
+<button class="btn-icon-emerald">
+<i class="fas fa-download"></i>
+</button>
+
+<button class="btn-icon-emerald">
+<i class="fas fa-eye"></i>
+</button>
+
+</td>
+
+</tr>
+
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+</section>
+
+</main>
+
+<script src="{{ url_for('static', filename='componente.js') }}"></script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>
