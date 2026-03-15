@@ -1,0 +1,78 @@
+/* --- IESIRI CUSTOM STYLES --- */
+
+/* Celula de dată */
+.date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.date-cell strong {
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+/* Tag-uri destinație */
+.destinatie-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Badge Operator */
+.operator-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.operator-badge::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #10b981;
+    border-radius: 50%;
+}
+
+/* Evidențiere ieșire cantitate */
+.text-orange {
+    color: #f59e0b !important; /* Portocaliu pentru a semnaliza scăderea */
+    font-size: 1rem;
+}
+
+/* Stiluri specifice Tabel */
+.emerald-table td {
+    padding: 1rem 1.25rem;
+}
+
+/* RESPONSIVITATE */
+@media (max-width: 48rem) {
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-box-emerald {
+        width: 100%;
+    }
+
+    /* Pe mobil ascundem operatorul pentru a salva spațiu */
+    .emerald-table th:nth-child(5),
+    .emerald-table td:nth-child(5) {
+        display: none;
+    }
+}
+
+/* Efect hover pe rânduri */
+.emerald-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.emerald-table tbody tr:hover {
+    background: rgba(245, 158, 11, 0.03) !important; /* Tentă portocalie fină la hover pe ieșiri */
+}

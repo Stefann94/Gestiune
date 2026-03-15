@@ -12,11 +12,13 @@ window.initCommonComponents = function () {
 <ul class="nav-links">
 <li><a href="/dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
 <li><a href="/produse_btn"><i class="fas fa-box"></i><span>Produse</span></a></li>
-<a href="/intrari" class="nav-item">
-    <i class="fas fa-file-import"></i>
-    <span>Intrări</span>
+<li>
+<a href="/intrari">
+<i class="fas fa-file-import"></i>
+<span>Intrări</span>
 </a>
-<a href="/iesiri"><i class="fas fa-arrow-up"></i> Ieșiri</a>
+</li>
+<li><a href="/iesiri"><i class="fas fa-arrow-up-from-bracket"></i><span>Ieșiri</span></a></li>
 <li><a href="/furnizori"><i class="fas fa-truck"></i><span>Furnizori</span></a></li>
 <li><a href="/rapoarte"><i class="fas fa-file-invoice"></i><span>Rapoarte</span></a></li>
 <li><a href="javascript:void(0)" onclick="openEmployeesModal()"><i class="fas fa-users-cog"></i><span>Angajați</span></a></li>

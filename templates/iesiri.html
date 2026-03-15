@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ieșiri Stoc | StockMaster Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='iesiri.css') }}">
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="dashboard-container">
+        <header class="db-header">
+            <div class="welcome-text">
+                <h1>Monitorizare <span class="text-gradient">Ieșiri</span></h1>
+                <p>Fluxul de produse către clienți și departamente</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="search-box-emerald">
+                    <i class="fas fa-file-invoice"></i>
+                    <input type="text" id="iesiriSearch" placeholder="Caută bon, produs sau client...">
+                </div>
+                <button class="btn-emerald-main" onclick="openExportModal()">
+                    <i class="fas fa-minus-circle"></i> Înregistrează Ieșire
+                </button>
+            </div>
+        </header>
+
+        <section class="bento-grid-kpi">
+            <div class="kpi-card glass">
+                <div class="kpi-icon chart"><i class="fas fa-shipping-fast"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Ieșiri Astăzi</span>
+                    <h2 class="value">{{ flux }} <small>Unități</small></h2>
+                    <span class="trend up"><i class="fas fa-arrow-up"></i> +5% vs ieri</span>
+                </div>
+            </div>
+            <div class="kpi-card glass warning">
+                <div class="kpi-icon money"><i class="fas fa-hand-holding-dollar"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Valoare Livrată</span>
+                    <h2 class="value">14,250 <small>RON</small></h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="card glass no-padding">
+                <div class="table-header-custom">
+                    <h3>Istoric Tranzacții Ieșire</h3>
+                    <div class="table-filters">
+                        <input type="date" class="glass-select" id="filterDate">
+                    </div>
+                </div>
+                <div class="modern-table-wrapper">
+                    <table class="emerald-table">
+                        <thead>
+                            <tr>
+                                <th>Data / Oră</th>
+                                <th>Produs</th>
+                                <th>Destinație / Client</th>
+                                <th>Cantitate</th>
+                                <th>Operator</th>
+                                <th class="text-right">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in iesiri %}
+                            <tr>
+                                <td>
+                                    <div class="date-cell">
+                                        <strong>{{ i.data }}</strong>
+                                        <small class="text-muted">{{ i.ora }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-img"><i class="fas fa-box"></i></div>
+                                        <strong>{{ i.produs_nume }}</strong>
+                                    </div>
+                                </td>
+                                <td><span class="destinatie-tag">{{ i.destinatie }}</span></td>
+                                <td><strong class="text-orange">- {{ i.cantitate }} buc.</strong></td>
+                                <td><span class="operator-badge">{{ i.operator }}</span></td>
+                                <td class="text-right">
+                                    <button class="btn-icon-emerald"><i class="fas fa-print"></i></button>
+                                    <button class="btn-icon-danger"><i class="fas fa-undo"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
