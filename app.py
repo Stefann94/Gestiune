@@ -1129,55 +1129,82 @@ def intrari_dashboard():
 @app.route('/api/iesiri/add', methods=['POST'])
 def add_iesire():
     data = request.json
+    
+    # Validare de bază a datelor primite
+    if not data or 'receptie_id' not in data or 'cantitate' not in data:
+        return jsonify({"success": False, "message": "Date incomplete!"})
+
     receptie_id = data['receptie_id']
-    cantitate_de_scazut = int(data['cantitate'])
+    try:
+        cantitate_de_scazut = int(data['cantitate'])
+        if cantitate_de_scazut <= 0:
+            return jsonify({"success": False, "message": "Cantitatea trebuie să fie mai mare decât 0!"})
+    except ValueError:
+        return jsonify({"success": False, "message": "Cantitate invalidă!"})
 
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     try:
-        # 1. Luăm datele actuale ale recepției
+        # 1. Luăm datele lotului din 'receptii' pentru a verifica stocul și a prelua info produs
         cur.execute("""
             SELECT cantitate, pret_produs, nume_companie, nume_produs 
-            FROM receptii WHERE id = %s
+            FROM receptii 
+            WHERE id = %s
         """, (receptie_id,))
         receptie = cur.fetchone()
 
+        # Verificăm dacă lotul există
         if not receptie:
-            return jsonify({"success": False, "message": "Recepția nu a fost găsită!"})
+            return jsonify({"success": False, "message": "Eroare: Lotul (Recepția) nu a fost găsit în baza de date!"})
         
         stoc_actual = int(receptie['cantitate'])
         pret_unitar = float(receptie['pret_produs'])
 
+        # Verificăm dacă avem suficient stoc
         if stoc_actual < cantitate_de_scazut:
-            return jsonify({"success": False, "message": f"Stoc insuficient! Disponibil: {stoc_actual}"})
+            return jsonify({"success": False, "message": f"Stoc insuficient! Disponibil în lot: {stoc_actual}"})
 
-        # 2. Calculăm noile valori
+        # 2. Calculăm noile valori pentru tabela 'receptii'
         noua_cantitate = stoc_actual - cantitate_de_scazut
         nou_pret_total = noua_cantitate * pret_unitar
 
-        # 3. UPDATE în receptii
+        # 3. Executăm UPDATE în 'receptii' (Actualizăm stocul rămas și valoarea lui)
         cur.execute("""
             UPDATE receptii 
             SET cantitate = %s, pret_total = %s 
             WHERE id = %s
         """, (noua_cantitate, nou_pret_total, receptie_id))
 
-        # 4. INSERT în tabela iesiri (AICI ERA ERORAREA - am pus cantitate_de_scazut)
+        # 4. Executăm INSERT în tabela 'iesiri' (Salvăm tranzacția în istoric)
+        # Folosim NOW() pentru timestamp-ul serverului de DB
         cur.execute("""
             INSERT INTO iesiri (receptie_id, nume_companie, nume_produs, cantitate_iesita, data_iesire)
             VALUES (%s, %s, %s, %s, NOW())
-        """, (receptie_id, receptie['nume_companie'], receptie['nume_produs'], cantitate_de_scazut))
+        """, (
+            receptie_id, 
+            receptie['nume_companie'], 
+            receptie['nume_produs'], 
+            cantitate_de_scazut
+        ))
 
+        # Dacă ambele operațiuni au reușit, salvăm definitiv (Atomic Transaction)
         conn.commit()
-        return jsonify({"success": True, "message": "Stoc actualizat cu succes!"})
+        return jsonify({
+            "success": True, 
+            "message": "Ieșire înregistrată! Stocul lotului a fost actualizat."
+        })
 
     except Exception as e:
-        conn.rollback()
-        return jsonify({"success": False, "message": str(e)})
+        # Dacă apare orice eroare (ex: pică netul, eroare SQL), dăm înapoi toate modificările
+        if conn:
+            conn.rollback()
+        return jsonify({"success": False, "message": f"Eroare server: {str(e)}"})
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @app.route('/intrari')
@@ -1224,6 +1251,26 @@ def iesiri():
     except Exception as e:
         print(f"Eroare: {e}")
         return f"Eroare la încărcarea paginii: {str(e)}"
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/iesiri/list')
+def get_iesiri_json():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        cur.execute("""
+            SELECT id, nume_produs, nume_companie, cantitate_iesita, receptie_id,
+                   TO_CHAR(data_iesire, 'DD.MM.YYYY') as data,
+                   TO_CHAR(data_iesire, 'HH24:MI') as ora
+            FROM iesiri 
+            ORDER BY data_iesire DESC
+        """)
+        iesiri = cur.fetchall()
+        return jsonify({"success": True, "data": iesiri})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
     finally:
         cur.close()
         conn.close()

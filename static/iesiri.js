@@ -158,3 +158,83 @@ function updateMaxQuantity() {
 }
 
 // Restul funcțiilor (filterProductsByCompany, submit, modal) rămân la fel ca în răspunsul anterior
+
+
+let allExits = []; // Cache pentru datele de ieșire
+
+// Funcția apelată de butonul "Istoric Ieșiri" din Header
+async function openExitHistory() {
+    const companySelect = document.getElementById("hist_exit_companie");
+    
+    // Resetare UI
+    companySelect.innerHTML = '<option value="">-- Toate Companiile --</option>';
+    document.getElementById("hist_exit_produs").disabled = true;
+    document.getElementById("exit_detail_card").style.display = "none";
+
+    // Simulăm sau aducem datele din API-ul de ieșiri
+    try {
+        // Folosim datele trimise de Flask în variabila 'iesiri' din template 
+        // Sau facem un fetch dacă ai endpoint dedicat:
+        const response = await fetch("/api/iesiri/list"); // Asigură-te că ai acest endpoint în app.py
+        const result = await response.json();
+
+        if (result.success) {
+            allExits = result.data;
+
+            // Companii unice care au avut ieșiri
+            const companii = [...new Set(allExits.map(e => e.nume_companie))].sort();
+            
+            companii.forEach(comp => {
+                const opt = document.createElement("option");
+                opt.value = comp;
+                opt.textContent = comp;
+                companySelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        console.error("Eroare la încărcare istoric ieșiri:", err);
+    }
+
+    openModal('historyModal');
+}
+
+function filterExitHistoryProducts() {
+    const selectedComp = document.getElementById("hist_exit_companie").value;
+    const productSelect = document.getElementById("hist_exit_produs");
+    
+    productSelect.innerHTML = '<option value="">-- Selectează Produsul/Data --</option>';
+    document.getElementById("exit_detail_card").style.display = "none";
+
+    if (!selectedComp) {
+        productSelect.disabled = true;
+        return;
+    }
+
+    const filtered = allExits.filter(e => e.nume_companie === selectedComp);
+    
+    filtered.forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.id;
+        // Afișăm numele produsului și data pentru a le deosebi
+        opt.textContent = `${e.nume_produs} (${e.data} - ${e.ora})`;
+        productSelect.appendChild(opt);
+    });
+
+    productSelect.disabled = false;
+}
+
+function loadExitDetails() {
+    const selectedId = document.getElementById("hist_exit_produs").value;
+    if (!selectedId) return;
+
+    const data = allExits.find(e => e.id == selectedId);
+    if (!data) return;
+
+    // Populăm datele
+    document.getElementById("hist_exit_title").innerText = `Ieșire: ${data.nume_produs}`;
+    document.getElementById("hist_exit_data").innerText = `${data.data} | ${data.ora}`;
+    document.getElementById("hist_exit_qty").innerText = `- ${data.cantitate_iesita} unități`;
+    document.getElementById("hist_exit_lot").innerText = `Lot #${data.receptie_id}`;
+
+    document.getElementById("exit_detail_card").style.display = "block";
+}

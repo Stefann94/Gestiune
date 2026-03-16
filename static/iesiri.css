@@ -209,19 +209,49 @@
 }
 
 /* Istoric Ieșiri */
-.btn-history {
-    background: #ecfdf5 !important; /* Verde foarte deschis */
-    color: #065f46 !important; /* Text verde închis */
-    border: 1px solid #a7f3d0 !important;
-    transition: all 0.3s ease;
+/* --- CENTRARE EXPLORATOR ISTORIC --- */
+#historyModal .analysis-grid {
+    display: flex;             /* Folosim flex pentru centrare precisă */
+    justify-content: center;   /* Centrează orizontal coloanele */
+    align-items: center;       /* Aliază-le vertical */
+    gap: 2rem;
+    max-width: 50rem;          /* Limitează lățimea pentru a nu fi prea depărtate */
+    margin: 0 auto 2rem auto;  /* Centrează grid-ul în sine în modal */
 }
 
+#historyModal .form-group-custom {
+    flex: 1;                   /* Oferă lățime egală ambelor selecții */
+    min-width: 200px;
+    text-align: left;          /* Păstrează textul label-ului aliniat la stânga */
+}
+
+/* --- BUTOANE HEADER IDENTICE (VERDE PREMIUM) --- */
+/* Ieșire Nouă ȘI Istoric Ieșiri acum au același stil */
+.btn-blue, 
+.btn-history {
+    background: #064e3b !important; /* Verdele închis premium */
+    color: white !important;
+    border: none !important;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.btn-blue:hover, 
 .btn-history:hover {
-    background: #d1fae5 !important;
+    background: #059669 !important; /* Verde mai aprins la hover */
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
     transform: translateY(-1px);
 }
 
-/* Corecție aliniere în grid pentru a fi toate la același nivel */
-.analysis-grid {
-    align-items: flex-start !important; /* Schimbat de la flex-end pentru aliniere top a label-urilor */
+/* Stil pentru textele de detaliu din istoric (centrare header detaliu) */
+#exit_detail_card h3 {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 2rem;
 }
