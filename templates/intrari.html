@@ -34,6 +34,10 @@
                 <button class="btn-action btn-green" onclick="openModal('entryModal')">
                     <i class="fas fa-file-invoice"></i> Recepție Nouă
                 </button>
+
+                <button class="btn-action btn-blue" onclick="openReceptionHistory()">
+                    <i class="fas fa-clock"></i> Istoric Recepții
+                </button>
             </div>
         </header>
 
@@ -91,35 +95,157 @@
     </main>
 
     <div id="entryModal" class="modal-overlay">
+
         <div class="analysis-modal">
+
             <div class="inventory-header-brand">
-                <h2><i class="fas fa-plus-circle"></i> Înregistrare NIR Nou</h2>
-                <span class="close-modal" onclick="closeModal('entryModal')">&times;</span>
+                <h2>
+                    <i class="fas fa-plus-circle"></i>
+                    Înregistrare NIR Nou
+                </h2>
+
+                <span class="close-modal" onclick="closeModal('entryModal')">
+                    &times;
+                </span>
             </div>
-            <div class="modal-body-scroll">
-                <form id="entryForm" class="bulk-control">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Număr Document</label>
-                            <input type="text" placeholder="Ex: NIR-001" class="fancy-input-group">
-                        </div>
-                        <div class="form-group">
-                            <label>Furnizor</label>
-                            <select class="glass-select">
-                                <option>Selectează Furnizor</option>
-                                <option>Global Tech SRL</option>
-                            </select>
-                        </div>
+
+            <form id="entryForm" class="bulk-control">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="nume_companie">Nume Companie</label>
+                        <input type="text" id="nume_companie" class="fancy-input-group" required>
                     </div>
-                    <button type="submit" class="btn-action btn-green" style="width: 100%; margin-top: 20px;">Salvează
-                        Recepția</button>
-                </form>
-            </div>
+
+                    <div class="form-group">
+                        <label for="nume_produs">Nume Produs</label>
+                        <input type="text" id="nume_produs" class="fancy-input-group" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cantitate">Cantitate</label>
+                        <input type="number" id="cantitate" class="fancy-input-group" required
+                            oninput="calculateTotal()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pret_produs">Preț Unitar (RON)</label>
+                        <input type="number" id="pret_produs" class="fancy-input-group" step="0.01" required
+                            oninput="calculateTotal()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email_firma">Email Firmă</label>
+                        <input type="email" id="email_firma" class="fancy-input-group">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adresa_firma">Adresă Firmă</label>
+                        <input type="text" id="adresa_firma" class="fancy-input-group">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="pret_total">Preț Marfă Totală</label>
+                        <input type="text" id="pret_total" class="fancy-input-group" readonly
+                            placeholder="Se calculează automat">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-green">
+                    Salvează Recepția
+                </button>
+
+            </form>
+
         </div>
+
+    </div>
+
+    <div id="historyModal" class="modal-overlay">
+
+        <div class="analysis-modal">
+
+            <div class="inventory-header-brand">
+                <h2><i class="fas fa-history"></i> Istoric Recepții</h2>
+                <span class="close-modal" onclick="closeModal('historyModal')">&times;</span>
+            </div>
+
+            <div class="bulk-control">
+
+                <h3 style="margin-bottom:10px;">Recepții</h3>
+
+                <div id="receptiiList" class="receptii-list">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="receptionDetailsModal" class="modal-overlay">
+
+        <div class="analysis-modal">
+
+            <div class="inventory-header-brand">
+                <h2><i class="fas fa-file-invoice"></i> Detalii Recepție</h2>
+                <span class="close-modal" onclick="closeModal('receptionDetailsModal')">&times;</span>
+            </div>
+
+            <div class="bulk-control">
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+                        <label>Companie</label>
+                        <span id="detail_companie"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Produs</label>
+                        <span id="detail_produs"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Cantitate</label>
+                        <span id="detail_cantitate"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Preț unitar</label>
+                        <span id="detail_pret_unitar"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Preț total</label>
+                        <span id="detail_pret_total"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Email firmă</label>
+                        <span id="detail_email"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Adresă firmă</label>
+                        <span id="detail_adresa"></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
+    <script src="{{ url_for('static', filename='intrari.js') }}"></script>
     <script>
         function openModal(id) { document.getElementById(id).classList.add('active'); document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display = 'none'; }

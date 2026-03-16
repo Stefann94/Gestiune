@@ -990,6 +990,62 @@ def delete_category(cat_id):
         cur.close()
         conn.close()
 
+@app.route('/api/receptii/add', methods=['POST'])
+def add_reception():
+    data = request.json
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Calculăm prețul total: cantitate * pret_produs
+        pret_total = float(data['cantitate']) * float(data['pret_produs'])
+        
+        query = """
+            INSERT INTO receptii (nume_companie, nume_produs, cantitate, pret_produs, pret_total, email_firma, adresa_firma)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cur.execute(query, (
+            data['nume_companie'],
+            data['nume_produs'],
+            data['cantitate'],
+            data['pret_produs'],
+            pret_total,
+            data['email_firma'],
+            data['adresa_firma']
+        ))
+        
+        conn.commit()
+        return jsonify({"success": True, "message": "Recepție salvată cu succes!"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+        
+@app.route('/api/receptii/list', methods=['GET'])
+def get_receptions():
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+
+        cur.execute("SELECT * FROM receptii ORDER BY id DESC")
+
+        receptii = cur.fetchall()
+
+        return jsonify({"success": True, "data": receptii})
+
+    except Exception as e:
+
+        return jsonify({"success": False, "message": str(e)}), 500
+
+    finally:
+
+        cur.close()
+        conn.close()
+
 @app.route('/intrari')
 def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)

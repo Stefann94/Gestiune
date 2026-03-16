@@ -1,4 +1,7 @@
-/* --- HEADER SEARCH & ACTIONS --- */
+/* =========================================
+HEADER ACTIONS
+========================================= */
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -6,189 +9,408 @@
     flex-wrap: wrap;
 }
 
-.search-box-emerald {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(0.5rem);
-    border: 0.06rem solid rgba(16, 185, 129, 0.2);
-    border-radius: 0.75rem;
-    padding: 0.6rem 1.2rem;
-    gap: 0.75rem;
-    transition: all 0.3s ease;
+.search-green {
     flex: 1;
-    min-width: 15rem;
+    min-width: 16rem;
 }
 
-.search-box-emerald:focus-within {
-    border-color: #10b981;
-    box-shadow: 0 0 1.2rem rgba(16, 185, 129, 0.15);
-    background: #ffffff;
-}
-
-.search-box-emerald i {
-    color: #10b981;
-    font-size: 1rem;
-}
-
-.search-box-emerald input {
-    border: none;
-    background: transparent;
-    outline: none;
-    color: #1e293b;
-    font-family: inherit;
+.search-green input {
     width: 100%;
-    font-size: 0.9rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 0.5rem;
+    border: 0.06rem solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.85rem;
+    outline: none;
 }
 
-.btn-emerald-main {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #ffffff;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    box-shadow: 0 0.4rem 1rem rgba(16, 185, 129, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-    white-space: nowrap;
+.search-green input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.15rem rgba(16, 185, 129, 0.15);
 }
 
-.btn-emerald-main:hover {
-    transform: translateY(-0.15rem);
-    box-shadow: 0 0.6rem 1.5rem rgba(16, 185, 129, 0.3);
-}
 
-/* --- TABLE CUSTOMIZATIONS --- */
-.emerald-table {
+/* =========================================
+TABLE
+========================================= */
+
+.main-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.emerald-table tr:hover td {
-    background: rgba(16, 185, 129, 0.03);
-}
-
-.category-tag {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 0.3rem 0.75rem;
-    border-radius: 0.5rem;
+.main-table th {
+    text-align: left;
     font-size: 0.75rem;
-    font-weight: 700;
-    display: inline-block;
-}
-
-.stock-count {
-    font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-/* --- STATUS PILLS --- */
-.status-pill {
-    padding: 0.35rem 0.8rem;
-    border-radius: 10rem;
-    font-size: 0.7rem;
-    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    display: inline-flex;
-    align-items: center;
+    color: #64748b;
+    padding: 0.8rem;
+    border-bottom: 0.06rem solid #e2e8f0;
 }
 
-.status-pill.available {
+.main-table td {
+    padding: 0.8rem;
+    border-bottom: 0.06rem solid #f1f5f9;
+}
+
+.main-table tr:hover {
+    background: rgba(16, 185, 129, 0.04);
+}
+
+
+/* =========================================
+BADGES
+========================================= */
+
+.badge-success-green {
     background: #dcfce7;
     color: #166534;
+    padding: 0.3rem 0.65rem;
+    border-radius: 2rem;
+    font-size: 0.65rem;
+    font-weight: 700;
 }
 
-.status-pill.low-stock {
-    background: #fee2e2;
-    color: #991b1b;
-}
 
-/* --- ACTION BUTTONS --- */
-.btn-icon-emerald {
-    background: transparent;
+/* =========================================
+ACTION BUTTONS
+========================================= */
+
+.btn-icon {
     border: 0.06rem solid #e2e8f0;
+    background: white;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.45rem;
+    cursor: pointer;
     color: #10b981;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 0.6rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.btn-icon-emerald:hover {
+.btn-icon:hover {
     background: #10b981;
-    color: #ffffff;
-    border-color: #10b981;
+    color: white;
 }
 
-.btn-icon-danger {
-    background: transparent;
-    border: 0.06rem solid #e2e8f0;
+.color-danger {
     color: #ef4444;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 0.6rem;
-    cursor: pointer;
-    margin-left: 0.4rem;
-    transition: all 0.2s ease;
 }
 
-.btn-icon-danger:hover {
+.color-danger:hover {
     background: #ef4444;
-    color: #ffffff;
-    border-color: #ef4444;
+    color: white;
 }
 
-/* --- FILTERS & SELECTS --- */
-.glass-select {
-    padding: 0.6rem 1rem;
-    border-radius: 0.6rem;
-    border: 0.06rem solid #e2e8f0;
-    background: #ffffff;
-    font-family: inherit;
-    color: #475569;
-    font-weight: 600;
-    outline: none;
+
+/* =========================================
+MODAL OVERLAY
+========================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+
+/* =========================================
+MODAL
+========================================= */
+
+.analysis-modal {
+
+    width: 92%;
+    max-width: 42rem;
+
+    max-height: 90vh;
+
+    background: white;
+
+    border-radius: 0.9rem;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    box-shadow: 0 1.2rem 2rem rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================
+MODAL HEADER
+========================================= */
+
+.inventory-header-brand {
+
+    background: #064e3b;
+
+    color: white;
+
+    padding: 0.9rem 1.2rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.inventory-header-brand h2 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.close-modal {
+    font-size: 1.4rem;
     cursor: pointer;
-    min-width: 12rem;
 }
 
-/* --- RESPONSIVITATE --- */
-@media (max-width: 48rem) {
+
+/* =========================================
+FORM BODY
+========================================= */
+
+.bulk-control{
+padding:1rem;
+display:flex;
+flex-direction:column;
+gap:0.6rem;
+}
+
+
+/* =========================================
+FORM GRID
+========================================= */
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:0.55rem;
+}
+
+
+/* =========================================
+FORM GROUP
+========================================= */
+
+.form-group {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.15rem;
+}
+
+.form-group label {
+
+    font-size: 0.65rem;
+
+    font-weight: 700;
+
+    color: #64748b;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+
+/* =========================================
+INPUTS
+========================================= */
+
+.fancy-input-group{
+
+width:100%;
+
+padding:0.38rem 0.5rem;
+
+border-radius:0.4rem;
+
+border:0.06rem solid #e2e8f0;
+
+background:#f8fafc;
+
+font-size:0.78rem;
+
+outline:none;
+
+}
+
+.fancy-input-group:focus {
+
+    border-color: #10b981;
+
+    background: white;
+
+    box-shadow: 0 0 0 0.12rem rgba(16, 185, 129, 0.15);
+}
+
+
+/* readonly */
+
+.fancy-input-group[readonly] {
+
+    background: #f1f5f9;
+
+    border-style: dashed;
+
+    font-weight: 700;
+
+    color: #064e3b;
+}
+
+
+/* =========================================
+FULL WIDTH
+========================================= */
+
+.full-width {
+    grid-column: span 2;
+}
+
+
+/* =========================================
+BUTTON
+========================================= */
+
+.btn-green{
+
+align-self:center;
+
+background:#064e3b;
+
+color:white;
+
+border:none;
+
+border-radius:0.45rem;
+
+padding:0.55rem 1.4rem;
+
+font-size:0.82rem;
+
+font-weight:700;
+
+letter-spacing:0.02em;
+
+cursor:pointer;
+
+min-width:10rem;
+
+height:3rem;
+
+}
+
+.btn-green:hover {
+    background: #059669;
+}
+
+
+/* =========================================
+RESPONSIVE
+========================================= */
+
+@media(max-width:48rem) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: span 1;
+    }
+
     .header-actions {
-        width: 100%;
         flex-direction: column;
         align-items: stretch;
     }
-    
-    .search-box-emerald {
-        width: 100%;
-        min-width: 100%;
-    }
 
-    .btn-emerald-main {
-        justify-content: center;
-    }
-
-    .glass-select {
-        width: 100%;
-    }
-
-    /* Ascundem coloana categorie pe mobil foarte mic pentru claritate */
-    .emerald-table th:nth-child(2),
-    .emerald-table td:nth-child(2) {
-        display: none;
-    }
 }
 
-@media (max-width: 64rem) {
-    .modern-table-wrapper {
-        margin: 0 -1rem; /* Permite scroll-ul fluid pe tablete */
-    }
+
+.receptii-list{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+margin-top:10px;
+
+}
+
+.receptie-btn{
+
+background:#f1f5f9;
+
+border:none;
+
+padding:10px;
+
+border-radius:6px;
+
+text-align:left;
+
+cursor:pointer;
+
+font-size:0.85rem;
+
+line-height:1.4;
+
+}
+
+.receptie-btn:hover{
+
+background:#e2e8f0;
+
+}
+
+.details-grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:10px;
+
+}
+
+.detail-item{
+
+display:flex;
+
+flex-direction:column;
+
+gap:3px;
+
+font-size:0.85rem;
+
+}
+
+.detail-item label{
+
+font-size:0.65rem;
+
+color:#64748b;
+
+}
+
+.detail-item span{
+
+background:#f8fafc;
+
+padding:6px;
+
+border-radius:4px;
+
+border:1px solid #e2e8f0;
+
 }
