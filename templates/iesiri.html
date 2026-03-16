@@ -22,17 +22,14 @@
     <main class="dashboard-container">
         <header class="db-header">
             <div class="welcome-text">
-                <h1>Monitorizare <span class="text-gradient">Ieșiri</span></h1>
-                <p>Fluxul de produse către clienți și departamente</p>
+                <h1>Gestiune <span class="text-gradient">Ieșiri</span></h1>
             </div>
-
             <div class="header-actions">
-                <div class="search-box-emerald">
-                    <i class="fas fa-file-invoice"></i>
-                    <input type="text" id="iesiriSearch" placeholder="Caută bon, produs sau client...">
-                </div>
-                <button class="btn-emerald-main" onclick="openExportModal()">
-                    <i class="fas fa-minus-circle"></i> Înregistrează Ieșire
+                <button class="btn-action btn-blue" onclick="openModal('exitModal')">
+                    <i class="fas fa-shipping-fast"></i> Ieșire Nouă
+                </button>
+                <button class="btn-action btn-history" onclick="openExitHistory()">
+                    <i class="fas fa-history"></i> Istoric Ieșiri
                 </button>
             </div>
         </header>
@@ -104,10 +101,76 @@
                 </div>
             </div>
         </section>
+
+
+<div id="exitModal" class="modal-overlay">
+    <div class="analysis-modal">
+        <div class="inventory-header-brand">
+            <div>
+                <h2><i class="fas fa-minus-square"></i> Ieșire Stoc Nouă</h2>
+                <p style="margin:0; opacity:0.8;">Pasul 1: Firma | Pasul 2: Produsul</p>
+            </div>
+            <span class="close-modal" onclick="closeModal('exitModal')">&times;</span>
+        </div>
+
+        <div class="modal-body-scroll">
+            <form id="exitForm">
+                <div class="analysis-grid">
+                    <div class="form-group-custom">
+                        <label><i class="fas fa-building"></i> 1. Selectează Compania</label>
+                        <select id="select_companie" class="fancy-select" required onchange="filterProductsByCompany()">
+                            <option value="">-- Alege Firma --</option>
+                            {% set firme_unice = [] %}
+                            {% for r in receptii_active %}
+                                {% if r.nume_companie not in firme_unice %}
+                                    <option value="{{ r.nume_companie }}">{{ r.nume_companie }}</option>
+                                    {% set _ = firme_unice.append(r.nume_companie) %}
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label><i class="fas fa-box-open"></i> 2. Produs din Stoc</label>
+                        <select id="select_receptie" class="fancy-select" required disabled onchange="updateMaxQuantity()">
+                            <option value="">-- Mai întâi alege firma --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label><i class="fas fa-sort-amount-down"></i> 3. Cantitate</label>
+                        <input type="number" id="cantitate_iesire" min="1" required placeholder="0" class="fancy-input">
+                    </div>
+                </div>
+
+                <div id="raw_data" style="display:none;">
+                    {% for r in receptii_active %}
+                    <div class="db-row" 
+                         data-comp="{{ r.nume_companie }}" 
+                         data-id="{{ r.id }}" 
+                         data-prod="{{ r.nume_produs }}" 
+                         data-qty="{{ r.cantitate }}"></div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions-premium">
+                    <div class="stoc-info-pill">
+                        Disponibil în lot: <strong id="stoc_vizibil">0</strong> unități
+                    </div>
+                    <button type="submit" class="btn-primary-green">
+                        <i class="fas fa-check"></i> Înregistrează Ieșirea
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
     </main>
 
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='iesiri.js') }}"></script>
 </body>
 
 </html>

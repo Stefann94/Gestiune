@@ -76,3 +76,152 @@
 .emerald-table tbody tr:hover {
     background: rgba(245, 158, 11, 0.03) !important; /* Tentă portocalie fină la hover pe ieșiri */
 }
+
+/* MODAL IESIRI - RESTRUCTURARE WIDE */
+#exitModal .analysis-modal {
+    width: 95%;
+    max-width: 65rem; /* Lățime mare, stil dashboard */
+    background: #ffffff;
+    border-radius: 1.2rem;
+    overflow: hidden;
+}
+
+.modal-body-scroll {
+    padding: 2rem 3rem;
+    background: #f8fafc;
+}
+
+/* Grid-ul de conținut - 3 coloane pentru echilibru */
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.8fr; /* Sursă | Produs | Cantitate */
+    gap: 1.5rem;
+    align-items: flex-end; /* Aliniere la baza inputurilor */
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.form-group-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.form-group-custom label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Stiluri Input-uri */
+.fancy-select, .readonly-input, .input-with-badge input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.readonly-input {
+    background: #f1f5f9;
+    color: #064e3b;
+    font-weight: 700;
+    border-style: dashed;
+}
+
+/* Centrarea zonei de confirmare */
+.form-actions-premium {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrare pe mijloc */
+    gap: 1rem;
+    text-align: center;
+}
+
+.btn-primary-green {
+    background: #064e3b;
+    color: white;
+    border: none;
+    padding: 1rem 4rem;
+    border-radius: 0.8rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary-green:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.info-note {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Responsivitate */
+@media (max-width: 64rem) {
+    .analysis-grid {
+        grid-template-columns: 1fr; /* Se face listă pe mobil */
+    }
+}
+
+/* --- STILIZARE INPUT CANTITATE --- */
+.fancy-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    background: #ffffff;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.fancy-input:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* --- BUTOANE HEADER VERZI --- */
+/* Ieșire Nouă */
+.btn-blue {
+    background: #064e3b !important; /* Verde închis premium */
+    color: white !important;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-blue:hover {
+    background: #059669 !important; /* Verde mai aprins la hover */
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+/* Istoric Ieșiri */
+.btn-history {
+    background: #ecfdf5 !important; /* Verde foarte deschis */
+    color: #065f46 !important; /* Text verde închis */
+    border: 1px solid #a7f3d0 !important;
+    transition: all 0.3s ease;
+}
+
+.btn-history:hover {
+    background: #d1fae5 !important;
+    transform: translateY(-1px);
+}
+
+/* Corecție aliniere în grid pentru a fi toate la același nivel */
+.analysis-grid {
+    align-items: flex-start !important; /* Schimbat de la flex-end pentru aliniere top a label-urilor */
+}

@@ -1126,15 +1126,107 @@ def intrari_dashboard():
         cur.close()
         conn.close()
 
+@app.route('/api/iesiri/add', methods=['POST'])
+def add_iesire():
+    data = request.json
+    receptie_id = data['receptie_id']
+    cantitate_de_scazut = int(data['cantitate'])
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # 1. Luăm datele actuale ale recepției
+        cur.execute("""
+            SELECT cantitate, pret_produs, nume_companie, nume_produs 
+            FROM receptii WHERE id = %s
+        """, (receptie_id,))
+        receptie = cur.fetchone()
+
+        if not receptie:
+            return jsonify({"success": False, "message": "Recepția nu a fost găsită!"})
+        
+        stoc_actual = int(receptie['cantitate'])
+        pret_unitar = float(receptie['pret_produs'])
+
+        if stoc_actual < cantitate_de_scazut:
+            return jsonify({"success": False, "message": f"Stoc insuficient! Disponibil: {stoc_actual}"})
+
+        # 2. Calculăm noile valori
+        noua_cantitate = stoc_actual - cantitate_de_scazut
+        nou_pret_total = noua_cantitate * pret_unitar
+
+        # 3. UPDATE în receptii
+        cur.execute("""
+            UPDATE receptii 
+            SET cantitate = %s, pret_total = %s 
+            WHERE id = %s
+        """, (noua_cantitate, nou_pret_total, receptie_id))
+
+        # 4. INSERT în tabela iesiri (AICI ERA ERORAREA - am pus cantitate_de_scazut)
+        cur.execute("""
+            INSERT INTO iesiri (receptie_id, nume_companie, nume_produs, cantitate_iesita, data_iesire)
+            VALUES (%s, %s, %s, %s, NOW())
+        """, (receptie_id, receptie['nume_companie'], receptie['nume_produs'], cantitate_de_scazut))
+
+        conn.commit()
+        return jsonify({"success": True, "message": "Stoc actualizat cu succes!"})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)})
+    finally:
+        cur.close()
+        conn.close()
+
+
 @app.route('/intrari')
 def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)
     return render_template('intrari.html')
 
+
 @app.route('/iesiri')
 def iesiri():
-    # Aici vei prelua datele din DB (ex: tranzactii de tip iesire)
-    return render_template('iesiri.html')
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    try:
+        # 1. Luăm loturile active (stoc > 0)
+        # Le ordonăm după companie pentru a fi ușor de grupat în dropdown
+        cur.execute("""
+            SELECT id, nume_companie, nume_produs, cantitate 
+            FROM receptii 
+            WHERE cantitate > 0 
+            ORDER BY nume_companie ASC, id DESC
+        """)
+        receptii_active = cur.fetchall()
+
+        # 2. Istoric ieșiri pentru tabel
+        cur.execute("""
+            SELECT id, nume_produs, nume_companie, cantitate_iesita, 
+                   TO_CHAR(data_iesire, 'DD.MM.YYYY') as data,
+                   TO_CHAR(data_iesire, 'HH24:MI') as ora
+            FROM iesiri 
+            ORDER BY data_iesire DESC
+        """)
+        iesiri_list = cur.fetchall()
+
+        # 3. KPI: Unități ieșite astăzi
+        cur.execute("SELECT SUM(cantitate_iesita) as sum FROM iesiri WHERE data_iesire::date = CURRENT_DATE")
+        res_flux = cur.fetchone()
+        flux_azi = res_flux['sum'] if res_flux['sum'] else 0
+
+        return render_template('iesiri.html', 
+                               receptii_active=receptii_active, 
+                               iesiri=iesiri_list, 
+                               flux=flux_azi)
+    except Exception as e:
+        print(f"Eroare: {e}")
+        return f"Eroare la încărcarea paginii: {str(e)}"
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/furnizori')
 def furnizori():
