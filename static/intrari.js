@@ -17,7 +17,7 @@ function calculateTotal() {
 // SUBMIT FORMULAR
 // ===============================
 
-document.getElementById('entryForm').addEventListener('submit', async function(e) {
+document.getElementById('entryForm').addEventListener('submit', async function (e) {
 
     e.preventDefault();
 
@@ -83,20 +83,20 @@ document.getElementById('entryForm').addEventListener('submit', async function(e
 
 });
 
-async function openReceptionHistory(){
+async function openReceptionHistory() {
 
     const modal = document.getElementById("historyModal");
     const list = document.getElementById("receptiiList");
 
     list.innerHTML = "";
 
-    try{
+    try {
 
         const response = await fetch("/api/receptii/list");
 
         const result = await response.json();
 
-        if(result.success){
+        if (result.success) {
 
             result.data.forEach(r => {
 
@@ -117,7 +117,7 @@ async function openReceptionHistory(){
 
         }
 
-    }catch(err){
+    } catch (err) {
 
         console.error(err);
 
@@ -129,7 +129,7 @@ async function openReceptionHistory(){
 
 
 
-function showReceptionDetails(data){
+function showReceptionDetails(data) {
 
     document.getElementById("detail_companie").textContent = data.nume_companie;
     document.getElementById("detail_produs").textContent = data.nume_produs;
@@ -142,3 +142,69 @@ function showReceptionDetails(data){
     document.getElementById("receptionDetailsModal").style.display = "flex";
 
 }
+
+async function initSupplierChart() {
+    const canvas = document.getElementById('supplierChart');
+    if (!canvas) return;
+
+    try {
+        const response = await fetch('/api/receptii/grafic-date');
+        const result = await response.json();
+
+        if (result.success) {
+            // Extragem etichetele (numele firmelor) și valorile (sumele)
+            const labels = result.data.map(item => item.nume_companie);
+            const values = result.data.map(item => item.total);
+
+            const ctx = canvas.getContext('2d');
+
+            // Distrugem graficul vechi dacă există (pentru a evita suprapunerea la refresh)
+            if (window.mySupplierChart) window.mySupplierChart.destroy();
+
+            window.mySupplierChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Achiziții (RON)',
+                        data: values,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6, // colțuri rotunjite
+                        borderSkipped: false,
+                        barPercentage: 0.6 // bare mai subțiri, spațiu mai aerisit
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            yAlign: 'bottom',
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#e5e7eb' }, // gri deschis, modern
+                            ticks: { padding: 8, stepSize: 5000 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { padding: 8 }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Eroare la încărcarea graficului:", error);
+    }
+}
+
+// Apelăm funcția când se încarcă pagina
+document.addEventListener('DOMContentLoaded', initSupplierChart);

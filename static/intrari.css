@@ -399,7 +399,7 @@ font-size:0.85rem;
 
 font-size:0.65rem;
 
-color:#64748b;
+color:#648b6c;
 
 }
 
@@ -413,4 +413,60 @@ border-radius:4px;
 
 border:1px solid #e2e8f0;
 
+}
+
+.charts-container {
+    margin: 2rem auto; /* centru */
+    padding: 1.5rem;
+    max-width: 1100px; /* la fel ca KPI cards */
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.85); /* ușor modernizat */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-header {
+    margin-bottom: 1.5rem;
+}
+
+.chart-header h3 {
+    font-size: 1.1rem;
+    color: #064e3b;
+    margin: 0;
+}
+
+.chart-header p {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.chart-wrapper {
+    flex: 1;
+    position: relative;
+    height: 250px; /* Înălțime controlată */
+}
+/* =========================================
+BUTON ISTORIC RECEPTII - stil verde, dimensiune ca btn-green
+========================================= */
+
+.btn-action.btn-history {
+    align-self: center;
+    background: #059669; /* verde propriu pentru istoric */
+    color: white;
+    border: none;
+    border-radius: 0.45rem;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    min-width: 10rem;
+    height: 3rem;
+    transition: background 0.2s;
+}
+
+.btn-action.btn-history:hover {
+    background: #10b981; /* verde mai deschis la hover */
 }

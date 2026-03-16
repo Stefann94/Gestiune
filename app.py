@@ -1046,6 +1046,27 @@ def get_receptions():
         cur.close()
         conn.close()
 
+@app.route('/api/receptii/grafic-date', methods=['GET'])
+def get_chart_data():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Luăm suma pret_total grupate după numele companiei
+        query = """
+            SELECT nume_companie, SUM(pret_total) as total 
+            FROM receptii 
+            GROUP BY nume_companie 
+            ORDER BY total DESC
+        """
+        cur.execute(query)
+        date_grafic = cur.fetchall()
+        return jsonify({"success": True, "data": date_grafic})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 @app.route('/intrari')
 def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)
