@@ -5,6 +5,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
+from flask import render_template
 
 # Biblioteci pentru export
 import pandas as pd
@@ -1063,6 +1064,64 @@ def get_chart_data():
         return jsonify({"success": True, "data": date_grafic})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/intrari')
+def intrari_dashboard():
+    conn = get_db_connection()  
+    if not conn:
+        return "Eroare la conexiunea cu baza de date!"
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # Setăm luna curentă
+        now = datetime.now()
+        luna_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if now.month == 12:
+            luna_end = now.replace(year=now.year+1, month=1, day=1, hour=0, minute=0, second=0)
+        else:
+            luna_end = now.replace(month=now.month+1, day=1, hour=0, minute=0, second=0)
+
+        # 1. Total Intrări (NIR-uri) în luna curentă
+        cur.execute("""
+            SELECT COUNT(*) as total_intrari
+            FROM receptii
+            WHERE creat_la >= %s AND creat_la < %s
+        """, (luna_start, luna_end))
+        total_intrari = cur.fetchone()['total_intrari'] or 0
+
+        # 2. Valoare Achiziții (suma pret_total) în luna curentă
+        cur.execute("""
+            SELECT COALESCE(SUM(pret_total),0) as valoare_achizitii
+            FROM receptii
+            WHERE creat_la >= %s AND creat_la < %s
+        """, (luna_start, luna_end))
+        valoare_achizitii = cur.fetchone()['valoare_achizitii'] or 0
+
+        # 3. Top Furnizor (cel cu cea mai mare suma pret_total)
+        cur.execute("""
+            SELECT nume_companie, SUM(pret_total) as total
+            FROM receptii
+            WHERE creat_la >= %s AND creat_la < %s
+            GROUP BY nume_companie
+            ORDER BY total DESC
+            LIMIT 1
+        """, (luna_start, luna_end))
+        top_furnizor_row = cur.fetchone()
+        top_furnizor = top_furnizor_row['nume_companie'] if top_furnizor_row else "N/A"
+
+        return render_template('intrari.html',
+                               total_intrari=total_intrari,
+                               valoare_achizitii=valoare_achizitii,
+                               top_furnizor=top_furnizor)
+
+    except Exception as e:
+        print(f"Eroare Intrari Dashboard: {e}")
+        return f"A intervenit o eroare la procesarea datelor: {e}"
+    
     finally:
         cur.close()
         conn.close()

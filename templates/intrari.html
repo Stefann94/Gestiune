@@ -46,21 +46,21 @@
                 <div class="kpi-icon box green-icon"><i class="fas fa-truck-loading"></i></div>
                 <div class="kpi-info">
                     <span class="label">Total Intrări (Lună)</span>
-                    <h3 class="value">142 NIR-uri</h3>
+                    <h3 class="value">{{ total_intrari }} NIR-uri</h3>
                 </div>
             </div>
             <div class="kpi-card glass">
                 <div class="kpi-icon box green-icon"><i class="fas fa-coins"></i></div>
                 <div class="kpi-info">
                     <span class="label">Valoare Achiziții</span>
-                    <h3 class="value">45.280 RON</h3>
+                    <h3 class="value">{{ valoare_achizitii | round(2) }} RON</h3>
                 </div>
             </div>
             <div class="kpi-card glass">
                 <div class="kpi-icon box green-icon"><i class="fas fa-user-tie"></i></div>
                 <div class="kpi-info">
                     <span class="label">Top Furnizor</span>
-                    <h3 class="value">Global Tech SRL</h3>
+                    <h3 class="value">{{ top_furnizor }}</h3>
                 </div>
             </div>
         </section>
