@@ -1275,13 +1275,9 @@ def get_iesiri_json():
         cur.close()
         conn.close()
 
-@app.route('/furnizori')
-def furnizori():
-    return render_template('furnizori.html')
 
-@app.route('/rapoarte')
-def rapoarte():
-    return render_template('rapoarte.html')
+
+
 
 
 from flask import request, jsonify

@@ -19,8 +19,8 @@ window.initCommonComponents = function () {
 </a>
 </li>
 <li><a href="/iesiri"><i class="fas fa-arrow-up-from-bracket"></i><span>Ieșiri</span></a></li>
-<li><a href="/furnizori"><i class="fas fa-truck"></i><span>Furnizori</span></a></li>
-<li><a href="/rapoarte"><i class="fas fa-file-invoice"></i><span>Rapoarte</span></a></li>
+
+
 <li><a href="javascript:void(0)" onclick="openEmployeesModal()"><i class="fas fa-users-cog"></i><span>Angajați</span></a></li>
 </ul>
 

@@ -1,19 +1,19 @@
-/* --- IESIRI CUSTOM STYLES --- */
+/* --- NEW CUSTOM STYLES (REFACTORED) --- */
 
 /* Celula de dată */
-.date-cell {
+.x-date-cell {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
 }
 
-.date-cell strong {
+.x-date-cell strong {
     font-size: 0.9rem;
     color: #1e293b;
 }
 
 /* Tag-uri destinație */
-.destinatie-tag {
+.x-destinatie-tag {
     background: #e0f2fe;
     color: #0369a1;
     padding: 0.35rem 0.75rem;
@@ -23,7 +23,7 @@
 }
 
 /* Badge Operator */
-.operator-badge {
+.x-operator-badge {
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -31,7 +31,7 @@
     color: #64748b;
 }
 
-.operator-badge::before {
+.x-operator-badge::before {
     content: '';
     width: 0.5rem;
     height: 0.5rem;
@@ -40,63 +40,66 @@
 }
 
 /* Evidențiere ieșire cantitate */
-.text-orange {
-    color: #f59e0b !important; /* Portocaliu pentru a semnaliza scăderea */
+.x-text-orange {
+    color: #f59e0b !important;
     font-size: 1rem;
 }
 
 /* Stiluri specifice Tabel */
-.emerald-table td {
+.x-emerald-table td {
     padding: 1rem 1.25rem;
 }
 
 /* RESPONSIVITATE */
 @media (max-width: 48rem) {
-    .header-actions {
+    .x-header-actions {
         flex-direction: column;
         width: 100%;
     }
 
-    .search-box-emerald {
+    .x-search-box {
         width: 100%;
     }
 
-    /* Pe mobil ascundem operatorul pentru a salva spațiu */
-    .emerald-table th:nth-child(5),
-    .emerald-table td:nth-child(5) {
+    /* Pe mobil ascundem operatorul */
+    .x-emerald-table th:nth-child(5),
+    .x-emerald-table td:nth-child(5) {
         display: none;
     }
 }
 
 /* Efect hover pe rânduri */
-.emerald-table tbody tr {
+.x-emerald-table tbody tr {
     transition: background 0.2s ease;
 }
 
-.emerald-table tbody tr:hover {
-    background: rgba(245, 158, 11, 0.03) !important; /* Tentă portocalie fină la hover pe ieșiri */
+.x-emerald-table tbody tr:hover {
+    background: rgba(245, 158, 11, 0.03) !important;
 }
 
-/* MODAL IESIRI - RESTRUCTURARE WIDE */
-#exitModal .analysis-modal {
-    width: 95%;
-    max-width: 65rem; /* Lățime mare, stil dashboard */
-    background: #ffffff;
-    border-radius: 1.2rem;
-    overflow: hidden;
+/* MODAL IESIRI - RESTRUCTURARE */
+#exitModal .x-analysis-modal,
+#historyModal .x-analysis-modal {
+
+width:95%;
+max-width:65rem;
+background:#ffffff;
+border-radius:1.2rem;
+overflow:hidden;
+
 }
 
-.modal-body-scroll {
+.x-modal-body-scroll {
     padding: 2rem 3rem;
     background: #f8fafc;
 }
 
-/* Grid-ul de conținut - 3 coloane pentru echilibru */
-.analysis-grid {
+/* Grid-ul de conținut */
+.x-analysis-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr 0.8fr; /* Sursă | Produs | Cantitate */
+    grid-template-columns: 1.2fr 1fr 0.8fr;
     gap: 1.5rem;
-    align-items: flex-end; /* Aliniere la baza inputurilor */
+    align-items: flex-end;
     background: white;
     padding: 2rem;
     border-radius: 1rem;
@@ -104,13 +107,14 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.form-group-custom {
+/* Form groups */
+.x-form-group {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
 }
 
-.form-group-custom label {
+.x-form-group label {
     font-size: 0.7rem;
     font-weight: 800;
     color: #64748b;
@@ -118,8 +122,10 @@
     letter-spacing: 0.05em;
 }
 
-/* Stiluri Input-uri */
-.fancy-select, .readonly-input, .input-with-badge input {
+/* Input-uri */
+.x-fancy-select, 
+.x-readonly-input, 
+.x-input-badge input {
     width: 100%;
     padding: 0.8rem 1rem;
     border: 1px solid #cbd5e1;
@@ -128,24 +134,24 @@
     transition: all 0.2s;
 }
 
-.readonly-input {
+.x-readonly-input {
     background: #f1f5f9;
     color: #064e3b;
     font-weight: 700;
     border-style: dashed;
 }
 
-/* Centrarea zonei de confirmare */
-.form-actions-premium {
+/* Centrare confirmare */
+.x-actions-center {
     margin-top: 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrare pe mijloc */
+    align-items: center;
     gap: 1rem;
     text-align: center;
 }
 
-.btn-primary-green {
+.x-btn-green {
     background: #064e3b;
     color: white;
     border: none;
@@ -160,25 +166,25 @@
     gap: 0.5rem;
 }
 
-.btn-primary-green:hover {
+.x-btn-green:hover {
     background: #059669;
     transform: translateY(-2px);
 }
 
-.info-note {
+.x-info-note {
     font-size: 0.85rem;
     color: #64748b;
 }
 
-/* Responsivitate */
+/* Responsivitate grid */
 @media (max-width: 64rem) {
-    .analysis-grid {
-        grid-template-columns: 1fr; /* Se face listă pe mobil */
+    .x-analysis-grid {
+        grid-template-columns: 1fr;
     }
 }
 
-/* --- STILIZARE INPUT CANTITATE --- */
-.fancy-input {
+/* Input cantitate */
+.x-fancy-input {
     width: 100%;
     padding: 0.8rem 1rem;
     border: 1px solid #cbd5e1;
@@ -189,146 +195,332 @@
     outline: none;
 }
 
-.fancy-input:focus {
+.x-fancy-input:focus {
     border-color: #059669;
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
-/* --- BUTOANE HEADER VERZI --- */
-/* Ieșire Nouă */
-.btn-blue {
-    background: #064e3b !important; /* Verde închis premium */
-    color: white !important;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-blue:hover {
-    background: #059669 !important; /* Verde mai aprins la hover */
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-}
-
-/* Istoric Ieșiri */
-/* --- CENTRARE EXPLORATOR ISTORIC --- */
-#historyModal .analysis-grid {
-    display: flex;             /* Folosim flex pentru centrare precisă */
-    justify-content: center;   /* Centrează orizontal coloanele */
-    align-items: center;       /* Aliază-le vertical */
-    gap: 2rem;
-    max-width: 50rem;          /* Limitează lățimea pentru a nu fi prea depărtate */
-    margin: 0 auto 2rem auto;  /* Centrează grid-ul în sine în modal */
-}
-
-#historyModal .form-group-custom {
-    flex: 1;                   /* Oferă lățime egală ambelor selecții */
-    min-width: 200px;
-    text-align: left;          /* Păstrează textul label-ului aliniat la stânga */
-}
-
-/* --- BUTOANE HEADER IDENTICE (VERDE PREMIUM) --- */
-/* Ieșire Nouă ȘI Istoric Ieșiri acum au același stil */
-.btn-blue, 
-.btn-history {
-    background: #064e3b !important; /* Verdele închis premium */
-    color: white !important;
-    border: none !important;
-    padding: 0.8rem 1.5rem;
-    border-radius: 0.6rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.btn-blue:hover, 
-.btn-history:hover {
-    background: #059669 !important; /* Verde mai aprins la hover */
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    transform: translateY(-1px);
-}
-
-/* Stil pentru textele de detaliu din istoric (centrare header detaliu) */
-#exit_detail_card h3 {
-    text-align: center;
-    width: 100%;
-    margin-bottom: 2rem;
-}
-
-/* Containerul butoanelor din header */
-.header-actions {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center;
-    gap: 0.75rem !important; /* Spațiu optimizat între butoane */
-    flex-wrap: nowrap;
-}
-
-/* Stil de bază comun pentru ambele butoane (Uniformizare Formă) */
-.btn-action {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    
-    /* Dimensiuni și Formă */
-    height: 3rem;           /* Înălțime fixă pentru aliniere perfectă */
-    min-width: 10rem;
-    padding: 0.55rem 1.4rem;
-    border-radius: 0.45rem; /* Colțuri ușor rotunjite, stil profesional */
-    
-    /* Tipografie */
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    
-    /* Interacțiune */
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-}
-
-/* --- BUTON 1: Ieșire Nouă (Verde Închis) --- */
-.btn-action.btn-blue {
+/* BUTOANE HEADER */
+.x-btn-blue {
     background: #064e3b !important;
     color: white !important;
+    border: none;
+    transition: all 0.3s ease;
 }
 
-.btn-action.btn-blue:hover {
-    background: #059669 !important; /* Feedback vizual la hover */
-    transform: translateY(-1px);
-}
-
-/* --- BUTON 2: Istoric Ieșiri (Verde Mediu - ca la Intrări) --- */
-.btn-action.btn-history {
+.x-btn-blue:hover {
     background: #059669 !important;
-    color: white !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 
-.btn-action.btn-history:hover {
-    background: #10b981 !important; /* Se deschide la hover */
-    transform: translateY(-1px);
+.btn-action.x-btn-history{
+
+align-self:center;
+
+background:#059669;
+
+color:white;
+
+border:none;
+
+border-radius:0.45rem;
+
+padding:0.55rem 1.4rem;
+
+font-size:0.82rem;
+
+font-weight:700;
+
+letter-spacing:0.02em;
+
+cursor:pointer;
+
+min-width:10rem;
+
+height:3rem;
+
+transition:background 0.2s;
+
 }
 
-/* --- RESPONSIVITATE --- */
-@media (max-width: 48rem) {
-    .db-header {
-        flex-direction: column;
-        gap: 1.2rem;
-        text-align: center;
-    }
-    
-    .header-actions {
-        justify-content: center;
-        width: 100%;
-        gap: 0.5rem !important;
-    }
 
-    .btn-action {
-        min-width: auto; /* Pe mobil lăsăm butoanele să se strângă */
-        flex: 1;
-    }
+
+/* Corecție aliniere grid */
+.x-analysis-grid {
+    align-items: flex-start !important;
+}
+
+/* =========================================
+HEADER ACTIONS
+========================================= */
+
+.x-header-actions{
+display:flex;
+align-items:center;
+gap:1rem;
+flex-wrap:wrap;
+}
+
+
+/* =========================================
+BUTON IESIRE NOUA
+========================================= */
+
+.btn-action.x-btn-blue{
+
+align-self:center;
+
+background:#064e3b;
+
+color:white;
+
+border:none;
+
+border-radius:0.45rem;
+
+padding:0.55rem 1.4rem;
+
+font-size:0.82rem;
+
+font-weight:700;
+
+letter-spacing:0.02em;
+
+cursor:pointer;
+
+min-width:10rem;
+
+height:3rem;
+
+}
+
+.btn-action.x-btn-blue:hover{
+background:#059669;
+}
+
+
+/* =========================================
+BUTON ISTORIC IESIRI
+========================================= */
+
+.btn-action.x-btn-history{
+
+align-self:center;
+
+background:#059669;
+
+color:white;
+
+border:none;
+
+border-radius:0.45rem;
+
+padding:0.55rem 1.4rem;
+
+font-size:0.82rem;
+
+font-weight:700;
+
+letter-spacing:0.02em;
+
+cursor:pointer;
+
+min-width:10rem;
+
+height:3rem;
+
+transition:background 0.2s;
+
+}
+
+.btn-action.x-btn-history:hover{
+background:#10b981;
+}
+
+/* =====================================================
+ISTORIC IESIRI - RESTILIZARE COMPLETA
+===================================================== */
+
+/* modal mai compact */
+#historyModal .x-analysis-modal{
+max-width:50rem;
+border-radius:1.2rem;
+overflow:hidden;
+}
+
+/* corp modal */
+#historyModal .x-modal-body-scroll{
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:2.5rem 2rem;
+background:#f8fafc;
+gap:2rem;
+}
+
+
+/* CARD FILTRE */
+#historyModal .x-analysis-grid{
+
+width:100%;
+max-width:32rem;
+
+grid-template-columns:1.4fr 1fr;
+
+gap:1.5rem;
+
+padding:1.8rem;
+
+background:white;
+
+border-radius:1rem;
+
+border:1px solid #e2e8f0;
+
+box-shadow:0 8px 22px rgba(0,0,0,0.06);
+
+}
+
+
+/* labels */
+#historyModal .x-form-group label{
+
+font-size:0.72rem;
+
+font-weight:800;
+
+letter-spacing:0.04em;
+
+color:#64748b;
+
+}
+
+
+/* selecturi */
+#historyModal .x-fancy-select{
+
+padding:0.8rem 1rem;
+
+border-radius:0.6rem;
+
+border:1px solid #cbd5e1;
+
+font-size:0.9rem;
+
+background:white;
+
+}
+
+
+/* CARD DETALII TRANZACTIE */
+#historyModal #exit_detail_card{
+
+width:100%;
+max-width:32rem;
+
+background:white;
+
+border-radius:1rem;
+
+padding:1.8rem;
+
+border:1px solid #e2e8f0;
+
+box-shadow:0 8px 22px rgba(0,0,0,0.06);
+
+}
+
+
+/* titlu tranzactie */
+#historyModal #hist_exit_title{
+
+font-size:1rem;
+
+font-weight:700;
+
+color:#064e3b;
+
+margin-bottom:1.2rem;
+
+}
+
+
+/* grid detalii */
+#historyModal .details-grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:1rem;
+
+}
+
+
+/* item detaliu */
+#historyModal .detail-item{
+
+display:flex;
+
+flex-direction:column;
+
+gap:0.3rem;
+
+font-size:0.85rem;
+
+}
+
+
+/* label detaliu */
+#historyModal .detail-item label{
+
+font-size:0.65rem;
+
+color:#64748b;
+
+text-transform:uppercase;
+
+letter-spacing:0.04em;
+
+}
+
+
+/* valoare detaliu */
+#historyModal .detail-item span{
+
+background:#f8fafc;
+
+padding:0.6rem;
+
+border-radius:0.45rem;
+
+border:1px solid #e2e8f0;
+
+font-weight:600;
+
+}
+
+
+/* cantitate evidentiata */
+#historyModal #hist_exit_qty{
+
+color:#f59e0b;
+
+font-weight:800;
+
+}
+
+
+/* responsive */
+@media(max-width:600px){
+
+#historyModal .x-analysis-grid{
+grid-template-columns:1fr;
+max-width:24rem;
+}
+
+#historyModal .details-grid{
+grid-template-columns:1fr;
+}
+
 }
