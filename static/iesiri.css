@@ -360,25 +360,20 @@ gap:2rem;
 
 
 /* CARD FILTRE */
-#historyModal .x-analysis-grid{
-
-width:100%;
-max-width:32rem;
-
-grid-template-columns:1.4fr 1fr;
-
-gap:1.5rem;
-
-padding:1.8rem;
-
-background:white;
-
-border-radius:1rem;
-
-border:1px solid #e2e8f0;
-
-box-shadow:0 8px 22px rgba(0,0,0,0.06);
-
+#historyModal .x-analysis-grid {
+    width: 100%;
+    max-width: 55rem; /* Am marit de la 32rem pentru a avea loc pe un singur rand */
+    display: grid;
+    /* 1fr 1fr asigura ca ambele coloane ocupa exact jumatate din spatiu */
+    grid-template-columns: 1fr 1fr; 
+    gap: 2rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    /* Fortam alinierea la varf ca sa nu fie unul mai sus si unul mai jos */
+    align-items: flex-start !important; 
 }
 
 
