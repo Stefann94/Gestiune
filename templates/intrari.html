@@ -23,13 +23,11 @@
     <main class="dashboard-container">
         <header class="db-header">
             <div class="welcome-text">
-                <h1>Gestiune <span class="text-gradient">Intrări (NIR)</span></h1>
+                <h1>Gestiune <span class="text-gradient">Intrări</span></h1>
             </div>
 
             <div class="header-actions">
-                <div class="fancy-input-group search-green">
-                    <input type="text" id="entrySearch" placeholder="Caută NIR sau furnizor...">
-                </div>
+
 
                 <button class="btn-action btn-green" onclick="openModal('entryModal')">
                     <i class="fas fa-file-invoice"></i> Recepție Nouă
@@ -46,7 +44,7 @@
                 <div class="kpi-icon box green-icon"><i class="fas fa-truck-loading"></i></div>
                 <div class="kpi-info">
                     <span class="label">Total Intrări (Lună)</span>
-                    <h3 class="value">{{ total_intrari }} NIR-uri</h3>
+                    <h3 class="value">{{ total_intrari }} Note de intrare</h3>
                 </div>
             </div>
             <div class="kpi-card glass">
