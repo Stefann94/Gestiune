@@ -255,3 +255,80 @@
     width: 100%;
     margin-bottom: 2rem;
 }
+
+/* Containerul butoanelor din header */
+.header-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 0.75rem !important; /* Spațiu optimizat între butoane */
+    flex-wrap: nowrap;
+}
+
+/* Stil de bază comun pentru ambele butoane (Uniformizare Formă) */
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    
+    /* Dimensiuni și Formă */
+    height: 3rem;           /* Înălțime fixă pentru aliniere perfectă */
+    min-width: 10rem;
+    padding: 0.55rem 1.4rem;
+    border-radius: 0.45rem; /* Colțuri ușor rotunjite, stil profesional */
+    
+    /* Tipografie */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    
+    /* Interacțiune */
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+/* --- BUTON 1: Ieșire Nouă (Verde Închis) --- */
+.btn-action.btn-blue {
+    background: #064e3b !important;
+    color: white !important;
+}
+
+.btn-action.btn-blue:hover {
+    background: #059669 !important; /* Feedback vizual la hover */
+    transform: translateY(-1px);
+}
+
+/* --- BUTON 2: Istoric Ieșiri (Verde Mediu - ca la Intrări) --- */
+.btn-action.btn-history {
+    background: #059669 !important;
+    color: white !important;
+}
+
+.btn-action.btn-history:hover {
+    background: #10b981 !important; /* Se deschide la hover */
+    transform: translateY(-1px);
+}
+
+/* --- RESPONSIVITATE --- */
+@media (max-width: 48rem) {
+    .db-header {
+        flex-direction: column;
+        gap: 1.2rem;
+        text-align: center;
+    }
+    
+    .header-actions {
+        justify-content: center;
+        width: 100%;
+        gap: 0.5rem !important;
+    }
+
+    .btn-action {
+        min-width: auto; /* Pe mobil lăsăm butoanele să se strângă */
+        flex: 1;
+    }
+}
