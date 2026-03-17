@@ -65,7 +65,9 @@
             </div>
 
             <div class="kpi-card glass success">
-                <div class="kpi-icon partner"><i class="fas fa-crown"></i></div>
+                <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <i class="fas fa-crown"></i>
+                </div>
                 <div class="kpi-info">
                     <span class="label">Partener Strategic</span>
                     <h2 class="value"
@@ -262,38 +264,39 @@
             </div>
 
         </div>
-<section class="chart-section" style="margin-top: 2rem;">
+        <section class="chart-section" style="margin-top: 2rem;">
 
-    <div class="kpi-card glass" style="display: flex; flex-direction: column; padding: 2rem;">
+            <div class="kpi-card glass" style="display: flex; flex-direction: column; padding: 2rem;">
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-            
-            <div style="display: flex; align-items: center;">
-                
-                <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1; margin-right: 15px;">
-                    <i class="fas fa-building"></i>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+
+                    <div style="display: flex; align-items: center;">
+
+                        <div class="kpi-icon"
+                            style="background: rgba(99, 102, 241, 0.1); color: #6366f1; margin-right: 15px;">
+                            <i class="fas fa-building"></i>
+                        </div>
+
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.1rem;">
+                                Distribuție Ieșiri pe Companii
+                            </h3>
+                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.7;">
+                                Impactul financiar total (RON) per partener
+                            </p>
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <h3 style="margin: 0; font-size: 1.1rem;">
-                        Distribuție Ieșiri pe Companii
-                    </h3>
-                    <p style="margin: 0; font-size: 0.85rem; opacity: 0.7;">
-                        Impactul financiar total (RON) per partener
-                    </p>
+                <div style="height: 350px; width: 100%; max-width: 600px; margin: 0 auto;">
+                    <canvas id="topProductsValueChart"></canvas>
                 </div>
 
             </div>
 
-        </div>
-
-        <div style="height: 350px; width: 100%; max-width: 600px; margin: 0 auto;">
-            <canvas id="topProductsValueChart"></canvas>
-        </div>
-
-    </div>
-
-</section>
+        </section>
     </main>
 
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
