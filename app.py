@@ -163,16 +163,41 @@ def inventar():
 
 @app.route('/add_product', methods=['POST'])
 def add_product():
+    # Preluăm datele din formular
     name = request.form['name']
     sku = request.form['sku']
     stock_min = request.form['stock_min']
+    
     conn = get_db_connection()
     if conn:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO products (name, sku, stock_min) VALUES (%s, %s, %s)", (name, sku, stock_min))
-        conn.commit()
-        cur.close()
-        conn.close()
+        try:
+            # Folosim RealDictCursor pentru a putea accesa rezultatele prin nume de coloană
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            # 1. Inserăm produsul în tabelul principal și returnăm ID-ul generat
+            cur.execute("""
+                INSERT INTO products (name, sku, stock_min, last_system_stock, last_faptic_value) 
+                VALUES (%s, %s, %s, 0, 0) RETURNING id
+            """, (name, sku, stock_min))
+            
+            new_id = cur.fetchone()['id']
+            
+            # 2. Înregistrăm evenimentul în inventory_history (Ledger)
+            # Fiind un produs nou, toate valorile de stoc (vechi/noi) sunt 0
+            cur.execute("""
+                INSERT INTO inventory_history 
+                (product_id, product_name, type, old_system_stock, new_system_stock, old_faptic_stock, new_faptic_stock)
+                VALUES (%s, %s, %s, 0, 0, 0, 0)
+            """, (new_id, name, 'ADAUGARE PRODUS'))
+            
+            conn.commit()
+        except Exception as e:
+            if conn: conn.rollback()
+            print(f"Eroare la adaugare produs: {e}")
+        finally:
+            cur.close()
+            conn.close()
+            
     return redirect(url_for('index'))
 
 @app.route('/produse/nou', methods=['POST'])
@@ -182,7 +207,8 @@ def produs_nou():
     price = request.form.get('price')
     stock_min = request.form.get('stock_min')
     category_id = request.form.get('category_id')
-    # Noile câmpuri
+    
+    # Câmpurile de stoc
     sys_stock = int(request.form.get('system_stock', 0))
     fap_stock = int(request.form.get('faptic_stock', 0))
     
@@ -191,10 +217,13 @@ def produs_nou():
     audit_status = 'synced' if diff == 0 else ('shortage' if diff < 0 else 'surplus')
 
     conn = get_db_connection()
-    if not conn: return jsonify({"status": "error", "message": "Conexiune DB eșuată"}), 500
+    if not conn: 
+        return jsonify({"status": "error", "message": "Conexiune DB eșuată"}), 500
     
     try:
-        cur = conn.cursor()
+        cur = conn.cursor() # Folosim cursor normal pentru RETURNING
+        
+        # 1. Inserăm produsul
         cur.execute("""
             INSERT INTO products (name, sku, price, category_id, stock_min, last_system_stock, 
                                 last_faptic_value, last_audit_diff, last_audit_status, updated_at) 
@@ -205,20 +234,31 @@ def produs_nou():
         
         product_id = cur.fetchone()[0]
 
-        # 2. IMPORTANT: Creăm o intrare în stoc pentru a valida cantitatea faptică
-        # Dacă ai adus 10 bucăți, trebuie să existe o tranzacție de intrare de 10
+        # 2. Creăm intrarea în stoc (Tranzacție)
         if fap_stock > 0:
             cur.execute("""
                 INSERT INTO stock_entries (product_id, quantity, entry_date)
                 VALUES (%s, %s, NOW())
             """, (product_id, fap_stock))
 
+        # 3. NOU: Înregistrăm în Jurnal (inventory_history)
+        # Salvăm SKU-ul în nume pentru a fi ușor de identificat în Ledger
+        product_label = f"{name} [{sku}]" if sku else name
+        cur.execute("""
+            INSERT INTO inventory_history 
+            (product_id, product_name, type, old_system_stock, new_system_stock, old_faptic_stock, new_faptic_stock)
+            VALUES (%s, %s, 'ADAUGARE PRODUS', 0, %s, 0, %s)
+        """, (product_id, product_label, sys_stock, fap_stock))
+
         conn.commit()
         return jsonify({"status": "success"}), 200
+        
     except Exception as e:
         if conn: conn.rollback()
+        print(f"Eroare adăugare produs: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
+        cur.close()
         conn.close()
 
 
@@ -320,6 +360,10 @@ def audit_save():
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
+        # --- LOGICA TA ORIGINALA: Preluare date curente pentru istoric ---
+        cur.execute("SELECT name, last_system_stock, last_faptic_value FROM products WHERE id = %s", (p_id,))
+        old_prod = cur.fetchone()
+
         # 1. Calculăm stocul de sistem actual (din tranzacții: Intrări - Ieșiri)
         cur.execute("""
             SELECT (
@@ -335,8 +379,7 @@ def audit_save():
         diferenta_noua = noua_valoare_faptica - stoc_sistem
         status_nou = 'synced' if diferenta_noua == 0 else ('shortage' if diferenta_noua < 0 else 'surplus')
 
-        # 3. ACTUALIZĂM produsele
-        # IMPORTANT: Am adăugat updated_at = NOW() ca să apară la "Mișcări Azi"
+        # 3. ACTUALIZĂM produsele (Păstrăm funcționalitatea ta exactă)
         cur.execute("""
             UPDATE products 
             SET last_faptic_value = %s,
@@ -346,6 +389,21 @@ def audit_save():
                 updated_at = NOW()
             WHERE id = %s
         """, (noua_valoare_faptica, stoc_sistem, diferenta_noua, status_nou, p_id))
+
+        # --- NOU: Înregistrare în Ledger (Fără a influența restul) ---
+        cur.execute("""
+            INSERT INTO inventory_history 
+            (product_id, product_name, type, old_system_stock, new_system_stock, old_faptic_stock, new_faptic_stock)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            p_id, 
+            old_prod['name'], 
+            'MODIFICARE STOC', 
+            old_prod['last_system_stock'] or 0, 
+            stoc_sistem, 
+            old_prod['last_faptic_value'] or 0, 
+            noua_valoare_faptica
+        ))
         
         conn.commit()
         
@@ -362,6 +420,7 @@ def audit_save():
         print(f"Eroare la salvare audit: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
+        cur.close()
         conn.close()
 
 @app.route('/api/stats/reports')
@@ -1399,6 +1458,37 @@ def iesiri():
         if cur: cur.close()
         if conn: conn.close()
 
+
+@app.route('/api/v1/internal/inventory-event-ledger')
+def get_inventory_ledger():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Preluăm ultimele 100 de operațiuni
+        cur.execute("""
+            SELECT id, product_id, product_name, type, 
+                   old_system_stock, new_system_stock, 
+                   old_faptic_stock, new_faptic_stock, 
+                   created_at 
+            FROM inventory_history 
+            ORDER BY created_at DESC 
+            LIMIT 100
+        """)
+        history = cur.fetchall()
+        
+        # Formatăm data pentru JS
+        for item in history:
+            if item['created_at']:
+                item['created_at'] = item['created_at'].strftime('%Y-%m-%dT%H:%M:%S')
+                
+        return jsonify(history)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
 @app.route('/api/iesiri/list')
 def get_iesiri_json():
     conn = get_db_connection()
@@ -1453,14 +1543,56 @@ def get_stock_discrepancy():
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
 def delete_product(id):
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"status": "error", "message": "Conexiune DB eșuată"}), 500
+        
     try:
-        cur = conn.cursor()
+        from psycopg2.extras import RealDictCursor
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # 1. Recuperăm datele produsului înainte de ștergere
+        cur.execute("""
+            SELECT name, sku, last_system_stock, last_faptic_value 
+            FROM products WHERE id = %s
+        """, (id,))
+        product = cur.fetchone()
+        
+        if not product:
+            return jsonify({"status": "error", "message": "Produsul nu a fost găsit"}), 404
+
+        # 2. Pregătim label-ul (Nume + SKU)
+        p_name = product['name'] if product['name'] else "Produs fără nume"
+        p_sku = product['sku'] if product['sku'] else "Fără SKU"
+        product_label = f"{p_name} [{p_sku}]"
+        
+        # 3. Înregistrăm în istoric
+        # IMPORTANT: Punem NULL la product_id sau îl lăsăm așa doar dacă coloana nu are FOREIGN KEY.
+        # Dacă ai erori, înlocuiește primul %s cu NULL.
+        cur.execute("""
+            INSERT INTO inventory_history 
+            (product_id, product_name, type, old_system_stock, new_system_stock, old_faptic_stock, new_faptic_stock, created_at)
+            VALUES (%s, %s, 'STERGERE PRODUS', %s, 0, %s, 0, NOW())
+        """, (
+            id, 
+            product_label, 
+            product['last_system_stock'] or 0, 
+            product['last_faptic_value'] or 0
+        ))
+
+        # 4. Ștergem produsul propriu-zis
+        # Atenție: Dacă ai eroare aici, verifică dacă ai tranzacții în stock_entries/exits nesterse!
         cur.execute("DELETE FROM products WHERE id = %s", (id,))
+        
         conn.commit()
-        return jsonify({"status": "success"})
+        return jsonify({"status": "success", "message": "Produs șters și înregistrat în jurnal"})
+        
     except Exception as e:
+        if conn: conn.rollback()
+        # Această linie va afișa eroarea reală în terminalul tău (unde rulează Python)
+        print(f"--- EROARE CRITICĂ ȘTERGERE: {e} ---") 
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
+        cur.close()
         conn.close()
 
 if __name__ == "__main__":

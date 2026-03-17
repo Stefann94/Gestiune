@@ -353,7 +353,22 @@
         </div>
     </div>
 
+    <div id="ledgerModal" class="modal-overlay">
+    <div class="inventory-modal-wide">
+        <div class="inventory-header-brand" style="background: #064e3b;">
+            <div class="header-content">
+                <h2><i class="fas fa-stream"></i> Istoric Operațiuni</h2>
+                <p>Monitorizarea activității în timp real</p>
+            </div>
+            <span class="close-audit-btn" onclick="closeLedgerModal()">&times;</span>
+        </div>
 
+        <div class="modal-body-scroll" style="background: #f0fdf4;">
+            <div id="ledger-container" class="ledger-list">
+                </div>
+        </div>
+    </div>
+</div>
     <div id="footer-placeholder"></div>
 
     <script src="{{ url_for('static', filename='componente.js') }}"></script>

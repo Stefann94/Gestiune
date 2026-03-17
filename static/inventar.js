@@ -367,32 +367,52 @@ async function saveAuditRow(btn) {
 
 
 
+
+
 // --- 4. ȘTERGERE PRODUS ---
 
 async function deleteProductRow(button, id) {
+    if (!confirm("Ești sigur că vrei să ștergi definitiv acest produs? Toate datele vor fi arhivate în Jurnal.")) return;
 
-    if (!confirm("Ești sigur că vrei să ștergi definitiv acest produs?")) return;
+    // Dezactivăm butonul pentru a preveni click-uri multiple
+    button.disabled = true;
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
     try {
-
-        const response = await fetch(`/api/product-delete/${id}`, { method: 'DELETE' });
-
+        const response = await fetch(`/api/product-delete/${id}`, { 
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
         const result = await response.json();
 
         if (result.status === 'success') {
+            // 1. Efect vizual de ștergere (fade out)
+            const row = button.closest('tr');
+            row.style.transition = 'all 0.5s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
 
-            button.closest('tr').remove();
+            setTimeout(() => {
+                row.remove();
+                // 2. REFRESH: Este necesar pentru a actualiza statisticile din HERO 
+                // și pentru a asigura că Jurnalul vede noua înregistrare.
+                location.reload(); 
+            }, 500);
 
+        } else {
+            alert("Eroare de la server: " + result.message);
+            button.disabled = false;
+            button.innerHTML = originalContent;
         }
-
     } catch (error) {
-
-        alert("Eroare la ștergere.");
-
+        console.error("Eroare la fetch stergere:", error);
+        alert("Eroare de rețea. Produsul nu a putut fi șters.");
+        button.disabled = false;
+        button.innerHTML = originalContent;
     }
-
 }
-
 
 
 // --- 5. MODALE ---

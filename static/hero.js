@@ -43,10 +43,15 @@ window.initHero = function (total, alerts, moves) {
                         <span class="label">Mișcări Azi</span>
                     </div>
                 </div>
-                <div class="stat-item action-add">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Produs Nou</span>
-                </div>
+                    <div class="stat-item action-history" onclick="openLedgerModal()" style="cursor:pointer;">
+                        <div class="stat-icon dark" style="background: rgba(16, 185, 129, 0.1); color: #064e3b;">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="value">Ledger</span>
+                            <span class="label">Istoric Operatiuni</span>
+                        </div>
+                    </div>
             </div>
         </div>
     </section>`;
@@ -165,3 +170,137 @@ window.jumpToAuditProduct = function(productId) {
         }
     }, 300);
 };
+
+// Funcție pentru deschiderea modalului de istoric
+/**
+ * JURNAL ACTIVITATE (LEDGER) 
+ * Gestionează afișarea istoricului de operațiuni cu detalii expandabile.
+ */
+
+// Funcție pentru deschiderea modalului de istoric
+window.openLedgerModal = async function() {
+    const modal = document.getElementById('ledgerModal');
+    const container = document.getElementById('ledger-container');
+    if(!modal || !container) return;
+
+    // Afișăm modalul și un loader până vin datele
+    modal.style.display = 'flex';
+    container.innerHTML = `
+        <div style="text-align:center; padding:3rem;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color:#10b981"></i>
+            <p style="margin-top:1rem; color:#64748b;">Se citește registrul de activitate...</p>
+        </div>`;
+
+    try {
+        const response = await fetch('/api/v1/internal/inventory-event-ledger');
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    <i class="fas fa-history fa-3x" style="opacity:0.2; margin-bottom:1rem;"></i>
+                    <p>Nu există nicio operațiune înregistrată în istoric.</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = data.map(item => {
+            // Formatare Dată și Oră
+            const dateObj = new Date(item.created_at);
+            const formattedDate = dateObj.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const formattedTime = dateObj.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+            
+            // Configurare Vizuală în funcție de tipul operațiunii
+            let typeClass = 'type-audit';
+            let icon = 'fa-pen-to-square';
+            let accentColor = '#10b981'; // Verde (Audit/Modificare)
+            
+            const typeLower = item.type.toLowerCase();
+            
+            if (typeLower.includes('stergere')) { 
+                typeClass = 'type-stergere'; 
+                icon = 'fa-trash-can'; 
+                accentColor = '#ef4444'; // Roșu
+            } 
+            else if (typeLower.includes('adaugare')) { 
+                typeClass = 'type-adaugare'; 
+                icon = 'fa-circle-plus'; 
+                accentColor = '#f59e0b'; // Galben/Portocaliu
+            }
+
+            return `
+                <div class="ledger-item" style="border-left: 5px solid ${accentColor}">
+                    <div class="ledger-summary" onclick="window.toggleLedgerDetail(this)">
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <div class="ledger-icon-wrapper" style="color: ${accentColor}; background: ${accentColor}15; width:35px; height:35px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; color:#064e3b; font-size:0.95rem;">
+                                    ${item.product_name} 
+                                    <span style="font-weight:400; color:#94a3b8; font-size:0.8rem; margin-left:5px;">[${item.sku || 'N/A'}]</span>
+                                </div>
+                                <div style="font-size:0.75rem; color:#64748b;">
+                                    <i class="far fa-clock"></i> ${formattedDate}, ora ${formattedTime}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="ledger-type ${typeClass}">${item.type}</span>
+                    </div>
+                    <div class="ledger-details" style="display:none; padding:1rem; background:#f8fafc; border-top:1px dashed #e2e8f0; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="detail-box">
+                            <label style="display:block; font-size:0.7rem; color:#64748b; text-transform:uppercase;">Stoc Sistem</label>
+                            <span style="font-weight:700; color:#1e293b;">
+                                ${item.old_system_stock} 
+                                <i class="fas fa-arrow-right" style="font-size:0.7rem; color:#10b981; margin:0 5px;"></i> 
+                                ${item.new_system_stock}
+                            </span>
+                        </div>
+                        <div class="detail-box">
+                            <label style="display:block; font-size:0.7rem; color:#64748b; text-transform:uppercase;">Stoc Faptic</label>
+                            <span style="font-weight:700; color:#1e293b;">
+                                ${item.old_faptic_stock} 
+                                <i class="fas fa-arrow-right" style="font-size:0.7rem; color:#10b981; margin:0 5px;"></i> 
+                                ${item.new_faptic_stock}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error("Eroare Ledger:", err);
+        container.innerHTML = `
+            <div style="text-align:center; padding:3rem; color:#ef4444;">
+                <i class="fas fa-exclamation-circle fa-2x"></i>
+                <p style="margin-top:1rem;">Eroare la încărcarea datelor. Verificați conexiunea cu serverul.</p>
+            </div>`;
+    }
+}
+
+/**
+ * Deschide/Închide secțiunea de detalii a unei operațiuni
+ */
+window.toggleLedgerDetail = function(summaryElement) {
+    const details = summaryElement.nextElementSibling;
+    if (!details) return;
+
+    const isVisible = details.style.display === 'grid';
+    
+    // Închidem toate celelalte detalii deschise pentru a menține interfața curată
+    document.querySelectorAll('.ledger-details').forEach(d => {
+        d.style.display = 'none';
+    });
+    
+    // Switch între vizibil/invizibil pentru elementul curent
+    details.style.display = isVisible ? 'none' : 'grid';
+}
+
+/**
+ * Închide modalul Ledger
+ */
+window.closeLedgerModal = function() {
+    const modal = document.getElementById('ledgerModal');
+    if(modal) modal.style.display = 'none';
+}
