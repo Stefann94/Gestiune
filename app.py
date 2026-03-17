@@ -1219,7 +1219,7 @@ def iesiri():
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        # 1. Luăm loturile active (stoc > 0)
+        # 1. Luăm loturile active (stoc > 0) din RECEPTII
         cur.execute("""
             SELECT id, nume_companie, nume_produs, cantitate 
             FROM receptii 
@@ -1228,7 +1228,7 @@ def iesiri():
         """)
         receptii_active = cur.fetchall()
 
-        # 2. Istoric ieșiri pentru tabel și pentru exploratorul JS
+        # 2. Istoric tranzacții din IESIRI
         cur.execute("""
             SELECT id, nume_produs, nume_companie, cantitate_iesita, receptie_id,
                    TO_CHAR(data_iesire, 'DD.MM.YYYY') as data,
@@ -1238,9 +1238,9 @@ def iesiri():
         """)
         iesiri_list = cur.fetchall()
 
-        # --- CALCUL KPI-uri REALE ---
+        # --- CALCUL KPI-uri REALE (Strict din tabela IESIRI) ---
 
-        # 3. KPI 1: Unități ieșite astăzi (Suma cantităților din tabela iesiri)
+        # 3. KPI 1: Unități ieșite ASTĂZI
         cur.execute("""
             SELECT SUM(cantitate_iesita) as total_unitati 
             FROM iesiri 
@@ -1249,8 +1249,7 @@ def iesiri():
         res_flux = cur.fetchone()
         flux_azi = res_flux['total_unitati'] if res_flux['total_unitati'] else 0
 
-        # 4. KPI 2: Valoare Livrată astăzi 
-        # Calculăm: cantitate_iesita (din tabela iesiri) * pret_produs (din tabela receptii)
+        # 4. KPI 2: Valoare Livrată ASTĂZI
         cur.execute("""
             SELECT SUM(i.cantitate_iesita * r.pret_produs) as total_valoare
             FROM iesiri i
@@ -1260,18 +1259,33 @@ def iesiri():
         res_valoare = cur.fetchone()
         valoare_azi = res_valoare['total_valoare'] if res_valoare['total_valoare'] else 0
 
+        # 5. KPI 3: Top Partener Strategic (bazat pe volumul total livrat din "Ieșiri Noi")
+        cur.execute("""
+            SELECT nume_companie, SUM(cantitate_iesita) as total_volum
+            FROM iesiri 
+            GROUP BY nume_companie 
+            ORDER BY total_volum DESC 
+            LIMIT 1
+        """)
+        res_top = cur.fetchone()
+        
+        # Salvăm rezultatul într-o variabilă clară
+        top_companie_final = res_top['nume_companie'] if res_top else "Fără livrări"
+        
+        # --- RETURNARE DATE CĂTRE HTML ---
         return render_template('iesiri.html', 
                                receptii_active=receptii_active, 
                                iesiri=iesiri_list, 
                                flux=flux_azi,
-                               valoare_livrata=valoare_azi)
+                               valoare_livrata=valoare_azi,
+                               top_companie=top_companie_final) # <--- ACUM VARIABILA ESTE CORECTĂ
                                
     except Exception as e:
         print(f"Eroare SQL: {e}")
         return f"Eroare la încărcarea paginii: {str(e)}"
     finally:
-        cur.close()
-        conn.close()
+        if cur: cur.close()
+        if conn: conn.close()
 
 @app.route('/api/iesiri/list')
 def get_iesiri_json():
