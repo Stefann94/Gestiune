@@ -41,28 +41,27 @@
 
 <section class="bento-grid-kpi">
 
-<div class="kpi-card glass">
-<div class="kpi-icon chart">
-<i class="fas fa-shipping-fast"></i>
-</div>
+    <div class="kpi-card glass">
+        <div class="kpi-icon chart">
+            <i class="fas fa-shipping-fast"></i>
+        </div>
+        <div class="kpi-info">
+            <span class="label">Ieșiri Astăzi</span>
+            <h2 class="value">{{ "{:,}".format(flux|int) }} <small>Unități</small></h2>
+            <span class="trend up"><i class="fas fa-clock"></i> Azi</span>
+        </div>
+    </div>
 
-<div class="kpi-info">
-<span class="label">Ieșiri Astăzi</span>
-<h2 class="value">{{ flux }} <small>Unități</small></h2>
-<span class="trend up"><i class="fas fa-arrow-up"></i> +5% vs ieri</span>
-</div>
-</div>
-
-<div class="kpi-card glass warning">
-<div class="kpi-icon money">
-<i class="fas fa-hand-holding-dollar"></i>
-</div>
-
-<div class="kpi-info">
-<span class="label">Valoare Livrată</span>
-<h2 class="value">14,250 <small>RON</small></h2>
-</div>
-</div>
+    <div class="kpi-card glass warning">
+        <div class="kpi-icon money">
+            <i class="fas fa-hand-holding-dollar"></i>
+        </div>
+        <div class="kpi-info">
+            <span class="label">Valoare Livrată (Azi)</span>
+            <h2 class="value">{{ "{:,.2f}".format(valoare_livrata|float) }} <small>RON</small></h2>
+            <span class="trend"><i class="fas fa-chart-line"></i> Valoare Lot</span>
+        </div>
+    </div>
 
 </section>
 

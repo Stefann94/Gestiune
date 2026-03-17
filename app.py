@@ -1220,7 +1220,6 @@ def iesiri():
     
     try:
         # 1. Luăm loturile active (stoc > 0)
-        # Le ordonăm după companie pentru a fi ușor de grupat în dropdown
         cur.execute("""
             SELECT id, nume_companie, nume_produs, cantitate 
             FROM receptii 
@@ -1229,9 +1228,9 @@ def iesiri():
         """)
         receptii_active = cur.fetchall()
 
-        # 2. Istoric ieșiri pentru tabel
+        # 2. Istoric ieșiri pentru tabel și pentru exploratorul JS
         cur.execute("""
-            SELECT id, nume_produs, nume_companie, cantitate_iesita, 
+            SELECT id, nume_produs, nume_companie, cantitate_iesita, receptie_id,
                    TO_CHAR(data_iesire, 'DD.MM.YYYY') as data,
                    TO_CHAR(data_iesire, 'HH24:MI') as ora
             FROM iesiri 
@@ -1239,17 +1238,36 @@ def iesiri():
         """)
         iesiri_list = cur.fetchall()
 
-        # 3. KPI: Unități ieșite astăzi
-        cur.execute("SELECT SUM(cantitate_iesita) as sum FROM iesiri WHERE data_iesire::date = CURRENT_DATE")
+        # --- CALCUL KPI-uri REALE ---
+
+        # 3. KPI 1: Unități ieșite astăzi (Suma cantităților din tabela iesiri)
+        cur.execute("""
+            SELECT SUM(cantitate_iesita) as total_unitati 
+            FROM iesiri 
+            WHERE data_iesire::date = CURRENT_DATE
+        """)
         res_flux = cur.fetchone()
-        flux_azi = res_flux['sum'] if res_flux['sum'] else 0
+        flux_azi = res_flux['total_unitati'] if res_flux['total_unitati'] else 0
+
+        # 4. KPI 2: Valoare Livrată astăzi 
+        # Calculăm: cantitate_iesita (din tabela iesiri) * pret_produs (din tabela receptii)
+        cur.execute("""
+            SELECT SUM(i.cantitate_iesita * r.pret_produs) as total_valoare
+            FROM iesiri i
+            JOIN receptii r ON i.receptie_id = r.id
+            WHERE i.data_iesire::date = CURRENT_DATE
+        """)
+        res_valoare = cur.fetchone()
+        valoare_azi = res_valoare['total_valoare'] if res_valoare['total_valoare'] else 0
 
         return render_template('iesiri.html', 
                                receptii_active=receptii_active, 
                                iesiri=iesiri_list, 
-                               flux=flux_azi)
+                               flux=flux_azi,
+                               valoare_livrata=valoare_azi)
+                               
     except Exception as e:
-        print(f"Eroare: {e}")
+        print(f"Eroare SQL: {e}")
         return f"Eroare la încărcarea paginii: {str(e)}"
     finally:
         cur.close()
