@@ -3,282 +3,306 @@
 <html lang="ro">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ieșiri Stoc | StockMaster Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ieșiri Stoc | StockMaster Pro</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='iesiri.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='panou.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='iesiri.css') }}">
 
 </head>
 
 <body>
 
-<div id="navbar-placeholder"></div>
+    <div id="navbar-placeholder"></div>
 
-<main class="dashboard-container">
+    <main class="dashboard-container">
 
-<header class="db-header">
-<div class="welcome-text">
-<h1>Gestiune <span class="text-gradient">Ieșiri</span></h1>
-</div>
+        <header class="db-header">
+            <div class="welcome-text">
+                <h1>Gestiune <span class="text-gradient">Ieșiri</span></h1>
+            </div>
 
-<div class="x-header-actions">
-<button class="btn-action x-btn-blue" onclick="openModal('exitModal')">
-<i class="fas fa-shipping-fast"></i> Ieșire Nouă
-</button>
+            <div class="x-header-actions">
+                <button class="btn-action x-btn-blue" onclick="openModal('exitModal')">
+                    <i class="fas fa-shipping-fast"></i> Ieșire Nouă
+                </button>
 
-<button class="btn-action x-btn-history" onclick="openExitHistory()">
-<i class="fas fa-history"></i> Istoric Ieșiri
-</button>
-</div>
-</header>
+                <button class="btn-action x-btn-history" onclick="openExitHistory()">
+                    <i class="fas fa-history"></i> Istoric Ieșiri
+                </button>
+            </div>
+        </header>
 
-<section class="bento-grid-kpi">
+        <section class="bento-grid-kpi">
 
-    <div class="kpi-card glass">
-        <div class="kpi-icon chart">
-            <i class="fas fa-shipping-fast"></i>
+            <div class="kpi-card glass">
+                <div class="kpi-icon chart">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <div class="kpi-info">
+                    <span class="label">Ieșiri Astăzi</span>
+                    <h2 class="value">{{ "{:,}".format(flux|int) }} <small>Unități</small></h2>
+                    <span class="trend up"><i class="fas fa-clock"></i> Azi</span>
+                </div>
+            </div>
+
+            <div class="kpi-card glass warning">
+                <div class="kpi-icon money">
+                    <i class="fas fa-hand-holding-dollar"></i>
+                </div>
+                <div class="kpi-info">
+                    <span class="label">Valoare Livrată (Azi)</span>
+                    <h2 class="value">{{ "{:,.2f}".format(valoare_livrata|float) }} <small>RON</small></h2>
+                    <span class="trend"><i class="fas fa-chart-line"></i> Valoare Lot</span>
+                </div>
+            </div>
+
+            <div class="kpi-card glass success">
+                <div class="kpi-icon partner"><i class="fas fa-crown"></i></div>
+                <div class="kpi-info">
+                    <span class="label">Partener Strategic</span>
+                    <h2 class="value"
+                        style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ top_companie }}
+                    </h2>
+                    <span class="trend up"><i class="fas fa-star"></i> Top Volume</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- MODAL IESIRE NOUA -->
+
+        <div id="exitModal" class="modal-overlay">
+
+            <div class="x-analysis-modal">
+
+                <div class="inventory-header-brand">
+                    <div>
+                        <h2><i class="fas fa-minus-square"></i> Ieșire Stoc Nouă</h2>
+                        <p style="margin:0;opacity:0.8;">Pasul 1: Firma | Pasul 2: Produsul</p>
+                    </div>
+
+                    <span class="close-modal" onclick="closeModal('exitModal')">×</span>
+
+                </div>
+
+                <div class="x-modal-body-scroll">
+
+                    <form id="exitForm">
+
+                        <div class="x-analysis-grid">
+
+                            <div class="x-form-group">
+                                <label><i class="fas fa-building"></i> 1. Selectează Compania</label>
+
+                                <select id="select_companie" class="x-fancy-select" required
+                                    onchange="filterProductsByCompany()">
+
+                                    <option value="">-- Alege Firma --</option>
+
+                                    {% set firme_unice = [] %}
+                                    {% for r in receptii_active %}
+                                    {% if r.nume_companie not in firme_unice %}
+
+                                    <option value="{{ r.nume_companie }}">{{ r.nume_companie }}</option>
+                                    {% set _ = firme_unice.append(r.nume_companie) %}
+                                    {% endif %}
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <div class="x-form-group">
+
+                                <label><i class="fas fa-box-open"></i> 2. Produs din Stoc</label>
+
+                                <select id="select_receptie" class="x-fancy-select" required disabled
+                                    onchange="updateMaxQuantity()">
+                                    <option value="">-- Mai întâi alege firma --</option>
+                                </select>
+
+                            </div>
+
+                            <div class="x-form-group">
+
+                                <label><i class="fas fa-sort-amount-down"></i> 3. Cantitate</label>
+
+                                <input type="number" id="cantitate_iesire" min="1" required placeholder="0"
+                                    class="x-fancy-input">
+
+                            </div>
+
+                        </div>
+
+                        <div id="raw_data" style="display:none;">
+
+                            {% for r in receptii_active %}
+
+                            <div class="db-row" data-comp="{{ r.nume_companie }}" data-id="{{ r.id }}"
+                                data-prod="{{ r.nume_produs }}" data-qty="{{ r.cantitate }}">
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="x-actions-center">
+
+                            <div class="x-info-note">
+                                Disponibil în lot: <strong id="stoc_vizibil">0</strong> unități
+                            </div>
+
+                            <button type="submit" class="x-btn-green">
+                                <i class="fas fa-check"></i> Înregistrează Ieșirea
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
         </div>
-        <div class="kpi-info">
-            <span class="label">Ieșiri Astăzi</span>
-            <h2 class="value">{{ "{:,}".format(flux|int) }} <small>Unități</small></h2>
-            <span class="trend up"><i class="fas fa-clock"></i> Azi</span>
-        </div>
-    </div>
 
-    <div class="kpi-card glass warning">
-        <div class="kpi-icon money">
-            <i class="fas fa-hand-holding-dollar"></i>
-        </div>
-        <div class="kpi-info">
-            <span class="label">Valoare Livrată (Azi)</span>
-            <h2 class="value">{{ "{:,.2f}".format(valoare_livrata|float) }} <small>RON</small></h2>
-            <span class="trend"><i class="fas fa-chart-line"></i> Valoare Lot</span>
-        </div>
-    </div>
+        <!-- MODAL ISTORIC -->
 
-    <div class="kpi-card glass success">
-        <div class="kpi-icon partner"><i class="fas fa-crown"></i></div>
-        <div class="kpi-info">
-            <span class="label">Partener Strategic</span>
-            <h2 class="value" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                {{ top_companie }}
-            </h2>
-            <span class="trend up"><i class="fas fa-star"></i> Top Volume</span>
+        <div id="historyModal" class="modal-overlay">
+
+            <div class="x-analysis-modal">
+
+                <div class="inventory-header-brand">
+                    <h2><i class="fas fa-history"></i> Explorator Tranzacții Ieșire</h2>
+                    <span class="close-modal" onclick="closeModal('historyModal')">&times;</span>
+                </div>
+
+                <div class="x-modal-body-scroll">
+
+                    <div class="x-analysis-grid" style="margin-bottom:2rem;">
+
+                        <div class="x-form-group">
+
+                            <label>1. Filtrează după Client/Furnizor</label>
+
+                            <select id="hist_exit_companie" class="x-fancy-select"
+                                onchange="filterExitHistoryProducts()">
+
+                                <option value="">-- Toate Companiile --</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="x-form-group">
+
+                            <label>2. Selectează Tranzacția</label>
+
+                            <select id="hist_exit_produs" class="x-fancy-select" disabled onchange="loadExitDetails()">
+
+                                <option value="">-- Alege produsul --</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div id="exit_detail_card" style="display:none;border-top:2px solid #e2e8f0;padding-top:1.5rem;">
+
+                        <h3 id="hist_exit_title" style="color:#064e3b;margin-bottom:1.5rem;"></h3>
+
+                        <div class="details-grid">
+
+                            <div class="detail-item">
+
+                                <label>Data & Ora Ieșirii</label>
+
+                                <span id="hist_exit_data" class="x-destinatie-tag"></span>
+
+                            </div>
+
+                            <div class="detail-item">
+
+                                <label>Cantitate Scăzută</label>
+
+                                <span id="hist_exit_qty" class="x-text-orange" style="font-weight:800;"></span>
+
+                            </div>
+
+                            <div class="detail-item">
+
+                                <label>Din Lotul (ID Recepție)</label>
+
+                                <span id="hist_exit_lot"></span>
+
+                            </div>
+
+                            <div class="detail-item">
+
+
+
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+<section class="chart-section" style="margin-top: 2rem;">
+
+    <div class="kpi-card glass" style="display: flex; flex-direction: column; padding: 2rem;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            
+            <div style="display: flex; align-items: center;">
+                
+                <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1; margin-right: 15px;">
+                    <i class="fas fa-building"></i>
+                </div>
+
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem;">
+                        Distribuție Ieșiri pe Companii
+                    </h3>
+                    <p style="margin: 0; font-size: 0.85rem; opacity: 0.7;">
+                        Impactul financiar total (RON) per partener
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="height: 350px; width: 100%; max-width: 600px; margin: 0 auto;">
+            <canvas id="topProductsValueChart"></canvas>
+        </div>
+
     </div>
 
 </section>
+    </main>
 
-<!-- MODAL IESIRE NOUA -->
+    <script src="{{ url_for('static', filename='componente.js') }}"></script>
 
-<div id="exitModal" class="modal-overlay">
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 
-<div class="x-analysis-modal">
-
-<div class="inventory-header-brand">
-<div>
-<h2><i class="fas fa-minus-square"></i> Ieșire Stoc Nouă</h2>
-<p style="margin:0;opacity:0.8;">Pasul 1: Firma | Pasul 2: Produsul</p>
-</div>
-
-<span class="close-modal" onclick="closeModal('exitModal')">×</span>
-
-</div>
-
-<div class="x-modal-body-scroll">
-
-<form id="exitForm">
-
-<div class="x-analysis-grid">
-
-<div class="x-form-group">
-<label><i class="fas fa-building"></i> 1. Selectează Compania</label>
-
-<select id="select_companie" class="x-fancy-select" required onchange="filterProductsByCompany()">
-
-<option value="">-- Alege Firma --</option>
-
-{% set firme_unice = [] %}
-{% for r in receptii_active %}
-{% if r.nume_companie not in firme_unice %}
-
-<option value="{{ r.nume_companie }}">{{ r.nume_companie }}</option>
-{% set _ = firme_unice.append(r.nume_companie) %}
-{% endif %}
-{% endfor %}
-
-</select>
-</div>
-
-<div class="x-form-group">
-
-<label><i class="fas fa-box-open"></i> 2. Produs din Stoc</label>
-
-<select id="select_receptie" class="x-fancy-select" required disabled onchange="updateMaxQuantity()">
-<option value="">-- Mai întâi alege firma --</option>
-</select>
-
-</div>
-
-<div class="x-form-group">
-
-<label><i class="fas fa-sort-amount-down"></i> 3. Cantitate</label>
-
-<input type="number"
-id="cantitate_iesire"
-min="1"
-required
-placeholder="0"
-class="x-fancy-input">
-
-</div>
-
-</div>
-
-<div id="raw_data" style="display:none;">
-
-{% for r in receptii_active %}
-
-<div class="db-row"
-data-comp="{{ r.nume_companie }}"
-data-id="{{ r.id }}"
-data-prod="{{ r.nume_produs }}"
-data-qty="{{ r.cantitate }}">
-</div>
-{% endfor %}
-
-</div>
-
-<div class="x-actions-center">
-
-<div class="x-info-note">
-Disponibil în lot: <strong id="stoc_vizibil">0</strong> unități
-</div>
-
-<button type="submit" class="x-btn-green">
-<i class="fas fa-check"></i> Înregistrează Ieșirea
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- MODAL ISTORIC -->
-
-<div id="historyModal" class="modal-overlay">
-
-<div class="x-analysis-modal">
-
-<div class="inventory-header-brand">
-<h2><i class="fas fa-history"></i> Explorator Tranzacții Ieșire</h2>
-<span class="close-modal" onclick="closeModal('historyModal')">&times;</span>
-</div>
-
-<div class="x-modal-body-scroll">
-
-<div class="x-analysis-grid" style="margin-bottom:2rem;">
-
-<div class="x-form-group">
-
-<label>1. Filtrează după Client/Furnizor</label>
-
-<select id="hist_exit_companie"
-class="x-fancy-select"
-onchange="filterExitHistoryProducts()">
-
-<option value="">-- Toate Companiile --</option>
-
-</select>
-
-</div>
-
-<div class="x-form-group">
-
-<label>2. Selectează Tranzacția</label>
-
-<select id="hist_exit_produs"
-class="x-fancy-select"
-disabled
-onchange="loadExitDetails()">
-
-<option value="">-- Alege produsul --</option>
-
-</select>
-
-</div>
-
-</div>
-
-<div id="exit_detail_card"
-style="display:none;border-top:2px solid #e2e8f0;padding-top:1.5rem;">
-
-<h3 id="hist_exit_title"
-style="color:#064e3b;margin-bottom:1.5rem;"></h3>
-
-<div class="details-grid">
-
-<div class="detail-item">
-
-<label>Data & Ora Ieșirii</label>
-
-<span id="hist_exit_data" class="x-destinatie-tag"></span>
-
-</div>
-
-<div class="detail-item">
-
-<label>Cantitate Scăzută</label>
-
-<span id="hist_exit_qty" class="x-text-orange" style="font-weight:800;"></span>
-
-</div>
-
-<div class="detail-item">
-
-<label>Din Lotul (ID Recepție)</label>
-
-<span id="hist_exit_lot"></span>
-
-</div>
-
-<div class="detail-item">
-
-
-
-
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</main>
-
-<script src="{{ url_for('static', filename='componente.js') }}"></script>
-
-<script src="{{ url_for('static', filename='main.js') }}"></script>
-
-<script src="{{ url_for('static', filename='iesiri.js') }}"></script>
+    <script src="{{ url_for('static', filename='iesiri.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
+
 </html>

@@ -1156,55 +1156,55 @@ def add_iesire():
 
         # Verificăm dacă lotul există
         if not receptie:
-            return jsonify({"success": False, "message": "Eroare: Lotul (Recepția) nu a fost găsit în baza de date!"})
+            return jsonify({"success": False, "message": "Eroare: Lotul (Recepția) nu a fost găsit!"})
         
         stoc_actual = int(receptie['cantitate'])
         pret_unitar = float(receptie['pret_produs'])
 
         # Verificăm dacă avem suficient stoc
         if stoc_actual < cantitate_de_scazut:
-            return jsonify({"success": False, "message": f"Stoc insuficient! Disponibil în lot: {stoc_actual}"})
+            return jsonify({"success": False, "message": f"Stoc insuficient! Disponibil: {stoc_actual}"})
+
+        # --- LOGICA NOUĂ: CALCUL VALOARE TRANZACȚIE ---
+        valoare_tranzactie_calculata = cantitate_de_scazut * pret_unitar
 
         # 2. Calculăm noile valori pentru tabela 'receptii'
         noua_cantitate = stoc_actual - cantitate_de_scazut
         nou_pret_total = noua_cantitate * pret_unitar
 
-        # 3. Executăm UPDATE în 'receptii' (Actualizăm stocul rămas și valoarea lui)
+        # 3. UPDATE în 'receptii' (Actualizăm stocul rămas și valoarea lui)
         cur.execute("""
             UPDATE receptii 
             SET cantitate = %s, pret_total = %s 
             WHERE id = %s
         """, (noua_cantitate, nou_pret_total, receptie_id))
 
-        # 4. Executăm INSERT în tabela 'iesiri' (Salvăm tranzacția în istoric)
-        # Folosim NOW() pentru timestamp-ul serverului de DB
+        # 4. INSERT în tabela 'iesiri' (Inclusiv coloana valoare_tranzactie)
         cur.execute("""
-            INSERT INTO iesiri (receptie_id, nume_companie, nume_produs, cantitate_iesita, data_iesire)
-            VALUES (%s, %s, %s, %s, NOW())
+            INSERT INTO iesiri (receptie_id, nume_companie, nume_produs, cantitate_iesita, valoare_tranzactie, data_iesire)
+            VALUES (%s, %s, %s, %s, %s, NOW())
         """, (
             receptie_id, 
             receptie['nume_companie'], 
             receptie['nume_produs'], 
-            cantitate_de_scazut
+            cantitate_de_scazut,
+            valoare_tranzactie_calculata
         ))
 
-        # Dacă ambele operațiuni au reușit, salvăm definitiv (Atomic Transaction)
+        # Salvare definitivă
         conn.commit()
         return jsonify({
             "success": True, 
-            "message": "Ieșire înregistrată! Stocul lotului a fost actualizat."
+            "message": "Ieșire înregistrată! Stocul a fost actualizat și valoarea a fost calculată."
         })
 
     except Exception as e:
-        # Dacă apare orice eroare (ex: pică netul, eroare SQL), dăm înapoi toate modificările
         if conn:
             conn.rollback()
         return jsonify({"success": False, "message": f"Eroare server: {str(e)}"})
     finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
+        cur.close()
+        conn.close()
 
 
 @app.route('/intrari')
@@ -1212,6 +1212,41 @@ def intrari():
     # Aici vei prelua datele din DB (ex: tranzactii de tip intrare)
     return render_template('intrari.html')
 
+@app.route('/api/iesiri/top-produse', methods=['GET'])
+def get_top_produse_iesiri():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # Modificat pentru a afișa companiile și suma valorilor tranzacțiilor
+        # Am eliminat LIMIT-ul pentru a apărea toate companiile, conform cerinței
+        query = """
+            SELECT 
+                nume_companie,
+                SUM(valoare_tranzactie) AS total_valoare
+            FROM iesiri
+            GROUP BY nume_companie
+            ORDER BY total_valoare DESC
+        """
+
+        cur.execute(query)
+        data = cur.fetchall()
+
+        return jsonify({
+            "success": True,
+            "data": data
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e),
+            "data": []
+        }), 500
+
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/iesiri')
 def iesiri():

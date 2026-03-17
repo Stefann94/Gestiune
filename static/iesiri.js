@@ -238,3 +238,85 @@ function loadExitDetails() {
 
     document.getElementById("exit_detail_card").style.display = "block";
 }
+
+async function initTopProductsValueChart() {
+    try {
+        // Apelăm endpoint-ul corect definit în Python
+        const response = await fetch('/api/iesiri/top-produse');
+        const result = await response.json();
+
+        console.log("Date primite pentru grafic:", result);
+
+        if (!result.success || !result.data || result.data.length === 0) {
+            console.warn("Nu sunt date disponibile pentru grafic.");
+            return;
+        }
+
+        // Mapăm datele: acum folosim 'nume_companie' și 'total_valoare'
+        const labels = result.data.map(d => d.nume_companie);
+        const values = result.data.map(d => Number(d.total_valoare));
+
+        const canvas = document.getElementById('topProductsValueChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Distrugem instanța veche dacă există (pentru a evita suprapunerea la refresh)
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        window.myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Valoare Totală (RON)',
+                    data: values,
+                    backgroundColor: [
+                        '#6366f1', // Indigo
+                        '#10b981', // Emerald
+                        '#f59e0b', // Amber
+                        '#ef4444', // Red
+                        '#8b5cf6', // Violet
+                        '#06b6d4'  // Cyan
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Plus Jakarta Sans',
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return ` ${context.label}: ${value.toLocaleString('ro-RO')} RON`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Eroare la inițializarea graficului:", error);
+    }
+}
+
+// Inițializare la încărcarea paginii
+document.addEventListener('DOMContentLoaded', initTopProductsValueChart);
