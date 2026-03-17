@@ -1560,27 +1560,29 @@ def delete_product(id):
         if not product:
             return jsonify({"status": "error", "message": "Produsul nu a fost găsit"}), 404
 
-        # 2. Pregătim label-ul (Nume + SKU)
+        # 2. Pregătim informațiile pentru Jurnal
         p_name = product['name'] if product['name'] else "Produs fără nume"
         p_sku = product['sku'] if product['sku'] else "Fără SKU"
         product_label = f"{p_name} [{p_sku}]"
         
-        # 3. Înregistrăm în istoric
-        # IMPORTANT: Punem NULL la product_id sau îl lăsăm așa doar dacă coloana nu are FOREIGN KEY.
-        # Dacă ai erori, înlocuiește primul %s cu NULL.
+        # Valorile de stoc (ne asigurăm că nu sunt None pentru istoric)
+        old_sys = product['last_system_stock'] if product['last_system_stock'] is not None else 0
+        old_fap = product['last_faptic_value'] if product['last_faptic_value'] is not None else 0
+
+        # 3. Înregistrăm în Jurnal (inventory_history)
+        # Deoarece ai anulat cheia, acum putem pune ID-ul real fără erori.
         cur.execute("""
             INSERT INTO inventory_history 
             (product_id, product_name, type, old_system_stock, new_system_stock, old_faptic_stock, new_faptic_stock, created_at)
-            VALUES (%s, %s, 'STERGERE PRODUS', %s, 0, %s, 0, NOW())
-        """, (
-            id, 
-            product_label, 
-            product['last_system_stock'] or 0, 
-            product['last_faptic_value'] or 0
-        ))
+            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (id, product_label, 'STERGERE PRODUS', old_sys, 0, old_fap, 0))
 
-        # 4. Ștergem produsul propriu-zis
-        # Atenție: Dacă ai eroare aici, verifică dacă ai tranzacții în stock_entries/exits nesterse!
+        # 4. Ștergem manual referințele din tabelele de tranzacții
+        # Obligatoriu pentru a evita erori de tip "Foreign Key" în acele tabele
+        cur.execute("DELETE FROM stock_entries WHERE product_id = %s", (id,))
+        cur.execute("DELETE FROM stock_exits WHERE product_id = %s", (id,))
+
+        # 5. Ștergem produsul propriu-zis din tabelul products
         cur.execute("DELETE FROM products WHERE id = %s", (id,))
         
         conn.commit()
@@ -1588,8 +1590,8 @@ def delete_product(id):
         
     except Exception as e:
         if conn: conn.rollback()
-        # Această linie va afișa eroarea reală în terminalul tău (unde rulează Python)
-        print(f"--- EROARE CRITICĂ ȘTERGERE: {e} ---") 
+        # Tipărim eroarea exactă în terminalul Python pentru control
+        print(f"--- EROARE LA STERGERE: {str(e)} ---") 
         return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         cur.close()
