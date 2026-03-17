@@ -6,7 +6,7 @@ from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 from flask import render_template
-
+from flask import request, jsonify
 # Biblioteci pentru export
 import pandas as pd
 from reportlab.lib.pagesizes import A4
@@ -1386,12 +1386,35 @@ def get_iesiri_json():
         conn.close()
 
 
-
-
-
-
-from flask import request, jsonify
-
+@app.route('/api/stats/stock-discrepancy')
+def get_stock_discrepancy():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Selectăm doar produsele unde sistemul e mai mare decât fapticul (lipsă)
+    # Ordonăm după diferență descrescător pentru a vedea cele mai mari pierderi
+    query = """
+        SELECT 
+            name, 
+            COALESCE(last_system_stock, 0) as sistem, 
+            COALESCE(last_faptic_value, 0) as faptic,
+            (COALESCE(last_system_stock, 0) - COALESCE(last_faptic_value, 0)) as lipsa_unitati
+        FROM products
+        WHERE last_system_stock > last_faptic_value
+        ORDER BY lipsa_unitati DESC
+        LIMIT 10;
+    """
+    
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        return jsonify(rows)
+    except Exception as e:
+        print(f"Eroare Grafic: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
 def delete_product(id):
