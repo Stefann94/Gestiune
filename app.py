@@ -1617,12 +1617,14 @@ def get_top_performanta_mix():
         cur.close()
         conn.close()
         
-        
+ 
 @app.route('/api/stats/stock-verificare')
 def get_stock_verificare():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
+        # Filtrăm strict diferențele între 1 și 5 unități
+        # Ordonăm după cele mai recente actualizări și limităm la 10
         cur.execute("""
             SELECT 
                 name, 
@@ -1630,8 +1632,9 @@ def get_stock_verificare():
                 COALESCE(last_system_stock, 0) as sistem,
                 (COALESCE(last_system_stock, 0) - COALESCE(last_faptic_value, 0)) as diferenta
             FROM products 
-            WHERE (last_system_stock - last_faptic_value) BETWEEN 1 AND 5
+            WHERE (COALESCE(last_system_stock, 0) - COALESCE(last_faptic_value, 0)) BETWEEN 1 AND 5
             ORDER BY updated_at DESC
+            LIMIT 10
         """)
         data = cur.fetchall()
         return jsonify(data)
