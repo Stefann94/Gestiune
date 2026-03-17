@@ -1,4 +1,4 @@
-/* Container Principal */
+/* --- CONTAINER PRINCIPAL --- */
 .container-dashboard {
     padding: 2rem 6%;
     max-width: 1400px;
@@ -13,7 +13,7 @@
     font-weight: 700;
 }
 
-/* 1. Quick Actions */
+/* --- 1. QUICK ACTIONS --- */
 .actions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -59,11 +59,12 @@
     border-color: #10b981;
 }
 
-/* 2. Main Grid Layout */
+/* --- 2. MAIN GRID LAYOUT (ALINIERE ȘI ÎNĂLȚIME) --- */
 .dashboard-main-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
+    grid-template-columns: 2fr 1fr; 
+    gap: 1.5rem;
+    align-items: stretch; /* Forțează cardurile să aibă aceeași înălțime */
 }
 
 .card {
@@ -72,13 +73,17 @@
     padding: 1.5rem;
     border: 1px solid #f3f4f6;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column; /* Necesar pentru a controla scroll-ul intern */
+    height: 400px; /* ÎNĂLȚIME FIXĂ: Ajustată pentru a fi compactă ca graficul */
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    flex-shrink: 0; /* Împiedică header-ul să se micșoreze */
 }
 
 .card-header h3 {
@@ -87,16 +92,37 @@
     color: #374151;
 }
 
-/* 3. Stoc Critic Items */
+/* --- 3. STOC CRITIC CU SCROLLBAR --- */
 .critical-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
+    flex: 1; 
+    overflow-y: auto; /* Activează scroll-ul doar aici */
+    padding-right: 8px; 
+    margin-bottom: 10px;
+}
+
+/* Design Scrollbar discret */
+.critical-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.critical-list::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.critical-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Gri discret care devine verde la hover */
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+
+.critical-list::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
 }
 
 .critical-item {
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f9fafb;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .item-info {
@@ -107,7 +133,7 @@
 }
 
 .progress-bar-mini {
-    height: 8px;
+    height: 6px; /* Mai finuț */
     background: #f3f4f6;
     border-radius: 10px;
     overflow: hidden;
@@ -118,33 +144,25 @@
     border-radius: 10px;
 }
 
-.progress-fill.red {
-    background: #ef4444;
-}
-
-.progress-fill.orange {
-    background: #f59e0b;
-}
+.progress-fill.red { background: #026618; }
+.progress-fill.orange { background: #f59e0b; }
 
 .view-all {
     display: block;
-    margin-top: 1.5rem;
+    margin-top: auto; /* Îl împinge la baza cardului */
+    padding-top: 10px;
     text-align: center;
     color: #10b981;
     font-weight: 600;
     font-size: 0.85rem;
     text-decoration: none;
+    border-top: 1px solid #f3f4f6;
 }
-
-/* Responsivitate */
-@media (max-width: 1024px) {
-    .dashboard-main-grid {
-        grid-template-columns: 1fr;
-    }
+.critical-item .item-info span {
+    color: #59bd78 !important; /* Schimbă aici culoarea cifrelor */
+    font-size: 0.85rem;
 }
-
-/* Adaugă asta la finalul fișierului dashboard.css */
-
+/* --- 4. ANALYTICS CARD & CHART --- */
 .analytics-card {
     display: flex;
     flex-direction: column;
@@ -152,13 +170,21 @@
 
 .chart-wrapper {
     position: relative;
-    height: 300px;
-    /* Aceasta este înălțimea fixă care salvează RAM-ul */
+    flex: 1; /* Ocupă tot spațiul din cardul de 400px */
     width: 100%;
-    margin-top: 1rem;
 }
 
-/* Opțional: Asigură-te că canvas-ul nu depășește wrapper-ul */
 #stockChart {
     max-height: 100% !important;
+}
+
+/* --- RESPONSIVITATE --- */
+@media (max-width: 1024px) {
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
+    .card {
+        height: auto; /* Pe mobil le lăsăm să se lungească natural */
+        min-height: 400px;
+    }
 }

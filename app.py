@@ -222,6 +222,40 @@ def produs_nou():
         conn.close()
 
 
+@app.route('/api/v1/internal/inventory-leakage-detector')
+def inventory_leakage_detector():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Căutăm produsele unde faptic < sistem (lipsă/leakage)
+    # Calculăm deficitul pentru a le pune în top pe cele mai grave
+    query = """
+        SELECT 
+            id,
+            name, 
+            COALESCE(last_faptic_value, 0) as stock_faptic, 
+            COALESCE(last_system_stock, 0) as stock_system,
+            (COALESCE(last_system_stock, 0) - COALESCE(last_faptic_value, 0)) as deficit
+        FROM products 
+        WHERE last_faptic_value < last_system_stock
+        ORDER BY deficit DESC
+        LIMIT 20;
+    """
+    
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        return jsonify({
+            "status": "success",
+            "count": len(rows),
+            "data": rows
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 @app.route('/panou')  # <--- Aceasta este ruta pe care o caută window.location.href
 def orice_nume():
     return render_template('panou.html')

@@ -84,51 +84,21 @@
 
                 </div>
 
-                <div class="card alerts-card">
+               <div class="card alerts-card">
+    <div class="card-header">
+        <h3>Detector Pierderi Stoc</h3>
+        <span class="badge badge-danger">0 Urgențe</span>
+    </div>
 
-                    <div class="card-header">
-                        <h3>Stoc Critic</h3>
-                        <span class="badge badge-danger">{{ stats.alerts if stats else 0 }} Urgențe</span>
-                    </div>
+    <div class="critical-list">
+        <p style="padding: 1rem; color: #64748b;">Se încarcă datele...</p>
+    </div>
 
-                    <div class="critical-list">
-
-                        {% for item in critical_products %}
-
-                        <div class="critical-item">
-
-                            <div class="item-info">
-                                <strong>{{ item.name }}</strong>
-                                <span>Rămas: {{ item.stock }} buc.</span>
-                            </div>
-
-                            <div class="progress-bar-mini">
-                                <div class="progress-fill red" style="width:20%;"></div>
-                            </div>
-
-                        </div>
-
-                        {% else %}
-
-                        <div class="critical-item">
-
-                            <div class="item-info">
-                                <strong>Momentan nu sunt alerte</strong>
-                                <span>Toate produsele sunt în stoc.</span>
-                            </div>
-
-                        </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                    <a href="/produse" class="view-all">
-                        Vezi tot inventarul
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-
-                </div>
+    <a href="javascript:void(0)" onclick="openInventoryModal()" class="view-all">
+        Verifică Audit Complet
+        <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
 
             </div>
 

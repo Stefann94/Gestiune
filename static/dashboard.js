@@ -36,7 +36,7 @@ async function initDashboardCharts() {
                     {
                         label: 'Stoc Sistem',
                         data: stocSistem,
-                        backgroundColor: '#ff0008', // Verde
+                        backgroundColor: '#006b29', // Verde
                         borderRadius: 4,
                         barPercentage: 0.9, // Face barele puțin mai subțiri și elegante
                     },
@@ -95,3 +95,51 @@ async function initDashboardCharts() {
         console.error("Eroare la încărcarea graficului:", err);
     }
 }
+
+async function refreshCriticalAlerts() {
+    const container = document.querySelector('.critical-list');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/v1/internal/inventory-leakage-detector');
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data.length > 0) {
+            container.innerHTML = result.data.map(item => {
+                // Calculăm procentul de umplere (cât avem din cât ar trebui să fie)
+                const procent = (item.stock_faptic / item.stock_system * 100) || 0;
+                
+                return `
+                <div class="critical-item">
+                    <div class="item-info">
+                        <strong>${item.name}</strong>
+                        <span style="color: #ef4444; font-weight: 600;">
+                            Raft: ${item.stock_faptic} / Sistem: ${item.stock_system}
+                        </span>
+                    </div>
+                    <div class="progress-bar-mini">
+                        <div class="progress-fill red" style="width: ${procent}%;"></div>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            // Actualizăm și badge-ul de sus cu numărul corect
+            const badge = document.querySelector('.alerts-card .badge');
+            if (badge) badge.textContent = `${result.count} Urgențe`;
+
+        } else {
+            container.innerHTML = `
+                <div class="critical-item">
+                    <div class="item-info">
+                        <strong>Stoc Sincronizat</strong>
+                        <span>Nu există discrepanțe negative în acest moment.</span>
+                    </div>
+                </div>`;
+        }
+    } catch (err) {
+        console.error("Eroare la detectorul de scurgeri:", err);
+    }
+}
+
+// Chemăm funcția când se încarcă dashboard-ul
+document.addEventListener('DOMContentLoaded', refreshCriticalAlerts);
