@@ -37,15 +37,15 @@ async function initDashboardCharts() {
                         label: 'Stoc Sistem',
                         data: stocSistem,
                         backgroundColor: '#ff0008', // Verde
-                        borderRadius: 5,
-                        barPercentage: 0.6, // Face barele puțin mai subțiri și elegante
+                        borderRadius: 4,
+                        barPercentage: 0.9, // Face barele puțin mai subțiri și elegante
                     },
                     {
                         label: 'Stoc Faptic',
                         data: stocFaptic,
                         backgroundColor: '#10b981', // Roșu
-                        borderRadius: 5,
-                        barPercentage: 0.6,
+                        borderRadius: 4,
+                        barPercentage: 0.9,
                     }
                 ]
             },
