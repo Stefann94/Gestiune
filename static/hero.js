@@ -43,15 +43,14 @@ window.initHero = function (total, alerts, moves) {
                         <span class="label">Mișcări Azi</span>
                     </div>
                 </div>
-                    <div class="stat-item action-history" onclick="openLedgerModal()" style="cursor:pointer;">
-                        <div class="stat-icon dark" style="background: rgba(16, 185, 129, 0.1); color: #064e3b;">
-                            <i class="fas fa-history"></i>
-                        </div>
-                        <div class="stat-data">
-                            <span class="value">Ledger</span>
-                            <span class="label">Istoric Operatiuni</span>
-                        </div>
+                <div class="stat-item action-history" onclick="openLedgerModal()" style="cursor:pointer;">
+                    <div class="stat-icon dark" style="background: #10b981; color: #ffffff; border: none;">
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
+                    <div class="stat-data">
+                        <span class="value" style="color: #ffffff; font-weight: 600; font-size: 0.95rem;">Registru</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>`;

@@ -229,3 +229,78 @@
     .detail-box { background: white; padding: 0.5rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; }
     .detail-box label { display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
     .detail-box span { font-weight: 700; color: #1e293b; }
+
+
+    /* --- LEDGER COMPACT DESIGN --- */
+
+/* 1. Micșorăm modalul pentru a elimina spațiul gol de pe centru */
+#ledgerModal .inventory-modal-wide {
+    max-width: 500px; /* Mult mai îngust, stil telefon/card */
+    width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. Resetăm stilul rândurilor (Eliminăm bara verde groasă din stânga) */
+.ledger-item {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important; /* Bordură fină peste tot în loc de bară laterală */
+    border-left: 1px solid #e2e8f0 !important; /* Suprascriem regula veche de 5px */
+    border-radius: 10px !important;
+    margin-bottom: 0.6rem !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.ledger-item:hover {
+    border-color: #10b981 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 3. Butonul (Header-ul) operațiunii - mai mic și mai strâns */
+.ledger-summary {
+    padding: 0.7rem 1rem !important;
+    display: flex;
+    justify-content: space-between; /* Împinge conținutul spre margini */
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 4. Iconițele din stânga - mai finuțe */
+.ledger-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.9rem;
+}
+
+/* 5. Etichetele (Type Badge) - mai mici */
+.ledger-type {
+    font-size: 0.65rem !important;
+    padding: 0.2rem 0.5rem !important;
+    letter-spacing: 0.05em;
+    
+    /* FIX PENTRU CENTRARE */
+    min-width: 100px;      /* Oferă o lățime minimă egală pentru toate */
+    text-align: center;    /* Centrează textul (Ștergere, Adăugare, etc.) în interiorul badge-ului */
+    display: inline-block;
+    flex-shrink: 0;        /* Împiedică badge-ul să se turtească dacă numele produsului e lung */
+}
+
+/* 6. Zona de detalii (ce se deschide la click) */
+.ledger-details {
+    padding: 0.8rem !important;
+    background: #f8fafc !important;
+    gap: 0.6rem !important;
+}
+
+.detail-box {
+    padding: 0.4rem !important;
+}
+
+.detail-box label {
+    font-size: 0.6rem !important; /* Label-uri sistem/faptic foarte mici */
+}
