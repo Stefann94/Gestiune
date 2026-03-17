@@ -69,55 +69,55 @@
             </div>
         </section>
 
-        <section class="main-content-layout">
-            <div class="content-column visual-analysis">
-                <div class="card glass-dark">
-                    <div class="card-header">
-                        <h3>Distribuție Valoare per Categorie</h3>
-                        <div class="chart-legend-custom" id="customLegend"></div>
-                    </div>
-                    <div class="chart-container-large">
-                        <canvas id="polarChart"></canvas>
-                    </div>
+<section class="main-bento-grid">
+    <div class="bento-chart-area">
+        <div class="card glass-dark bento-full-card">
+            <div class="card-header">
+                <h3>Distribuție Valoare per Categorie</h3>
+                <div class="chart-legend-custom" id="customLegend"></div>
+            </div>
+            <div class="bento-chart-wrapper">
+                <canvas id="polarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="bento-actions-sidebar">
+        <div class="card glass gradient-border bento-sub-card">
+            <h3>Bulk Operations</h3>
+            <div class="bulk-control">
+                <p>Ajustează Preț Global (%)</p>
+                <div class="fancy-input-group">
+                    <input type="number" id="bulkPricePercent" placeholder="0.00">
+                    <button class="btn-action" id="applyBulkPrice">Aplică</button>
                 </div>
             </div>
+        </div>
 
-            <div class="content-column quick-actions">
-                <div class="card glass gradient-border">
-                    <h3>Bulk Operations</h3>
-                    <div class="bulk-control">
-                        <p>Ajustează Preț Global (%)</p>
-                        <div class="fancy-input-group">
-                            <input type="number" id="bulkPricePercent" placeholder="0.00">
-                            <button class="btn-action" id="applyBulkPrice">Aplică</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card glass">
-                    <div class="card-header-flex">
-                        <h3>Stock Inactiv</h3>
-                        <span class="badge-count">60 zile+</span>
-                    </div>
-                    <ul class="dead-stock-list">
-                        <li>
-                            <div class="item-meta">
-                                <strong>Monitor Gaming AOC</strong>
-                                <span>3 buc rămase</span>
-                            </div>
-                            <span class="action-tag">Reducere 10%</span>
-                        </li>
-                        <li>
-                            <div class="item-meta">
-                                <strong>Tastatură Mecanică</strong>
-                                <span>12 buc rămase</span>
-                            </div>
-                            <span class="action-tag">Reducere 15%</span>
-                        </li>
-                    </ul>
-                </div>
+        <div class="card glass bento-sub-card">
+            <div class="card-header-flex">
+                <h3>Stock Inactiv</h3>
+                <span class="badge-count">60 zile+</span>
             </div>
-        </section>
+            <ul class="dead-stock-list">
+                <li>
+                    <div class="item-meta">
+                        <strong>Monitor Gaming AOC</strong>
+                        <span>3 buc rămase</span>
+                    </div>
+                    <span class="action-tag">Reducere 10%</span>
+                </li>
+                <li>
+                    <div class="item-meta">
+                        <strong>Tastatură Mecanică</strong>
+                        <span>12 buc rămase</span>
+                    </div>
+                    <span class="action-tag">Reducere 15%</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
 
 
     </main>
