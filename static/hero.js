@@ -61,32 +61,31 @@ window.initHero = function (total, alerts, moves) {
     let debounceTimer;
 
     // --- LOGICA PENTRU SUGESTII ---
-// În hero.js, înlocuiește vechiul renderSuggestions cu acesta:
-const renderSuggestions = (products) => {
-    if (!products || products.length === 0) {
-        suggestionsBox.style.display = 'none';
-        return;
-    }
+    // În hero.js, înlocuiește vechiul renderSuggestions cu acesta:
+    const renderSuggestions = (products) => {
+        if (!products || products.length === 0) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
 
-    suggestionsBox.innerHTML = products.map(p => `
-        <div class="suggestion-item" onclick="window.location.href='/produs/${p.id}'">
-            <div class="suggestion-info">
-                <span class="suggestion-name">${p.name}</span>
-                <span class="suggestion-sku">${p.sku}</span>
-            </div>
-            <div class="suggestion-stock-badge">
-                ${p.stock} <small>buc</small>
-            </div>
+        suggestionsBox.innerHTML = products.map(p => `
+    <div class="suggestion-item" onclick="jumpToAuditProduct(${p.id})">
+        <div class="suggestion-info">
+            <span class="suggestion-name">${p.name}</span>
+            <span class="suggestion-sku">${p.sku}</span>
         </div>
-    `).join('');
-    
-    suggestionsBox.style.display = 'block';
-};
+        <div class="suggestion-stock-badge">
+            ${p.stock !== null ? p.stock : 0} <small>faptic</small>
+        </div>
+    </div>
+`).join('');
+        suggestionsBox.style.display = 'block';
+    };
 
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.trim();
         clearTimeout(debounceTimer);
-        
+
         if (term.length < 2) {
             suggestionsBox.style.display = 'none';
             return;
@@ -115,7 +114,7 @@ const renderSuggestions = (products) => {
     };
 
     searchBtn.addEventListener('click', triggerFullSearch);
-    
+
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             suggestionsBox.style.display = 'none';
@@ -129,4 +128,40 @@ const renderSuggestions = (products) => {
             suggestionsBox.style.display = 'none';
         }
     });
+};
+
+window.jumpToAuditProduct = function(productId) {
+    // 1. Închidem sugestiile de search (dacă sunt deschise)
+    const suggestionsBox = document.getElementById('search-suggestions');
+    if (suggestionsBox) suggestionsBox.style.display = 'none';
+
+    // 2. Deschiem modalul de Audit
+    openInventoryModal();
+
+    // 3. Așteptăm un timp scurt pentru ca modalul să fie vizibil în DOM
+    setTimeout(() => {
+        // Găsim rândul corespunzător ID-ului
+        const row = document.querySelector(`.product-row[data-id="${productId}"]`);
+
+        if (row) {
+            // Curățăm orice highlight anterior de pe alte rânduri
+            document.querySelectorAll('.product-row').forEach(r => r.classList.remove('highlight-target'));
+
+            // Resetăm filtrele pentru a fi siguri că produsul e vizibil
+            document.getElementById('inventorySearch').value = '';
+            filterByStatus('all'); 
+
+            // Scroll lin către rândul respectiv în interiorul modalului
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Adăugăm o clasă pentru animație vizuală
+            row.classList.add('highlight-target');
+
+            // Punem focus pe input-ul faptic al acelui produs pentru editare rapidă
+            const fapticInput = row.querySelector('.faptic-input');
+            if (fapticInput) fapticInput.focus();
+        } else {
+            console.warn("Produsul nu a fost găsit în tabelul de audit curent.");
+        }
+    }, 300);
 };

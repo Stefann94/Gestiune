@@ -351,3 +351,34 @@
 .btn-fix-stock:hover i {
     transform: none !important; /* Forțăm oprirea rotației sau mișcării iconiței */
 }
+
+/* Stil pentru rândul selectat din sugestii */
+.product-row.highlight-target {
+    background-color: rgba(16, 185, 129, 0.2) !important; /* Verde pal */
+    outline: 2px solid #10b981;
+    transition: all 0.5s ease;
+    animation: highlightPulse 2s ease-out;
+}
+
+@keyframes highlightPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+    50% { transform: scale(1.01); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    100% { transform: scale(1); box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+}
+.product-row.highlight-target {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    outline: 2px solid #10b981;
+    /* Durata animației de puls să fie tot cam de 2 secunde */
+    animation: highlightPulse 2s ease-out;
+}
+
+/* Adăugăm tranziție pe clasa de bază pentru un "fade out" fin */
+.product-row {
+    transition: background-color 0.8s ease, outline 0.5s ease;
+}
+
+@keyframes highlightPulse {
+    0% { box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+    30% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    100% { box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+}

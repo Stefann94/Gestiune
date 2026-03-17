@@ -192,7 +192,36 @@ function updateRowStatus(input) {
 
 }
 
+window.jumpToAuditProduct = function(productId) {
+    const suggestionsBox = document.getElementById('search-suggestions');
+    if (suggestionsBox) suggestionsBox.style.display = 'none';
 
+    openInventoryModal();
+
+    setTimeout(() => {
+        const row = document.querySelector(`.product-row[data-id="${productId}"]`);
+
+        if (row) {
+            // Curățăm orice highlight anterior
+            document.querySelectorAll('.product-row').forEach(r => r.classList.remove('highlight-target'));
+
+            document.getElementById('inventorySearch').value = '';
+            filterByStatus('all'); 
+
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.add('highlight-target');
+
+            const fapticInput = row.querySelector('.faptic-input');
+            if (fapticInput) fapticInput.focus();
+
+            // --- LOGICA PENTRU DURATĂ DE 2 SECUNDE ---
+            setTimeout(() => {
+                row.classList.remove('highlight-target');
+            }, 2000); // 2000ms = 2 secunde
+            // ----------------------------------------
+        }
+    }, 300);
+};
 
 // --- 3. SALVARE (AICI SE PRODUCE MUTAREA ÎN CATEGORII) ---
 
