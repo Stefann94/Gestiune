@@ -37,7 +37,9 @@
                 <div class="kpi-icon money"><i class="fas fa-wallet"></i></div>
                 <div class="kpi-info">
                     <span class="label">Valoare Inventar</span>
-                    <h2 class="value">{{ "{:,.2f}".format(valoare) }} <small>RON</small></h2>
+                    <h2 class="value" id="totalInventoryValue">
+                        {{ "{:,.2f}".format(valoare) }} <small>RON</small>
+                    </h2>
                     <span class="trend up"><i class="fas fa-arrow-up"></i> 12% vs luna trecută</span>
                 </div>
             </div>
@@ -117,48 +119,7 @@
             </div>
         </section>
 
-        <section class="table-section">
-            <div class="card glass no-padding">
-                <div class="table-header-custom">
-                    <h3>Monitorizare Stocuri Critice</h3>
-                    <div class="table-filters">
-                        <input type="text" placeholder="Caută în critice..." id="tableSearch">
-                    </div>
-                </div>
-                <div class="modern-table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Produs</th>
-                                <th>Stare</th>
-                                <th>Stoc Curent</th>
-                                <th>Prag Minim</th>
-                                <th class="text-right">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in critice %}
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        <div class="product-img">{{ p.name[0] }}</div>
-                                        <div>
-                                            <p class="p-name">{{ p.name }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-indicator-dot critical"></span> Critic</td>
-                                <td><strong class="text-danger">{{ p.stock }} buc</strong></td>
-                                <td>{{ p.stock_min }}</td>
-                                <td class="text-right"><button class="btn-table-save"><i
-                                            class="fas fa-save"></i></button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+
     </main>
     <div id="valoareModal" class="modal-overlay">
         <div class="inventory-modal-wide analysis-modal">

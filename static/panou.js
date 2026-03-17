@@ -193,3 +193,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log("Dashboard Master inițializat cu succes.");
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const invElement = document.getElementById('totalInventoryValue');
+    
+    if (invElement) {
+        // Luăm lungimea textului curat (fără RON și spații)
+        const textValue = invElement.innerText.replace('RON', '').trim();
+        const charCount = textValue.length;
+
+        invElement.classList.remove('val-medium', 'val-small');
+
+        // Praguri noi, testate pentru lățimea cardului tău:
+        if (charCount > 12) { 
+            // Peste 1.000.000,00 (12 caractere cu tot cu virgule)
+            invElement.classList.add('val-small');
+        } else if (charCount > 8) { 
+            // Peste 10.000,00
+            invElement.classList.add('val-medium');
+        }
+        // Sub 8 caractere rămâne la dimensiunea gigant de 2.2rem
+    }
+});

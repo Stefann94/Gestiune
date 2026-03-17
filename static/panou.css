@@ -102,7 +102,43 @@ body {
     grid-template-columns: 1.6fr 1fr;
     gap: 2rem;
 }
+/* --- OPTIMIZARE SPATIU VALOARE INVENTAR --- */
 
+#totalInventoryValue {
+    display: flex !important;
+    align-items: baseline;
+    justify-content: flex-start; /* Aliniere la stânga pentru a folosi tot spațiul din dreapta */
+    gap: 4px;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    
+    /* Fontul de start: Îl facem mai mare (2.2rem) */
+    font-size: 2.2rem !important; 
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* Dacă suma e medie (ex: 10.000,00 - 100.000,00) */
+#totalInventoryValue.val-medium {
+    font-size: 1.8rem !important; /* Încă destul de mare */
+    letter-spacing: -0.7px;
+}
+
+/* Dacă suma e mare (ex: Milioane) */
+#totalInventoryValue.val-small {
+    font-size: 1.5rem !important; /* Nu mai coborâm la 1.1, rămânem la o mărime lizibilă */
+    letter-spacing: -1px;
+}
+
+/* Ajustăm RON-ul să nu fie un "pitic", dar nici să nu încurce */
+#totalInventoryValue small {
+    font-size: 0.8rem !important; /* RON mai vizibil */
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    vertical-align: baseline;
+}
 .card {
     background: #ffffff;
     border-radius: 1.5rem;
