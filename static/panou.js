@@ -279,5 +279,48 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 })();
 
+// În interiorul panou.js, la finalul fișierului
+async function updateVerificariStoc() {
+    console.log("Se încearcă preluarea verificărilor de stoc..."); // DEBUG
+    try {
+        const response = await fetch('/api/stats/stock-verificare');
+        const data = await response.json();
+        
+        console.log("Date primite:", data); // DEBUG - Vezi în Consolă (F12) ce vine
+
+        const listContainer = document.querySelector('.dead-stock-list');
+        if (!listContainer) {
+            console.error("Nu am găsit containerul .dead-stock-list");
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            listContainer.innerHTML = '<li style="justify-content: center; opacity: 0.6;">Toate stocurile sunt aliniate</li>';
+            return;
+        }
+
+        listContainer.innerHTML = data.map(item => `
+            <li>
+                <div class="item-meta">
+                    <strong>${item.name}</strong>
+                    <span>Sistem: ${item.sistem} | Faptic: ${item.faptic}</span>
+                </div>
+                <span class="action-tag" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+                    Dif: -${item.diferenta} buc
+                </span>
+            </li>
+        `).join('');
+
+    } catch (err) {
+        console.error("Eroare la popularea listei de verificare:", err);
+    }
+}
+
+// Apelează funcția imediat
+updateVerificariStoc();
+
+// Apeși funcția la încărcare
+document.addEventListener('DOMContentLoaded', updateVerificariStoc);
+
     console.log("Dashboard Master inițializat cu succes.");
 });

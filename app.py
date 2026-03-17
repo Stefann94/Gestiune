@@ -1616,6 +1616,31 @@ def get_top_performanta_mix():
     finally:
         cur.close()
         conn.close()
+        
+        
+@app.route('/api/stats/stock-verificare')
+def get_stock_verificare():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        cur.execute("""
+            SELECT 
+                name, 
+                COALESCE(last_faptic_value, 0) as faptic, 
+                COALESCE(last_system_stock, 0) as sistem,
+                (COALESCE(last_system_stock, 0) - COALESCE(last_faptic_value, 0)) as diferenta
+            FROM products 
+            WHERE (last_system_stock - last_faptic_value) BETWEEN 1 AND 5
+            ORDER BY updated_at DESC
+        """)
+        data = cur.fetchall()
+        return jsonify(data)
+    except Exception as e:
+        print(f"Eroare SQL Verificare: {e}")
+        return jsonify([])
+    finally:
+        cur.close()
+        conn.close()
 
 
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
