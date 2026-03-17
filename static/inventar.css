@@ -316,9 +316,9 @@
 /* --- ADAUGĂ ACEST COD ÎN INVENTAR.CSS --- */
 
 .btn-fix-stock {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     padding: 0.7rem 1.2rem;
     border-radius: 0.6rem;
     font-size: 0.9rem;
@@ -327,15 +327,16 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap; /* Previne ruperea textului pe două rânduri */
+    transition: background 0.2s ease, box-shadow 0.2s ease; /* Doar tranziție de culoare */
+    white-space: nowrap;
+    flex: 0 0 auto;
 }
 
 .btn-fix-stock:hover {
-    background: #f59e0b; /* Culoare de avertizare/resetare (chihlimbar) */
-    border-color: #f59e0b;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    transform: translateY(-2px);
+    background: #10b981 !important; /* Verdele smarald din restul site-ului */
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: none !important; /* Forțăm oprirea ridicării */
 }
 
 .btn-fix-stock:active {
@@ -348,5 +349,5 @@
 }
 
 .btn-fix-stock:hover i {
-    transform: rotate(-180deg); /* Efect de resetare vizuală */
+    transform: none !important; /* Forțăm oprirea rotației sau mișcării iconiței */
 }

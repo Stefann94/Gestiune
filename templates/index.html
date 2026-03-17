@@ -221,20 +221,20 @@
 
             <div class="inventory-filters-nav">
 
-                <div style="display:flex;gap:1rem;flex:0 1 auto;align-items:center;">
+<div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: wrap;">
 
-                    <div class="search-container-audit">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..."
-                            onkeyup="filterInventory()">
-                    </div>
+    <div class="search-container-audit" style="position: relative; flex: 0 1 20rem; min-width: 12rem; max-width: 100%;">
+        <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: #10b981;"></i>
+        <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..." onkeyup="filterInventory()" 
+               style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.25rem; box-sizing: border-box; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.6rem; font-size: 0.9rem; background: rgba(255, 255, 255, 0.1); color: white;">
+    </div>
 
-                    <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()"
-                        title="Mergi la analiza urgențelor">
-                        <i class="fas fa-arrow-right"></i> Fix Stoc
-                    </button>
+    <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()" title="Mergi la analiza urgențelor">
+        <i class="fas fa-arrow-right"></i> 
+        <span>Fix Stoc</span>
+    </button>
 
-                </div>
+</div>
 
                 <div class="filter-pills-audit">
 
