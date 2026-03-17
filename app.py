@@ -227,7 +227,50 @@ def orice_nume():
     return render_template('panou.html')
 
 
+@app.route('/api/v1/internal/inventory-omnisearch')
+def inventory_omnisearch():
+    # Preluăm query-ul din URL
+    term = request.args.get('term', '').strip()
+    
+    if not term:
+        return jsonify({"status": "empty", "results": []})
 
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Căutăm în nume, SKU și folosim și coloana last_audit_status din imaginea ta
+    query = """
+        SELECT 
+            id, 
+            name, 
+            sku, 
+            price, 
+            last_faptic_value as stock,
+            last_audit_status as status
+        FROM products 
+        WHERE (name ILIKE %s OR sku ILIKE %s)
+        ORDER BY name ASC
+        LIMIT 15;
+    """
+    
+    try:
+        search_pattern = f"%{term}%"
+        cur.execute(query, (search_pattern, search_pattern))
+        rows = cur.fetchall()
+        
+        # Returnăm un obiect structurat pentru a fi extensibil pe viitor
+        return jsonify({
+            "status": "success",
+            "count": len(rows),
+            "data": rows
+        })
+        
+    except Exception as e:
+        print(f"CRITICAL SEARCH ERROR: {e}")
+        return jsonify({"status": "error", "message": "Eroare la procesarea căutării"}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route('/api/audit-save', methods=['POST'])
 def audit_save():

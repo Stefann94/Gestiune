@@ -231,3 +231,98 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* --- STILIZARE SUGESTII SEARCH (TEMA BRAND VERDE) --- */
+
+/* --- VARIANTA FINALĂ: FĂRĂ BARE ALBE, FĂRĂ SCROLLBAR IEȘIT DIN RADIUS --- */
+
+.suggestions-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    
+    /* 1. Rotunjire completă pe toate colțurile */
+    border-radius: 1rem; 
+    
+    /* 2. IMPORTANT: Taie tot ce iese din rotunjire (inclusiv scrollbar-ul nativ) */
+    overflow: hidden; 
+    
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    max-height: 380px;
+    border: 1px solid #e5e7eb;
+    animation: modalAppear 0.2s ease-out;
+    
+    /* 3. Permite scroll-ul dar forțează respectarea limitelor de mai sus */
+    overflow-y: auto;
+}
+
+/* --- FIX SCROLLBAR: Să nu atingă colțurile rotunjite --- */
+.suggestions-dropdown::-webkit-scrollbar {
+    width: 6px; /* Îl facem mai finuț */
+}
+
+.suggestions-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+    /* 4. Lasă 10px liberi sus și jos ca să nu se bată cu rotunjirea colțului */
+    margin: 10px 0; 
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 10px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}
+
+/* --- ELEMENTELE DIN LISTĂ --- */
+.suggestion-item {
+    padding: 0.9rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    background: #ffffff;
+    transition: background 0.2s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: #f0fdf4; /* Verdele tău de hover */
+}
+
+/* Detalii text */
+.suggestion-name {
+    font-weight: 700;
+    color: #064e3b;
+    font-size: 0.95rem;
+    display: block;
+}
+
+.suggestion-sku {
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+}
+
+/* Badge Stoc */
+.suggestion-stock-badge {
+    background: #dcfce7;
+    color: #059669;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
