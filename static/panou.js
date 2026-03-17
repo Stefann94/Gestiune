@@ -1,37 +1,31 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Verificăm dacă venim din pagina de Inventar cu dorința de a deschide modalul
+    // --- 0. LOGICĂ REDIRECȚIONARE ȘI MODAL AUTOMAT (DIN INVENTAR) ---
     if (localStorage.getItem('openUrgenteModal') === 'true') {
-
         setTimeout(() => {
-            // Verificăm dacă funcția de deschidere a tabelului de audit există
             if (typeof openFixStocModal === 'function') {
                 console.log("Redirecționare directă către Fixare Stoc & Audit...");
                 openFixStocModal();
             } else {
-                // Fallback: Dacă nu e încărcat fixstoc.js, forțăm afișarea modalului
                 const fixModal = document.getElementById('fixStocModal');
                 if (fixModal) {
                     fixModal.style.display = 'flex';
                     fixModal.classList.add('active');
                     document.body.classList.add('modal-open');
-                    // Încercăm să încărcăm datele dacă funcția e disponibilă
                     if (typeof incarcaDateFixStoc === 'function') incarcaDateFixStoc();
                 }
             }
-
-            // Ștergem flag-ul
             localStorage.removeItem('openUrgenteModal');
         }, 500);
     }
 
-    // --- 1. CONFIGURARE GRAFIC POLAR (Categorii) ---
+    // --- 1. CONFIGURARE GRAFIC POLAR (Top Performanță Mix) ---
     const ctx = document.getElementById('polarChart').getContext('2d');
-    let myChart; // Păstrăm referința pentru a-l putea actualiza
+    let myChart; 
 
     function initChart(labels, values) {
         if (myChart) {
-            myChart.destroy(); // Distrugem graficul vechi dacă facem refresh
+            myChart.destroy(); 
         }
 
         myChart = new Chart(ctx, {
@@ -41,14 +35,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     data: values,
                     backgroundColor: [
-                        'rgba(16, 185, 129, 0.7)', // Verde
+                        'rgba(16, 185, 129, 0.7)', // Emerald
+                        'rgba(245, 158, 11, 0.7)', // Gold
                         'rgba(99, 102, 241, 0.7)', // Indigo
-                        'rgba(245, 158, 11, 0.7)', // Chihlimbar
-                        'rgba(239, 68, 68, 0.7)',  // Roșu
-                        'rgba(100, 116, 139, 0.7)', // Slate
-                        'rgba(14, 165, 233, 0.7)'  // Sky
+                        'rgba(239, 68, 68, 0.7)',  // Rose
+                        'rgba(14, 165, 233, 0.7)', // Sky
+                        'rgba(139, 92, 246, 0.7)', // Purple
+                        'rgba(236, 72, 153, 0.7)', // Pink
+                        'rgba(20, 184, 166, 0.7)'  // Teal
                     ],
-                    borderWidth: 0
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
                 }]
             },
             options: {
@@ -56,8 +53,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 maintainAspectRatio: false,
                 scales: {
                     r: {
-                        grid: { color: 'rgba(0,0,0,0.05)' },
-                        ticks: { display: false }
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { display: false },
+                        suggestedMin: 0
                     }
                 },
                 plugins: {
@@ -65,8 +63,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         position: 'right',
                         labels: {
                             usePointStyle: true,
-                            padding: 25,
-                            font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' }
+                            padding: 20,
+                            font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                            color: '#334155'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` Scor Performanță: ${context.raw.toLocaleString()}`;
+                            }
                         }
                     }
                 }
@@ -74,14 +80,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Preluare date reale pentru grafic
-    fetch('/api/stats/categorii')
-        .then(res => res.json())
-        .then(data => {
-            initChart(data.labels, data.values);
-        })
-        .catch(err => console.error("Eroare incarcare categorii:", err));
+    function refreshTopPerformanceChart() {
+        fetch('/api/stats/top-performanta-mix')
+            .then(res => res.json())
+            .then(data => {
+                initChart(data.labels, data.values);
+            })
+            .catch(err => console.error("Eroare la preluarea datelor:", err));
+    }
 
+    refreshTopPerformanceChart();
 
     // --- 2. LOGICĂ MODAL ANALIZĂ (Card Valoare Inventar) ---
     const cardValoare = document.querySelector('.kpi-card.glass:first-child');
@@ -91,82 +99,62 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cardValoare) {
         cardValoare.style.cursor = "pointer";
         cardValoare.addEventListener('click', () => {
-            modal.classList.add('active');
-            document.body.classList.add('modal-open'); // ÎNGHEAȚĂ PAGINA DIN SPATE
+            if(modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+                document.body.classList.add('modal-open');
 
-            // --- În interiorul panou.js, înlocuiește secțiunea FETCH de la punctul 2 ---
+                fetch('/api/stats/top-produse')
+                    .then(res => res.json())
+                    .then(data => {
+                        const listaScumpe = document.getElementById('listaScumpe');
+                        const listaVandute = document.getElementById('listaVandute');
 
-            fetch('/api/stats/top-produse')
-                .then(res => res.json())
-                .then(data => {
-                    const listaScumpe = document.getElementById('listaScumpe');
-                    const listaVandute = document.getElementById('listaVandute');
+                        if (data.scumpe && data.scumpe.length > 0) {
+                            listaScumpe.innerHTML = data.scumpe.map(p => `
+                                <tr>
+                                    <td><strong>${p.name}</strong></td>
+                                    <td class="text-right">
+                                        <strong class="text-gold">${parseFloat(p.price).toFixed(2)} RON</strong>
+                                    </td>
+                                </tr>
+                            `).join('');
+                        }
 
-                    // 1. Populare Cele mai Scumpe
-                    if (data.scumpe && data.scumpe.length > 0) {
-                        listaScumpe.innerHTML = data.scumpe.map(p => `
-                <tr>
-                    <td><strong>${p.name}</strong></td>
-                    <td class="text-right">
-                        <strong class="text-gold">${parseFloat(p.price).toFixed(2)} RON</strong>
-                    </td>
-                </tr>
-            `).join('');
-                    } else {
-                        listaScumpe.innerHTML = '<tr><td colspan="2">Fără date disponibile</td></tr>';
-                    }
-
-                    // 2. Populare Cele mai Vândute (Fără simbolul #)
-                    if (data.vandute && data.vandute.length > 0) {
-                        listaVandute.innerHTML = data.vandute.map(p => {
-                            const total = parseInt(p.total_vandut) || 0;
-                            return `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <strong style="color: #1e293b;">${p.name}</strong>
-                            </div>
-                        </td>
-                        <td class="text-right">
-                            <strong class="text-orange" style="font-size: 1.1rem;">
-                                ${total} <small style="font-weight: 400; font-size: 0.8rem; color: #64748b;">unități</small>
-                            </strong>
-                        </td>
-                    </tr>
-                `;
-                        }).join('');
-                    } else {
-                        listaVandute.innerHTML = '<tr><td colspan="2" class="text-center">Nicio vânzare înregistrată</td></tr>';
-                    }
-                })
-                .catch(err => {
-                    console.error("Eroare incarcare top produse:", err);
-                    document.getElementById('listaVandute').innerHTML = '<tr><td colspan="2">Eroare la încărcare date</td></tr>';
-                });
+                        if (data.vandute && data.vandute.length > 0) {
+                            listaVandute.innerHTML = data.vandute.map(p => {
+                                const total = parseInt(p.total_vandut) || 0;
+                                return `
+                                    <tr>
+                                        <td><strong>${p.name}</strong></td>
+                                        <td class="text-right">
+                                            <strong class="text-orange" style="font-size: 1.1rem;">
+                                                ${total} <small style="font-weight: 400; font-size: 0.8rem; color: #64748b;">unități</small>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        }
+                    })
+                    .catch(err => console.error("Eroare incarcare top produse:", err));
+            }
         });
     }
 
-    // Închidere Modal
-    // Funcție pentru închidere (reutilizabilă)
     function closeModal() {
-        modal.classList.remove('active');
-        document.body.classList.remove('modal-open'); // DEZGHEAȚĂ PAGINA
+        if(modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
     }
 
-    // Închidere la butonul X
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
-
-    // Închidere la click în afara modalului
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
 
     // --- 3. UI ANIMATIONS & FILTERS ---
-
-    // Animație hover pe carduri KPI
     const kpiCards = document.querySelectorAll('.kpi-card');
     kpiCards.forEach(card => {
         card.addEventListener('mouseenter', () => {
@@ -177,41 +165,119 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Search în tabelul de stocuri critice
-    const tableSearch = document.getElementById('tableSearch');
-    if (tableSearch) {
-        tableSearch.addEventListener('keyup', function () {
-            const value = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.table-section tbody tr');
+    // --- 4. SCALARE DINAMICĂ FONT VALOARE INVENTAR ---
+    const invElement = document.getElementById('totalInventoryValue');
+    if (invElement) {
+        const textValue = invElement.innerText.replace('RON', '').trim();
+        const charCount = textValue.length;
+        invElement.classList.remove('val-medium', 'val-small');
+        if (charCount > 12) { 
+            invElement.classList.add('val-small');
+        } else if (charCount > 8) { 
+            invElement.classList.add('val-medium');
+        }
+    }
 
-            rows.forEach(row => {
-                const productName = row.querySelector('.p-name').textContent.toLowerCase();
-                row.style.display = productName.includes(value) ? '' : 'none';
-            });
+// --- 5. BULK OPERATIONS CU MODAL PERSONALIZAT ---
+(function() {
+    const applyBtn = document.getElementById('applyBulkPrice');
+    const bulkModal = document.getElementById('confirmBulkModal');
+    const cancelBtn = document.getElementById('cancelBulkBtn');
+    const confirmBtn = document.getElementById('confirmBulkBtn');
+    const percentInput = document.getElementById('bulkPricePercent');
+    const messageDisplay = document.getElementById('confirmBulkMessage');
+
+    let pendingPercent = 0;
+
+    // Funcție pentru închidere modal bulk
+    const closeBulkModal = () => {
+        if (bulkModal) {
+            bulkModal.style.display = 'none';
+            bulkModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+    };
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            if (!percentInput) return;
+            
+            const val = parseFloat(percentInput.value);
+            
+            // Validare: să fie număr și să nu fie zero
+            if (isNaN(val) || val === 0) {
+                alert("Te rugăm să introduci un procent valid (ex: 10 pentru adaos, -5 pentru reducere).");
+                return;
+            }
+
+            pendingPercent = val;
+            const tip = val > 0 ? "CREȘTI" : "SCADĂ";
+            const culoare = val > 0 ? "#10b981" : "#ef4444"; // Verde pentru creștere, Roșu pentru scădere
+
+            if (messageDisplay && bulkModal) {
+                messageDisplay.innerHTML = `Ești sigur că vrei să <strong style="color: ${culoare}">${tip}</strong> prețurile cu <strong>${Math.abs(val)}%</strong> pentru TOATE produsele din baza de date?`;
+                
+                // Resetăm butonul de confirmare în caz că a rămas blocat anterior
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Da, Aplică';
+
+                // Afișare modal
+                bulkModal.style.display = 'flex';
+                setTimeout(() => {
+                    bulkModal.classList.add('active');
+                }, 10);
+                document.body.classList.add('modal-open');
+            }
         });
     }
 
-    console.log("Dashboard Master inițializat cu succes.");
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const invElement = document.getElementById('totalInventoryValue');
-    
-    if (invElement) {
-        // Luăm lungimea textului curat (fără RON și spații)
-        const textValue = invElement.innerText.replace('RON', '').trim();
-        const charCount = textValue.length;
-
-        invElement.classList.remove('val-medium', 'val-small');
-
-        // Praguri noi, testate pentru lățimea cardului tău:
-        if (charCount > 12) { 
-            // Peste 1.000.000,00 (12 caractere cu tot cu virgule)
-            invElement.classList.add('val-small');
-        } else if (charCount > 8) { 
-            // Peste 10.000,00
-            invElement.classList.add('val-medium');
-        }
-        // Sub 8 caractere rămâne la dimensiunea gigant de 2.2rem
+    // Event listener pentru butonul Anulează
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeBulkModal);
     }
+
+    // Event listener pentru confirmare și trimitere către server
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async function() {
+            // Prevenim dubla trimitere și arătăm starea de încărcare
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se aplică...';
+
+            try {
+                const response = await fetch('/api/bulk-price-update', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ percent: pendingPercent })
+                });
+
+                if (!response.ok) throw new Error("Eroare la nivel de server");
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // Reîncărcăm pagina pentru a actualiza cardurile KPI (Valoare Inventar)
+                    window.location.reload();
+                } else {
+                    alert("Eroare: " + (result.message || "Nu s-au putut actualiza prețurile."));
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = 'Da, Aplică';
+                }
+            } catch (error) {
+                console.error("Eroare la cererea Bulk Update:", error);
+                alert("Eroare de conexiune. Verifică dacă serverul este pornit.");
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Da, Aplică';
+            }
+        });
+    }
+
+    // Închidere modal la click în exteriorul cardului alb
+    window.addEventListener('click', (e) => {
+        if (e.target === bulkModal) closeBulkModal();
+    });
+})();
+
+    console.log("Dashboard Master inițializat cu succes.");
 });

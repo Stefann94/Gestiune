@@ -523,3 +523,18 @@ body.modal-open {
 .text-success {
     color: #10b981 !important; /* Verdele tău smarald */
 }
+
+.chart-container-large {
+    position: relative;
+    height: 320px; /* Forțăm o înălțime generoasă */
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Ajustăm legenda să fie mai compactă în dreapta sau jos */
+#polarChart {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}

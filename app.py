@@ -898,6 +898,31 @@ def register():
         cur.close()
         conn.close()
 
+@app.route('/api/bulk-price-update', methods=['POST'])
+def bulk_price_update():
+    data = request.get_json()
+    percent = data.get('percent')
+    
+    if percent is None:
+        return jsonify({"status": "error", "message": "Procentul lipsește"}), 400
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Formula: preț nou = preț vechi * (1 + procent/100)
+        # Exemplu: 100 * (1 + 10/100) = 110
+        cur.execute("UPDATE products SET price = price * (1 + %s / 100.0)", (percent,))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({"status": "success", "message": f"Prețurile au fost actualizate cu {percent}%"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -1539,6 +1564,59 @@ def get_stock_discrepancy():
     finally:
         cur.close()
         conn.close()
+
+@app.route('/api/stats/top-performanta-mix')
+def get_top_performanta_mix():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # 1. Eliminăm filtrul de timp strict de 30 de zile sau îl mărim la 1 an
+        # 2. Folosim COALESCE pentru a nu avea valori NULL
+        # 3. Luăm primele 6-8 produse pentru a "umple" vizual cercul polar
+        cur.execute("""
+            SELECT 
+                p.name, 
+                SUM(ABS(COALESCE(h.new_faptic_stock, 0) - COALESCE(h.old_faptic_stock, 0))) as unitati_miscate,
+                p.price,
+                (SUM(ABS(COALESCE(h.new_faptic_stock, 0) - COALESCE(h.old_faptic_stock, 0))) * p.price) as scor_performanta
+            FROM products p
+            LEFT JOIN inventory_history h ON p.id = h.product_id
+            WHERE p.price > 0 
+              -- Putem lăsa filtrul de timp mai larg sau să-l scoatem de tot pentru a popula diagrama
+              AND (h.created_at >= NOW() - INTERVAL '1 year' OR h.created_at IS NULL)
+            GROUP BY p.id, p.name, p.price
+            HAVING (SUM(ABS(COALESCE(h.new_faptic_stock, 0) - COALESCE(h.old_faptic_stock, 0))) * p.price) > 0
+            ORDER BY scor_performanta DESC
+            LIMIT 8  -- 8 elemente arată excelent pe un Polar Chart
+        """)
+        
+        top_mix = cur.fetchall()
+        
+        # Dacă totuși baza de date e aproape goală, luăm pur și simplu top produse după valoare inventar
+        if len(top_mix) < 3:
+            cur.execute("""
+                SELECT name, (faptic_stock * price) as scor_performanta 
+                FROM products 
+                WHERE faptic_stock > 0
+                ORDER BY scor_performanta DESC 
+                LIMIT 8
+            """)
+            top_mix = cur.fetchall()
+
+        labels = [item['name'] for item in top_mix]
+        values = [float(item['scor_performanta']) for item in top_mix]
+        
+        return jsonify({
+            "labels": labels,
+            "values": values
+        })
+    except Exception as e:
+        print(f"Eroare API Mix: {e}")
+        return jsonify({"labels": ["Fără date"], "values": [0]}), 200 # Returnăm 200 ca să nu crape JS-ul
+    finally:
+        cur.close()
+        conn.close()
+
 
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
 def delete_product(id):

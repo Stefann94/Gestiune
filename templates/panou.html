@@ -88,8 +88,8 @@
                     <div class="bulk-control">
                         <p>Ajustează Preț Global (%)</p>
                         <div class="fancy-input-group">
-                            <input type="number" placeholder="0.00">
-                            <button class="btn-action">Aplică</button>
+                            <input type="number" id="bulkPricePercent" placeholder="0.00">
+                            <button class="btn-action" id="applyBulkPrice">Aplică</button>
                         </div>
                     </div>
                 </div>
@@ -372,6 +372,24 @@
             </div>
         </div>
     </div>
+    <div id="confirmBulkModal" class="modal-overlay secondary-modal">
+        <div class="mini-analysis-card" style="max-width: 400px; text-align: center;">
+            <div class="inventory-header-brand">
+                <h2><i class="fas fa-exclamation-triangle text-orange"></i> Confirmare Modificare</h2>
+            </div>
+            <div class="mini-modal-content" style="padding: 20px;">
+                <p id="confirmBulkMessage"
+                    style="font-size: 1.1rem; color: #1e293b; margin-bottom: 25px; line-height: 1.5;"></p>
+                <div style="display: flex; gap: 10px;">
+                    <button id="cancelBulkBtn" class="btn-save-audit"
+                        style="background: #94a3b8 !important; flex: 1;">Anulează</button>
+                    <button id="confirmBulkBtn" class="btn-save-audit"
+                        style="background: #dc2626 !important; flex: 1;">Da, Aplică</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
