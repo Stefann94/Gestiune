@@ -125,25 +125,40 @@ MODAL
 ========================================= */
 
 .analysis-modal {
-
     width: 92%;
     max-width: 42rem;
-
-    max-height: 90vh;
-
+    /* Limităm înălțimea modalului la 90% din ecran */
+    max-height: 90vh; 
     background: white;
-
     border-radius: 0.9rem;
-
     display: flex;
     flex-direction: column;
-
-    overflow: hidden;
-
+    /* Esențial: conținutul care depășește va fi gestionat intern */
+    overflow: hidden; 
     box-shadow: 0 1.2rem 2rem rgba(0, 0, 0, 0.25);
 }
+.receptii-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    
+    /* MODIFICĂRILE CHEIE: */
+    max-height: 400px; /* Setează o înălțime maximă fixă pentru listă */
+    overflow-y: auto;  /* Activează scroll-ul vertical */
+    padding-right: 5px; /* Spațiu pentru bara de scroll să nu acopere textul */
+}
+.receptii-list::-webkit-scrollbar {
+    width: 6px;
+}
+.receptii-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
 
-
+.receptii-list::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 10px;
+}
 /* =========================================
 MODAL HEADER
 ========================================= */
