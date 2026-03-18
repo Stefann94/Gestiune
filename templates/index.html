@@ -84,21 +84,21 @@
 
                 </div>
 
-               <div class="card alerts-card">
-    <div class="card-header">
-        <h3>Detector Pierderi Stoc</h3>
-        <span class="badge badge-danger">0 Urgențe</span>
-    </div>
+                <div class="card alerts-card">
+                    <div class="card-header">
+                        <h3>Detector Pierderi Stoc</h3>
+                        <span class="badge badge-danger">0 Urgențe</span>
+                    </div>
 
-    <div class="critical-list">
-        <p style="padding: 1rem; color: #64748b;">Se încarcă datele...</p>
-    </div>
+                    <div class="critical-list">
+                        <p style="padding: 1rem; color: #64748b;">Se încarcă datele...</p>
+                    </div>
 
-    <a href="javascript:void(0)" onclick="openInventoryModal()" class="view-all">
-        Verifică Audit Complet
-        <i class="fas fa-arrow-right"></i>
-    </a>
-</div>
+                    <a href="javascript:void(0)" onclick="openInventoryModal()" class="view-all">
+                        Verifică Audit Complet
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
 
             </div>
 
@@ -191,20 +191,25 @@
 
             <div class="inventory-filters-nav">
 
-<div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: wrap;">
+                <div
+                    style="display: flex; gap: 1rem; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: wrap;">
 
-    <div class="search-container-audit" style="position: relative; flex: 0 1 20rem; min-width: 12rem; max-width: 100%;">
-        <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: #10b981;"></i>
-        <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..." onkeyup="filterInventory()" 
-               style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.25rem; box-sizing: border-box; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.6rem; font-size: 0.9rem; background: rgba(255, 255, 255, 0.1); color: white;">
-    </div>
+                    <div class="search-container-audit"
+                        style="position: relative; flex: 0 1 20rem; min-width: 12rem; max-width: 100%;">
+                        <i class="fas fa-search"
+                            style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: #10b981;"></i>
+                        <input type="text" id="inventorySearch" placeholder="Caută după nume sau SKU..."
+                            onkeyup="filterInventory()"
+                            style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.25rem; box-sizing: border-box; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.6rem; font-size: 0.9rem; background: rgba(255, 255, 255, 0.1); color: white;">
+                    </div>
 
-    <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()" title="Mergi la analiza urgențelor">
-        <i class="fas fa-arrow-right"></i> 
-        <span>Fix Stoc</span>
-    </button>
+                    <button class="btn-fix-stock" onclick="resetAllUnsavedChanges()"
+                        title="Mergi la analiza urgențelor">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Fix Stoc</span>
+                    </button>
 
-</div>
+                </div>
 
                 <div class="filter-pills-audit">
 
@@ -354,21 +359,21 @@
     </div>
 
     <div id="ledgerModal" class="modal-overlay">
-    <div class="inventory-modal-wide">
-        <div class="inventory-header-brand" style="background: #064e3b;">
-            <div class="header-content">
-                <h2><i class="fas fa-stream"></i> Istoric Operațiuni</h2>
-                <p>Monitorizarea activității în timp real</p>
-            </div>
-            <span class="close-audit-btn" onclick="closeLedgerModal()">&times;</span>
-        </div>
-
-        <div class="modal-body-scroll" style="background: #f0fdf4;">
-            <div id="ledger-container" class="ledger-list">
+        <div class="inventory-modal-wide">
+            <div class="inventory-header-brand" style="background: #064e3b;">
+                <div class="header-content">
+                    <h2><i class="fas fa-stream"></i> Istoric Operațiuni</h2>
+                    <p>Monitorizarea activității în timp real</p>
                 </div>
+                <span class="close-audit-btn" onclick="closeLedgerModal()">&times;</span>
+            </div>
+
+            <div class="modal-body-scroll" style="background: #f0fdf4;">
+                <div id="ledger-container" class="ledger-list">
+                </div>
+            </div>
         </div>
     </div>
-</div>
     <div id="footer-placeholder"></div>
 
     <script src="{{ url_for('static', filename='componente.js') }}"></script>
@@ -380,17 +385,32 @@
     <script src="{{ url_for('static', filename='rapoarte.js') }}"></script>
     <script>
         window.addEventListener('load', () => {
+            // 1. Inițializăm Navbar-ul
             if (typeof initNavbar === "function") initNavbar();
 
-            // Singurul apel initHero necesar
+            // 2. Pregătim datele utilizatorului (Jinja2)
+            // Folosim verificarea directă: dacă nu există în sesiune, trimitem string-ul 'null'
+            const currentUser = {
+                username: "{{ session.get('username') if session.get('username') else 'null' }}",
+                role: "{{ session.get('role') if session.get('role') else 'null' }}"
+            };
+
+            // 3. Singurul apel initHero necesar
             if (typeof initHero === "function") {
+                // Preluăm statisticile (dacă stats există în contextul Python)
+                const totalItems = "{{ stats.total if stats else 0 }}";
+                const alertsCount = "{{ stats.alerts if stats else 0 }}";
+                const movesToday = "{{ stats.moves if stats else 0 }}";
+
                 initHero(
-                    "{{ stats.total }}",   // Din Python: cur.execute("SELECT COUNT(*) FROM products")
-                    "{{ stats.alerts }}",  // Din Python: last_audit_status = 'shortage'
-                    "{{ stats.moves }}"    // Din Python: intrări + ieșiri + updated_at de azi
+                    totalItems,
+                    alertsCount,
+                    movesToday,
+                    currentUser
                 );
             }
 
+            // 4. Inițializăm restul componentelor (Grafice)
             if (typeof initDashboardCharts === "function") {
                 initDashboardCharts();
             }

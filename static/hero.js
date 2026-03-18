@@ -1,13 +1,53 @@
-window.initHero = function (total, alerts, moves) {
+window.initHero = function (total, alerts, moves, user) {
+    // 0. Configurație pentru Roluri (Culori și Iconițe)
+    const roleConfig = {
+        'owner': {
+            icon: 'fa-crown',
+            label: 'Owner',
+            color: '#f59e0b', // Chihlimbar/Aur
+            bg: 'rgba(245, 158, 11, 0.15)'
+        },
+        'admin': {
+            icon: 'fa-user-shield',
+            label: 'Administrator',
+            color: '#8b5cf6', // Mov
+            bg: 'rgba(139, 92, 246, 0.15)'
+        },
+        'operator': {
+            icon: 'fa-user-gear',
+            label: 'Operator',
+            color: '#10b981', // Verde
+            bg: 'rgba(16, 185, 129, 0.15)'
+        },
+        'guest': {
+            icon: 'fa-user-secret',
+            label: 'Vizitator',
+            color: '#64748b',
+            bg: 'rgba(100, 116, 139, 0.15)'
+        }
+    };
+
+    const isGuest = !user ||
+        user.role === null || user.role === 'null' ||
+        user.username === null || user.username === 'null' ||
+        user.role === 'operator' && user.username === 'Utilizator'; // Fallback-ul din index.html
+
+    let role = isGuest ? 'guest' : user.role.toLowerCase();
+    let name = isGuest ? 'Vizitator' : user.username;
+
+    const config = roleConfig[role] || roleConfig['guest'];
+
     const heroHTML = `
     <section class="hero-advanced">
         <div class="hero-wrapper">
             <div class="hero-header">
                 <div class="user-info">
-                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div class="user-avatar" style="background: ${config.bg}; color: ${config.color}; border: 2px solid ${config.color}33;">
+                        <i class="fas ${config.icon}"></i>
+                    </div>
                     <div class="user-text">
-                        <h1>Salutare, Admin!</h1>
-                        <p>Sistemul este online. Ai <span class="highlight">${alerts} alerte</span> de stoc.</p>
+                        <h1>Salutare, ${name}!</h1>
+                        <p>Ești logat ca <span style="color: ${config.color}; font-weight: 800; text-transform: uppercase; font-size: 0.85rem;">${config.label}</span>. Ai <span class="highlight">${alerts} alerte</span> de stoc.</p>
                     </div>
                 </div>
             </div>
@@ -134,7 +174,7 @@ window.initHero = function (total, alerts, moves) {
     });
 };
 
-window.jumpToAuditProduct = function(productId) {
+window.jumpToAuditProduct = function (productId) {
     // 1. Închidem sugestiile de search (dacă sunt deschise)
     const suggestionsBox = document.getElementById('search-suggestions');
     if (suggestionsBox) suggestionsBox.style.display = 'none';
@@ -153,7 +193,7 @@ window.jumpToAuditProduct = function(productId) {
 
             // Resetăm filtrele pentru a fi siguri că produsul e vizibil
             document.getElementById('inventorySearch').value = '';
-            filterByStatus('all'); 
+            filterByStatus('all');
 
             // Scroll lin către rândul respectiv în interiorul modalului
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -177,10 +217,10 @@ window.jumpToAuditProduct = function(productId) {
  */
 
 // Funcție pentru deschiderea modalului de istoric
-window.openLedgerModal = async function() {
+window.openLedgerModal = async function () {
     const modal = document.getElementById('ledgerModal');
     const container = document.getElementById('ledger-container');
-    if(!modal || !container) return;
+    if (!modal || !container) return;
 
     // Afișăm modalul și un loader până vin datele
     modal.style.display = 'flex';
@@ -208,22 +248,22 @@ window.openLedgerModal = async function() {
             const dateObj = new Date(item.created_at);
             const formattedDate = dateObj.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const formattedTime = dateObj.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
-            
+
             // Configurare Vizuală în funcție de tipul operațiunii
             let typeClass = 'type-audit';
             let icon = 'fa-pen-to-square';
             let accentColor = '#10b981'; // Verde (Audit/Modificare)
-            
+
             const typeLower = item.type.toLowerCase();
-            
-            if (typeLower.includes('stergere')) { 
-                typeClass = 'type-stergere'; 
-                icon = 'fa-trash-can'; 
+
+            if (typeLower.includes('stergere')) {
+                typeClass = 'type-stergere';
+                icon = 'fa-trash-can';
                 accentColor = '#ef4444'; // Roșu
-            } 
-            else if (typeLower.includes('adaugare')) { 
-                typeClass = 'type-adaugare'; 
-                icon = 'fa-circle-plus'; 
+            }
+            else if (typeLower.includes('adaugare')) {
+                typeClass = 'type-adaugare';
+                icon = 'fa-circle-plus';
                 accentColor = '#f59e0b'; // Galben/Portocaliu
             }
 
@@ -281,17 +321,17 @@ window.openLedgerModal = async function() {
 /**
  * Deschide/Închide secțiunea de detalii a unei operațiuni
  */
-window.toggleLedgerDetail = function(summaryElement) {
+window.toggleLedgerDetail = function (summaryElement) {
     const details = summaryElement.nextElementSibling;
     if (!details) return;
 
     const isVisible = details.style.display === 'grid';
-    
+
     // Închidem toate celelalte detalii deschise pentru a menține interfața curată
     document.querySelectorAll('.ledger-details').forEach(d => {
         d.style.display = 'none';
     });
-    
+
     // Switch între vizibil/invizibil pentru elementul curent
     details.style.display = isVisible ? 'none' : 'grid';
 }
@@ -299,7 +339,7 @@ window.toggleLedgerDetail = function(summaryElement) {
 /**
  * Închide modalul Ledger
  */
-window.closeLedgerModal = function() {
+window.closeLedgerModal = function () {
     const modal = document.getElementById('ledgerModal');
-    if(modal) modal.style.display = 'none';
+    if (modal) modal.style.display = 'none';
 }
