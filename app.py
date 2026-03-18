@@ -1,12 +1,17 @@
 import io
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
+from functools import wraps
+
+# Am grupat toate importurile din flask într-o singură secțiune curată
+from flask import (
+    Flask, render_template, request, redirect, url_for, 
+    flash, jsonify, send_file, session, abort
+)
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import session
-from flask import render_template
-from flask import request, jsonify
+
 # Biblioteci pentru export
 import pandas as pd
 from reportlab.lib.pagesizes import A4
@@ -898,7 +903,30 @@ def register():
         cur.close()
         conn.close()
 
+# --- DECORATOR PENTRU CONTROL ACCES PE ROLURI ---
+def roles_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Luăm rolul din sesiune și îl curățăm (litere mici + fără spații)
+            user_role = session.get('role', '').lower().strip()
+            
+            # Verificăm dacă rolul utilizatorului este în lista celor permise
+            if user_role not in [r.lower() for r in roles]:
+                # Dacă e o cerere API (JSON), returnăm un mesaj JSON de eroare
+                return jsonify({
+                    "status": "error", 
+                    "message": "Acces interzis! Doar Adminii sau Ownerii pot modifica prețurile."
+                }), 403
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+
 @app.route('/api/bulk-price-update', methods=['POST'])
+@roles_required('admin', 'owner') # <--- Bariera de securitate
 def bulk_price_update():
     data = request.get_json()
     percent = data.get('percent')
@@ -911,16 +939,23 @@ def bulk_price_update():
         cur = conn.cursor()
         
         # Formula: preț nou = preț vechi * (1 + procent/100)
-        # Exemplu: 100 * (1 + 10/100) = 110
+        # Executăm update-ul masiv în baza de date
         cur.execute("UPDATE products SET price = price * (1 + %s / 100.0)", (percent,))
         
         conn.commit()
         cur.close()
         conn.close()
         
-        return jsonify({"status": "success", "message": f"Prețurile au fost actualizate cu {percent}%"})
+        return jsonify({
+            "status": "success", 
+            "message": f"Prețurile au fost actualizate cu {percent}% de către {session.get('username')}"
+        })
     except Exception as e:
+        # În caz de eroare la baza de date, trimitem eroarea înapoi
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
 
 
 @app.route('/api/login', methods=['POST'])
