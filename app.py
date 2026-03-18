@@ -35,6 +35,27 @@ def get_db_connection():
         print(f"Eroare la conectarea DB: {e}")
         return None
 
+
+# --- DECORATOR PENTRU CONTROL ACCES PE ROLURI ---
+def roles_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Luăm rolul din sesiune și îl curățăm (litere mici + fără spații)
+            user_role = session.get('role', '').lower().strip()
+            
+            # Verificăm dacă rolul utilizatorului este în lista celor permise
+            if user_role not in [r.lower() for r in roles]:
+                # Dacă e o cerere API (JSON), returnăm un mesaj JSON de eroare
+                return jsonify({
+                    "status": "error", 
+                    "message": "Acces interzis! Doar Adminii sau Ownerii pot modifica prețurile."
+                }), 403
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 # --- RUTE PAGINI PRINCIPALE ---
 
 @app.route('/')
@@ -167,6 +188,7 @@ def inventar():
 # --- RUTE API & OPERAȚIUNI ---
 
 @app.route('/add_product', methods=['POST'])
+@roles_required('admin', 'owner')
 def add_product():
     # Preluăm datele din formular
     name = request.form['name']
@@ -206,6 +228,7 @@ def add_product():
     return redirect(url_for('index'))
 
 @app.route('/produse/nou', methods=['POST'])
+@roles_required('admin', 'owner')
 def produs_nou():
     name = request.form.get('name')
     sku = request.form.get('sku')
@@ -352,6 +375,7 @@ def inventory_omnisearch():
         conn.close()
 
 @app.route('/api/audit-save', methods=['POST'])
+@roles_required('admin', 'owner')
 def audit_save():
     data = request.json
     p_id = data.get('id')
@@ -903,25 +927,7 @@ def register():
         cur.close()
         conn.close()
 
-# --- DECORATOR PENTRU CONTROL ACCES PE ROLURI ---
-def roles_required(*roles):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            # Luăm rolul din sesiune și îl curățăm (litere mici + fără spații)
-            user_role = session.get('role', '').lower().strip()
-            
-            # Verificăm dacă rolul utilizatorului este în lista celor permise
-            if user_role not in [r.lower() for r in roles]:
-                # Dacă e o cerere API (JSON), returnăm un mesaj JSON de eroare
-                return jsonify({
-                    "status": "error", 
-                    "message": "Acces interzis! Doar Adminii sau Ownerii pot modifica prețurile."
-                }), 403
-                
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+
 
 
 
@@ -1167,6 +1173,7 @@ def add_category():
         conn.close()
         
 @app.route('/api/categorii/delete/<int:cat_id>', methods=['DELETE'])
+@roles_required('admin', 'owner')
 def delete_category(cat_id):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -1188,6 +1195,7 @@ def delete_category(cat_id):
         conn.close()
 
 @app.route('/api/receptii/add', methods=['POST'])
+@roles_required('admin', 'owner')
 def add_reception():
     data = request.json
     conn = get_db_connection()
@@ -1323,6 +1331,7 @@ def intrari_dashboard():
         conn.close()
 
 @app.route('/api/iesiri/add', methods=['POST'])
+@roles_required('admin', 'owner')
 def add_iesire():
     data = request.json
     
@@ -1682,6 +1691,7 @@ def get_stock_verificare():
 
 
 @app.route('/api/product-delete/<int:id>', methods=['DELETE'])
+@roles_required('admin', 'owner')
 def delete_product(id):
     conn = get_db_connection()
     if not conn:
