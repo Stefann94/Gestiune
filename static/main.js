@@ -125,7 +125,7 @@ function showToast(message, type = 'error') {
         style.innerHTML = `
             .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
             .toast-card { 
-                background: white; border-left: 5px solid #ef4444; color: #1e293b;
+                background: white; color: #1e293b;
                 padding: 16px 24px; border-radius: 12px; margin-top: 10px;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex;
                 align-items: center; gap: 12px; font-family: 'Plus Jakarta Sans', sans-serif;
