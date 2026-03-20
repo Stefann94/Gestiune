@@ -277,7 +277,7 @@ window.openLedgerModal = async function () {
                             <div>
                                 <div style="font-weight:700; color:#064e3b; font-size:0.95rem;">
                                     ${item.product_name} 
-                                    <span style="font-weight:400; color:#94a3b8; font-size:0.8rem; margin-left:5px;">[${item.sku || 'N/A'}]</span>
+                                    <span style="font-weight:400; color:#94a3b8; font-size:0.8rem; margin-left:5px;">${item.sku ? `[${item.sku}]` : ''} </span>
                                 </div>
                                 <div style="font-size:0.75rem; color:#64748b;">
                                     <i class="far fa-clock"></i> ${formattedDate}, ora ${formattedTime}
