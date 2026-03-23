@@ -991,6 +991,14 @@ def login():
     conn.close()
     return jsonify({"status": "error", "message": "Utilizator sau parolă incorectă!"}), 401  
 
+
+
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"status": "success"})
+
 @app.route('/api/get_all_users_with_roles', methods=['GET'])
 def get_all_users_with_roles():
     conn = get_db_connection()

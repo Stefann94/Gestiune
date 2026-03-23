@@ -599,9 +599,11 @@ html { scrollbar-gutter: stable; }
     });
 
     document.addEventListener("click", function (e) {
-        if (e.target.id === "logoutBtn") {
-            localStorage.removeItem("stockmaster_user");
-            location.reload();
+        if (e.target.id === "logoutBtn" || e.target.closest("#logoutBtn")) {
+            fetch('/api/logout', { method: 'POST' }).finally(() => {
+                localStorage.removeItem("stockmaster_user");
+                location.reload();
+            });
         }
     });
 };
